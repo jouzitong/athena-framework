@@ -2,10 +2,10 @@ package com.zhouzhitong.test.mybatis.bean;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.zhouzhitong.lib.mapper.anno.FieldComment;
-import com.zhouzhitong.lib.mapper.entity.BaseEntity;
-import com.zhouzhitong.lib.mapper.handler.DefaultJsonHandler;
 import lombok.Data;
+import org.authena.mybatis.BaseEntity;
+import org.authena.mybatis.anno.FieldComment;
+import org.authena.mybatis.handler.DefaultJsonHandler;
 
 /**
  * @author zhouzhitong

@@ -1,11 +1,11 @@
 package com.zhouzhitong.test.mybatis.service.impl;
 
-import com.zhouzhitong.lib.mapper.service.impl.MapperServiceImpl;
 import com.zhouzhitong.test.mybatis.bean.Person;
 import com.zhouzhitong.test.mybatis.dto.PersonDTO;
 import com.zhouzhitong.test.mybatis.mapper.PersonMapper;
 import com.zhouzhitong.test.mybatis.service.PersonService;
 import lombok.extern.slf4j.Slf4j;
+import org.authena.mybatis.service.impl.MapperServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**

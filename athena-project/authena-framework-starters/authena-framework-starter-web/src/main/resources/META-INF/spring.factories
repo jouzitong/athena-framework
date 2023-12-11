@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.msb.framework.web.WebAutoConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.authena.framework.web.WebAutoConfig

@@ -1,7 +1,7 @@
 package com.zhouzhitong.test.mybatis.bean;
 
 import lombok.Data;
-import org.arthena.lib.common.base.DBJson;
+import org.arthena.common.base.DBJson;
 
 /**
  * @author zhouzhitong

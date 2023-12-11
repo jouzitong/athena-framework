@@ -1,9 +1,9 @@
 package com.zhouzhitong.test.mybatis.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.zhouzhitong.lib.mapper.entity.dto.BaseDTO;
 import com.zhouzhitong.test.mybatis.bean.Address;
 import lombok.Data;
+import org.authena.mybatis.dto.BaseDTO;
 
 /**
  * @author zhouzhitong

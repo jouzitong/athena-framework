@@ -1,8 +1,8 @@
 package com.zhouzhitong.test.mybatis.service;
 
-import com.zhouzhitong.lib.mapper.service.MapperService;
 import com.zhouzhitong.test.mybatis.bean.Person;
 import com.zhouzhitong.test.mybatis.dto.PersonDTO;
+import org.authena.mybatis.service.MapperService;
 
 /**
  * @author zhouzhitong

@@ -1,10 +1,10 @@
 package com.zhouzhitong.test.mybatis.controller;
 
-import com.zhouzhitong.lib.mapper.base.BaseRequest;
 import com.zhouzhitong.test.mybatis.bean.Person;
 import com.zhouzhitong.test.mybatis.controller.base.BaseController;
 import com.zhouzhitong.test.mybatis.dto.PersonDTO;
 import com.zhouzhitong.test.mybatis.service.PersonService;
+import org.authena.mybatis.base.BaseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,8 +1,8 @@
 package com.zhouzhitong.test.mybatis.mapper;
 
-import com.zhouzhitong.lib.mapper.mapper.CrudMapper;
 import com.zhouzhitong.test.mybatis.bean.Person;
 import org.apache.ibatis.annotations.Mapper;
+import org.authena.mybatis.mapper.CrudMapper;
 
 /**
  * @author zhouzhitong

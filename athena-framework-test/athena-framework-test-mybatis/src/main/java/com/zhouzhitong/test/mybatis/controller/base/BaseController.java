@@ -1,10 +1,10 @@
 package com.zhouzhitong.test.mybatis.controller.base;
 
-import com.zhouzhitong.lib.mapper.base.BaseRequest;
-import com.zhouzhitong.lib.mapper.entity.BaseEntity;
-import com.zhouzhitong.lib.mapper.entity.dto.BaseDTO;
-import com.zhouzhitong.lib.mapper.service.MapperService;
-import com.zhouzhitong.lib.mapper.vo.PageResultVO;
+import org.authena.mybatis.BaseEntity;
+import org.authena.mybatis.base.BaseRequest;
+import org.authena.mybatis.dto.BaseDTO;
+import org.authena.mybatis.service.MapperService;
+import org.authena.mybatis.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
