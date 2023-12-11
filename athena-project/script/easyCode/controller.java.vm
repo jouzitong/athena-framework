@@ -1,0 +1,35 @@
+##导入宏定义
+$!{define.vm}
+
+##设置表后缀（宏定义）
+#setTableSuffix("Controller")
+
+##保存文件（宏定义）
+#save("/controller", "Controller.java")
+
+##包路径（宏定义）
+#setPackageSuffix("controller")
+
+##定义服务名
+#set($serviceName = $!tool.append($!tool.firstLowerCase($!tableInfo.name), "Service"))
+
+##定义实体对象名
+#set($entityName = $!tool.firstLowerCase($!tableInfo.name))
+
+import com.zhouzhitong.lib.mapper.controller.BaseController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import $!{tableInfo.savePackageName}.entity.$!tableInfo.name;
+import $!{tableInfo.savePackageName}.req.$!{tableInfo.name}Req;
+import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
+
+
+##表注释（宏定义）
+#tableComment("表控制层")
+@RestController
+@RequestMapping("/api/v1/$!tool.firstLowerCase($!tableInfo.name)")
+public class $!{tableName}
+    extends BaseController<$!tableInfo.name, $!{tableInfo.name}Service, $!{tableInfo.name}Req>{
+
+
+}

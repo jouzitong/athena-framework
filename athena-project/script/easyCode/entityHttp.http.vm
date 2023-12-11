@@ -1,0 +1,58 @@
+##引入mybatis支持
+$!{mybatisSupport.vm}
+
+##设置保存名称与保存位置
+$!callback.setFileName($tool.append($!{tableInfo.name}, "Mapper.xml"))
+$!callback.setSavePath($tool.append($modulePath, "/src/main/resources/http"))
+
+
+POST {{host}}$!{tableInfo.name}s
+Content-Type: application/json;charset=UTF-8
+
+{
+#foreach($column in $tableInfo.fullColumn)
+    #if(${column.name} == "id"
+    ||$!{column.name} == "createTime"
+    ||${column.name} == "updateTime"
+    ||${column.name} == "createdBy"
+    ||${column.name} == "locale"
+    ||${column.name} == "lastModifiedBy"
+    ||${column.name} == "version"
+    ||${column.name} == "deleted")
+    #else
+        #if(!(${column.name} == "no" && ${isLocale}))
+        "$!{column.name}": $!{tool.getClsNameByFullName($column.type)},
+        #end
+    #end
+#end
+
+}
+
+PUT {{host}}permissions/1
+Content-Type: application/json;charset=UTF-8
+
+{
+  "name": "test-1",
+  "description": "权限描述",
+  "type": 1,
+  "url": "权限url-adasd",
+  "sequence": 100,
+  "display": "1",
+  "version": 2,
+  "authorities": [
+    {
+      "method": "GET",
+      "url": "/api/v1/permissions/{id}"
+    }
+  ]
+}
+
+### 3. 删除权限
+DELETE {{host}}permissions/1
+
+### 4. 查询权限
+GET {{host}}permissions/1
+
+### 5. 查询权限列表
+GET {{host}}permissions?page=2&size=1&sorts=id desc
+Content-Type: text/plain

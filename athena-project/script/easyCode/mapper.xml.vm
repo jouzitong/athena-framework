@@ -1,0 +1,65 @@
+##引入mybatis支持
+$!{mybatisSupport.vm}
+
+##设置保存名称与保存位置
+$!callback.setFileName($tool.append($!{tableInfo.name}, "Mapper.xml"))
+$!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
+
+##拿到主键
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $tableInfo.pkColumn.get(0))
+#end
+
+#set($size = $tableInfo.fullColumn.size())
+#set($i = 1)
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="$!{tableInfo.savePackageName}.mapper.$!{tableInfo.name}Mapper">
+
+        <resultMap type="$!{tableInfo.savePackageName}.entity.$!{tableInfo.name}" id="$!{tableInfo.name}Map">
+            #foreach($column in $tableInfo.fullColumn)
+                <result property="$!{column.name}" column="$!column.obj.name" jdbcType="$!{column.ext.jdbcType}"#if($!{column.ext.sqlType}=='json') typeHandler="com.zhouzhitong.lib.mapper.handler.DefaultJsonHandler" #end/>
+            #end
+        </resultMap>
+
+        <sql id="column">
+                #foreach($column in ${tableInfo.fullColumn}) #set($i = ${i}+1)
+                    #if($!i <= $!size) `$!{column.obj.name}`,
+    #else `$!{column.obj.name}`
+    #end#end
+        </sql>
+
+        <sql id="where">
+            <where>
+                #foreach($column in ${tableInfo.fullColumn})
+                    <if test="$!{column.name} != null">
+                        and `$!{column.obj.name}` = #{$!{column.name}}
+                    </if>
+                #end
+                <if test="sorts != null and sorts.size > 0)">
+                    order by
+                    <foreach collection="sorts" item="sort" separator=", ">
+                        `#{sort.column}` #{sort.sort}
+                    </foreach>
+                </if>
+
+                <if test="size != null and current != null">
+                    limit #{current},#{size}
+                </if>
+            </where>
+        </sql>
+
+        <!-- 软删除 -->
+        <delete id="remove" >
+            update $!{tableInfo.obj.parent.name}.$!{tableInfo.obj.name}
+            set `deleted` = 1
+            <include refid="where"/>
+        </delete>
+
+        <!-- 分页查询 -->
+        <select id="pageQuery" resultMap="$!{tableInfo.name}Map">
+            select <include refid="column"/> from $!{tableInfo.obj.name}
+            <include refid="where"/>
+        </select>
+
+    </mapper>

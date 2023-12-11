@@ -1,0 +1,63 @@
+##导入宏定义
+$!{define.vm}
+
+##保存文件（宏定义）
+#save("/entity", ".java")
+
+##包路径（宏定义）
+#setPackageSuffix("entity")
+
+#set($isLocale = false)
+
+#foreach($column in $tableInfo.fullColumn)
+    #if(${column.name} == "locale")
+        #set($isLocale = true)
+    #end
+#end
+
+##自动导入包（全局变量）
+$!{autoImport.vm}
+#if (${isLocale})
+import com.zhouzhitong.lib.mapper.entity.BaseLocaleEntity;
+#else
+import com.zhouzhitong.lib.mapper.entity.BaseEntity;
+#end
+
+import java.io.Serializable;
+
+import lombok.Setter;
+import lombok.Getter;
+import lombok.ToString;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+##表注释（宏定义）
+#tableComment("表实体类")
+@Setter
+@Getter
+@ToString(callSuper = true)
+@TableName(value = "$!{tableInfo.obj.name}",resultMap = "$!{tableInfo.savePackageName}.mapper.$!{tableInfo.name}Mapper.$!{tableInfo.name}Map")
+public class $!{tableInfo.name} extends #if (${isLocale}) BaseLocaleEntity #else BaseEntity #end{
+
+
+#foreach($column in $tableInfo.fullColumn)
+    #if(${column.name} == "id"
+    ||$!{column.name} == "createTime"
+    ||${column.name} == "updateTime"
+    ||${column.name} == "createdBy"
+    ||${column.name} == "locale"
+    ||${column.name} == "lastModifiedBy"
+    ||${column.name} == "version"
+    ||${column.name} == "deleted")
+    #else
+        #if(!(${column.name} == "no" && ${isLocale}))
+            #if(${column.comment})
+            /**
+             * ${column.comment}
+             */
+            #end
+        private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
+        #end
+
+    #end
+#end
+}

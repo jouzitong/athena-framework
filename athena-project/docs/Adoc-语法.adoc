@@ -1,0 +1,189 @@
+= Asciidoc语法
+:author: JouZiton
+:doctype: 类型
+:encoding: utf-8
+:lang: 中文
+:numbered: 编号
+:stem: latexmath
+:icons: font
+:source-highlighter: coderay
+:sectnums:
+:sectlinks:
+:sectnumlevels: 4
+:toc: left
+:toc-title: Asciidoc语法
+:toclevels: 3
+
+
+
+== 文章纲领
+
+[colophon]
+=== 出版社
+xxxx出版社.
+
+[preface]
+=== 前言
+
+可选的前言.
+
+[glossary]
+斜杠青年::
+形容一个人拥有很多身份。
+
+我太难了::
+形容一个人很难。
+
+
+[dedication]
+=== 献词
+
+可选择的献词。
+
+
+[appendix]
+=== 附录1
+
+[appendix]
+=== 附录2
+
+一个或多个附录
+
+
+[bibliography]
+.Books
+- [[[taoup]]] Eric Steven Raymond. 'The Art of Unix
+Programming'. Addison-Wesley. ISBN 0-13-142901-9.
+- [[[walsh-muellner]]] Norman Walsh & Leonard Muellner.
+'DocBook - The Definitive Guide'. O'Reilly & Associates. 1999.
+ISBN 1-56592-580-7.
+
+[index]
+=== 索引
+
+索引通常完全为空，其内容为由DocBook工具链自动生成。
+
+
+
+
+== 正文内容
+
+=== 代码块
+
+[source,go]
+----
+fmt.Println("hello adoc")
+----
+
+=== 列表
+
+. 有序列表1
+. 有序列表2
+
+'''
+
+* 无序列表1
+* 无序列表2
+
+=== 链接
+
+http://www.baidu.com[百度官网]
+
+=== 图片
+
+image::spring-framework.png[第一张图片]
+
+
+=== 表格
+
+
+.表格1
+[options="header,footer"]
+|=======================
+|列 1 |列 2       |列 3
+|1    |Item 1     |a
+|2    |Item 2     |b
+|3    |Item 3     |c
+|6    |Three items|d
+|=======================
+
+
+.表格2
+|====
+|日期 |持续时间 |平均时间 |备注
+|22-Aug-08 .2+^.^|10:24 | 157 |备注
+|22-Aug-08 | 152 |备注
+|24-Aug-08 3+^|none
+|====
+
+=== 块(blocks)
+
+++++
+1. 通过。。。
+++++
+
+==== 边栏(sidebar)
+
+.标题 - 边栏
+****
+内容。。。。。
+****
+
+
+==== 实例(Example)
+
+.标题
+====
+例如：
+====
+
+==== 引用(quote)
+
+[quote,PDD]
+____
+写文章，它不香吗？
+____
+
+
+=== 警告(admonitions)
+
+==== 基本（Note）
+
+[NOTE]
+====
+基本信息
+====
+
+==== 提示(Tip)
+
+[TIP]
+====
+提示信息
+====
+
+
+==== 重要(Important)
+
+[IMPORTANT]
+====
+重要信息
+====
+
+==== 注意(Caution)
+
+[CAUTION]
+====
+注意信息
+====
+
+==== 警告(Warning)
+
+[WARNING]
+====
+警告信息
+====
+
+=== 文档助手(Document Helpers)
+
+
+

@@ -1,0 +1,93 @@
+package com.zhouzhitong.lib.mapper.utils;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.arthena.lib.common.properties.LocaleProperties;
+import org.arthena.lib.common.exception.TodoException;
+import org.arthena.lib.common.service.impl.ApplicationContextProvider;
+import com.zhouzhitong.lib.mapper.base.BaseRequest;
+import com.zhouzhitong.lib.mapper.base.FiledQuery;
+import com.zhouzhitong.lib.mapper.base.Sort;
+import com.zhouzhitong.lib.mapper.type.QueryType;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @author zhouzhitong
+ * @since 2023/2/13
+ */
+@Service
+@Slf4j
+public class MybatisPlusWrapperUtils implements CommandLineRunner {
+
+    private static LocaleProperties localeProperties;
+
+    @Override
+    public void run(String... args) throws Exception {
+        localeProperties = ApplicationContextProvider.getBean(LocaleProperties.class);
+    }
+
+    public static <T> QueryWrapper<T> simpleQuery() {
+        QueryWrapper<T> wrapper = new QueryWrapper<>();
+        wrapper.eq("deleted", 0);
+        return wrapper;
+    }
+
+    public static <T> QueryWrapper<T> localeQuery() {
+        QueryWrapper<T> wrapper = new QueryWrapper<>();
+        wrapper.eq("deleted", 0);
+        return wrapper;
+    }
+
+    public static <T> QueryWrapper<T> simpleQuery(BaseRequest query) {
+        QueryWrapper<T> wrapper = simpleQuery();
+        return buildQueryWrapper(wrapper, query);
+    }
+
+    public static <T> QueryWrapper<T> localeQuery(BaseRequest query) {
+        QueryWrapper<T> wrapper = localeQuery();
+        return buildQueryWrapper(wrapper, query);
+    }
+
+    private static <T> QueryWrapper<T> buildQueryWrapper(QueryWrapper<T> wrapper, BaseRequest query) {
+        if (query == null) {
+            return wrapper;
+        }
+
+        List<Sort> sorts = query.getSorts();
+        sorts.forEach(sort -> {
+            if (sort.isAsc()) {
+                wrapper.orderByAsc(sort.getColumn());
+            } else {
+                wrapper.orderByDesc(sort.getColumn());
+            }
+        });
+
+        List<FiledQuery> fieldQueries = query.getFiledQueries();
+        fieldQueries.forEach(filedQuery -> {
+            String fieldName = filedQuery.getFiledName();
+            Object value = filedQuery.getValue();
+            QueryType type = filedQuery.getType();
+
+            switch (type) {
+                case EQ -> wrapper.eq(fieldName, value);
+                case NE -> wrapper.ne(fieldName, value);
+                case GT -> wrapper.gt(fieldName, value);
+                case GE -> wrapper.ge(fieldName, value);
+                case LT -> wrapper.lt(fieldName, value);
+                case LE -> wrapper.le(fieldName, value);
+                case LIKE -> wrapper.like(fieldName, value);
+                case IN -> wrapper.in(fieldName, value);
+                case NOT_IN -> wrapper.notIn(fieldName, value);
+                case IS_NULL -> wrapper.isNull(fieldName);
+                case IS_NOT_NULL -> wrapper.isNotNull(fieldName);
+                default -> throw new TodoException();
+            }
+        });
+
+        return wrapper;
+    }
+}
+

@@ -1,0 +1,58 @@
+##导入宏定义
+$!{define.vm}
+
+##保存文件（宏定义）
+#save("/dto", "DTO.java")
+
+##包路径（宏定义）
+#setPackageSuffix("dto")
+#set($isLocale = false)
+
+#foreach($column in $tableInfo.fullColumn)
+    #if(${column.name} == "locale")
+        #set($isLocale = true)
+    #end
+#end
+
+##自动导入包（全局变量）
+$!{autoImport.vm}
+
+#if (${isLocale})
+import com.zhouzhitong.lib.common.dto.BaseLocaleDTO;
+#else
+import com.zhouzhitong.lib.common.dto.BaseDTO;
+#end
+import java.io.Serializable;
+
+import lombok.Setter;
+import lombok.Getter;
+import lombok.ToString;
+
+##表注释（宏定义）
+#tableComment("DTO")
+@Setter
+@Getter
+@ToString(callSuper = true)
+public class $!{tableInfo.name}DTO extends #if (${isLocale}) BaseLocaleDTO #else BaseDTO #end{
+
+    #foreach($column in $tableInfo.fullColumn)
+        #if(${column.name} == "id"
+        ||$!{column.name} == "createTime"
+        ||${column.name} == "updateTime"
+        ||${column.name} == "createdBy"
+        ||${column.name} == "lastModifiedBy"
+        ||${column.name} == "version"
+        ||${column.name} == "locale"
+        ||${column.name} == "deleted")
+        #else
+            #if(!(${column.name} == "no" && ${isLocale}))
+                #if(${column.comment})
+                    /**
+                     * ${column.comment}
+                     */
+                #end
+                private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
+            #end
+        #end
+    #end
+}

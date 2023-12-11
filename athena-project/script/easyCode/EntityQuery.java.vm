@@ -1,0 +1,42 @@
+##导入宏定义
+$!{define.vm}
+
+##保存文件（宏定义）
+#save("/query", "Query.java")
+
+##包路径（宏定义）
+#setPackageSuffix("query")
+
+##自动导入包（全局变量）
+$!{autoImport.vm}
+
+import com.zhouzhitong.lib.mapper.base.BaseQuery;
+import lombok.Setter;
+import lombok.Getter;
+import lombok.ToString;
+
+##表注释（宏定义）
+#tableComment(" 请求参数")
+@Setter
+@Getter
+@ToString(callSuper = true)
+public class $!{tableInfo.name}Query extends BaseQuery {
+
+    #foreach($column in $tableInfo.fullColumn)
+        #if(${column.name} == "id"
+        ||$!{column.name} == "createTime"
+        ||$!{column.name} == "updateTime"
+        ||$!{column.name} == "createdBy"
+        ||$!{column.name} == "lastModifiedBy"
+        ||$!{column.name} == "version"
+        ||$!{column.name} == "deleted")
+        #else
+            #if(${column.comment})
+                /**
+                 * ${column.comment}
+                 */
+            #end
+            private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
+        #end
+    #end
+}
