@@ -73,9 +73,9 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
      * 版本
      */
 
-    @Version
-    @FieldComment("bigint default 0' not null comment '版本'")
-    protected long version = 0;
+//    @Version
+//    @FieldComment("bigint default 0' not null comment '版本'")
+//    protected Long version = 0L;
 
     /**
      * 软删除 0-未删除，1-已删除
@@ -94,7 +94,8 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
     }
 
     public long getAndIncrementVersion() {
-        return ++version;
+//        return ++version;
+        return -1L;
     }
 
 }

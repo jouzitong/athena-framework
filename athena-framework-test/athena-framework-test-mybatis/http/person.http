@@ -1,0 +1,31 @@
+### 1. 新增
+POST {{host}}test/persons
+Content-Type: application/json;charset=UTF-8
+
+{
+  "name": "test",
+  "age": 18,
+  "phone": "12345678901",
+  "address": {
+    "province": "北京",
+    "city": "北京",
+    "district": "朝阳区"
+  }
+}
+
+### 2. 修改
+PUT {{host}}test/persons/1
+Content-Type: application/json;charset=UTF-8
+
+{
+}
+
+### 3. 删除权限
+DELETE {{host}}test/persons/1
+
+### 4. 查询权限
+GET {{host}}test/persons
+
+### 5. 查询权限列表
+GET {{host}}test/persons?page=1&size=10&sorts=id:asc
+Content-Type: text/plain

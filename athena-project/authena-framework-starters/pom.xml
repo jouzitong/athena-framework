@@ -16,4 +16,5 @@
         <module>authena-framework-starter-mybatis</module>
         <module>authena-framework-starter-web</module>
     </modules>
+
 </project>

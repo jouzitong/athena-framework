@@ -1,15 +1,12 @@
 package com.zhouzhitong.lib.mapper.utils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.arthena.lib.common.properties.LocaleProperties;
-import org.arthena.lib.common.exception.TodoException;
-import org.arthena.lib.common.service.impl.ApplicationContextProvider;
 import com.zhouzhitong.lib.mapper.base.BaseRequest;
 import com.zhouzhitong.lib.mapper.base.FiledQuery;
 import com.zhouzhitong.lib.mapper.base.Sort;
 import com.zhouzhitong.lib.mapper.type.QueryType;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
+import org.arthena.lib.common.exception.TodoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +17,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class MybatisPlusWrapperUtils implements CommandLineRunner {
-
-    private static LocaleProperties localeProperties;
-
-    @Override
-    public void run(String... args) throws Exception {
-        localeProperties = ApplicationContextProvider.getBean(LocaleProperties.class);
-    }
+public class MybatisPlusWrapperUtils {
 
     public static <T> QueryWrapper<T> simpleQuery() {
         QueryWrapper<T> wrapper = new QueryWrapper<>();

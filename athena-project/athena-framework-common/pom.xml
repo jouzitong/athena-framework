@@ -13,6 +13,18 @@
 
     <description>框架的通用依赖</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <artifactId>framework-dependencies</artifactId>
+                <groupId>org.athena</groupId>
+                <version>1.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <!-- web 请求参数校验依赖 -->

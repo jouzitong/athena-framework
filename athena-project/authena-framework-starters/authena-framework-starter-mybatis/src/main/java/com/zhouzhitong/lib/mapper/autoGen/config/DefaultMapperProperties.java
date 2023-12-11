@@ -21,7 +21,7 @@ public class DefaultMapperProperties {
     /**
      * 是否开启创建表的ddl
      */
-    private boolean enableCreateTableDdl = false;
+    private boolean enableCreateTableDdl = true;
 
     /**
      * 指定数据类型: 目前支持 mysql
@@ -31,7 +31,7 @@ public class DefaultMapperProperties {
     /**
      * 创建表 ddl 的文件目录
      */
-    private String tableDDLPathFile;
+    private String tableDDLPathFile = "config/dd.sql";
 
     /**
      * 是否开启自动更新表

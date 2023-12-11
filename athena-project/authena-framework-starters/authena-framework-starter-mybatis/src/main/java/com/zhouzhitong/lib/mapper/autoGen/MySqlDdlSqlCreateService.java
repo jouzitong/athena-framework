@@ -1,10 +1,11 @@
 package com.zhouzhitong.lib.mapper.autoGen;
 
+import com.zhouzhitong.lib.mapper.autoGen.config.FieldTypeMap;
 import com.zhouzhitong.lib.mapper.autoGen.config.GenTypeConfig;
 import com.zhouzhitong.lib.mapper.autoGen.config.MySqlGenDdlConfig;
-import com.zhouzhitong.lib.mapper.autoGen.config.FieldTypeMap;
 import com.zhouzhitong.lib.mapper.entity.BaseEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2023-11-12
  **/
-//@Service
+@Service
 @Slf4j
 public class MySqlDdlSqlCreateService extends BaseDdlSqlCreateService {
     private final GenTypeConfig config = new MySqlGenDdlConfig();

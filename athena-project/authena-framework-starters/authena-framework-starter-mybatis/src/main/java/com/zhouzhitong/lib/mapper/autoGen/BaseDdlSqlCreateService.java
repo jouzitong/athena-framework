@@ -40,6 +40,7 @@ public abstract class BaseDdlSqlCreateService {
         String userDir = System.getProperty("user.dir");
         // 如果前缀没有 / 则添加
         String ddlSqlPath = mapperProperties.getTableDDLPathFile();
+
         if (!ddlSqlPath.startsWith("/")) {
             userDir += "/";
         }
