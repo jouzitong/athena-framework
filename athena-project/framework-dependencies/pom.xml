@@ -7,13 +7,14 @@
     <packaging>pom</packaging>
     <artifactId>framework-dependencies</artifactId>
     <groupId>org.athena</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
+
     <description>框架版本依赖管理</description>
 
     <properties>
         <!-- 基本环境变量 -->
         <!-- 服务版本号 -->
-        <revision>1.0-SNAPSHOT</revision>
+        <revision>1.1.0</revision>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
