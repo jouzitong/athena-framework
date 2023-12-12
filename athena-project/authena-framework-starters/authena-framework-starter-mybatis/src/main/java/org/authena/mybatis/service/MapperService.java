@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.arthena.common.context.SystemContext;
 import org.arthena.common.utils.BeanUtils;
-import org.authena.mybatis.BaseEntity;
+import org.authena.mybatis.entity.BaseEntity;
 import org.authena.mybatis.base.BaseRequest;
 import org.authena.mybatis.dto.BaseDTO;
 import org.authena.mybatis.utils.MybatisPlusWrapperUtils;

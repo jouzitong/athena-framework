@@ -1,6 +1,6 @@
 package com.zhouzhitong.test.mybatis.controller.base;
 
-import org.authena.mybatis.BaseEntity;
+import org.authena.mybatis.entity.BaseEntity;
 import org.authena.mybatis.base.BaseRequest;
 import org.authena.mybatis.dto.BaseDTO;
 import org.authena.mybatis.service.MapperService;

@@ -10,6 +10,7 @@ CREATE TABLE person (
 	name varchar(64),
 	age integer,
 	phone varchar(64),
+	gender integer,
 	address json
 );
 

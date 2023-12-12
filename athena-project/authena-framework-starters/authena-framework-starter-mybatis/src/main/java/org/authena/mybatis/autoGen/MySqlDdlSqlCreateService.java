@@ -1,10 +1,10 @@
-package org.authena.mybatis;
+package org.authena.mybatis.autoGen;
 
 import lombok.extern.slf4j.Slf4j;
-import org.authena.mybatis.config.FieldTypeMap;
-import org.authena.mybatis.config.GenTypeConfig;
-import org.authena.mybatis.config.MySqlGenDdlConfig;
-import org.springframework.stereotype.Service;
+import org.authena.mybatis.autoGen.config.FieldTypeMap;
+import org.authena.mybatis.autoGen.config.GenTypeConfig;
+import org.authena.mybatis.autoGen.config.MySqlGenDdlConfig;
+import org.authena.mybatis.entity.BaseEntity;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2023-11-12
  **/
-@Service
+//@Service
 @Slf4j
 public class MySqlDdlSqlCreateService extends BaseDdlSqlCreateService {
     private final GenTypeConfig config = new MySqlGenDdlConfig();

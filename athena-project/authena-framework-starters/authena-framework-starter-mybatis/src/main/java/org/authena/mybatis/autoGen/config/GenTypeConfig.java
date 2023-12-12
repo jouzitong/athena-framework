@@ -1,4 +1,4 @@
-package org.authena.mybatis.config;
+package org.authena.mybatis.autoGen.config;
 
 /**
  *

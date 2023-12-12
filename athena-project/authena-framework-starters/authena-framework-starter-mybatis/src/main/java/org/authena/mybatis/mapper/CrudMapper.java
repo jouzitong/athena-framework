@@ -1,7 +1,7 @@
 package org.authena.mybatis.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.authena.mybatis.BaseEntity;
+import org.authena.mybatis.entity.BaseEntity;
 
 /**
  * 基础的crud, 所有的 mapper 都应该继承它

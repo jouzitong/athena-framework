@@ -1,4 +1,4 @@
-package org.authena.mybatis.config;
+package org.authena.mybatis.autoGen.config;
 
 /**
  * 数据库字段类型映射配置

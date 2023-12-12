@@ -1,13 +1,13 @@
 package org.authena.framework.web;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * @author liao
  */
-@Configuration
-@ComponentScan(basePackages = "com.msb.framework.web")
+@AutoConfiguration
+@ComponentScan(basePackages = "org.authena.framework.web")
 public class WebAutoConfig {
 
 }

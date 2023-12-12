@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
  * @since 2023-12-11
  **/
 @Configuration
-@ComponentScan("org.arthena.lib.common")
+@ComponentScan("org.arthena.common")
 public class CommonAutoConfiguration {
 }

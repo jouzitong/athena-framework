@@ -1,11 +1,12 @@
-package org.authena.mybatis;
+package org.authena.mybatis.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.authena.mybatis.anno.FieldComment;
-import org.springframework.data.annotation.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -32,7 +33,7 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
     /**
      * 主键
      */
-    @Id
+    @TableId(type = IdType.AUTO)
     protected Long id;
 
     /**
@@ -40,7 +41,6 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
      */
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @CreatedDate
     @FieldComment("datetime default CURRENT_TIMESTAMP not null comment '创建时间'")
     protected LocalDateTime createTime;
 
@@ -49,7 +49,6 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
      */
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @LastModifiedDate
     @FieldComment("datetime default CURRENT_TIMESTAMP not null comment '修改时间'")
     protected LocalDateTime updateTime;
 
@@ -57,15 +56,12 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
      * 创建者
      */
 
-    @CreatedBy
     @FieldComment("bigint default 1' not null comment '创建者'")
     protected Long createdBy = 0L;
 
     /**
      * 修改者
      */
-
-    @LastModifiedBy
     @FieldComment("bigint default 1' not null comment '修改者'")
     protected Long lastModifiedBy =0L;
 

@@ -1,4 +1,4 @@
-package org.authena.mybatis;
+package org.authena.mybatis.autoGen;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.annotation.PostConstruct;
@@ -7,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.common.utils.FileUtils;
 import org.arthena.common.utils.PackageUtil;
-import org.authena.mybatis.config.DefaultMapperProperties;
+import org.authena.mybatis.autoGen.config.DefaultMapperProperties;
+import org.authena.mybatis.entity.BaseEntity;
 import org.springframework.context.annotation.Description;
 
 import java.io.BufferedWriter;

@@ -6,6 +6,7 @@ Content-Type: application/json;charset=UTF-8
   "name": "test",
   "age": 18,
   "phone": "12345678901",
+  "gender": 1,
   "address": {
     "province": "北京",
     "city": "北京",
