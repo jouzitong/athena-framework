@@ -3,7 +3,7 @@ package com.zhouzhitong.test.mybatis.dto;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.bean.Address;
 import lombok.Data;
-import org.authena.mybatis.dto.BaseDTO;
+import org.athena.framework.mybatis.dto.BaseDTO;
 
 /**
  * @author zhouzhitong

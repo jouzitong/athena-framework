@@ -3,7 +3,7 @@ package com.zhouzhitong.test.mybatis.type;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
-import org.arthena.common.base.BaseEnum;
+import org.arthena.framework.common.base.BaseEnum;
 
 /**
  * @author zhouzhitong

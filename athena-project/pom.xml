@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>athena-framework-common</module>
-        <module>authena-framework-starters</module>
+        <module>athena-framework-starters</module>
     </modules>
 
 

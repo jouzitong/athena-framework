@@ -8,6 +8,10 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/athena-project/authena-framework-starters/authena-framework-starter-mybatis/pom.xml" />
+        <option value="$PROJECT_DIR$/athena-project/authena-framework-starters/authena-framework-starter-web/pom.xml" />
+        <option value="$PROJECT_DIR$/athena-project/authena-framework-starters/pom.xml" />
+        <option value="$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-mybatis/pom.xml" />
       </list>
     </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />

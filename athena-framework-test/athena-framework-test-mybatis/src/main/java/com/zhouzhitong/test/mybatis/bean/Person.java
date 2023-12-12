@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.type.Gender;
 import lombok.Data;
-import org.authena.mybatis.entity.BaseEntity;
-import org.authena.mybatis.anno.FieldComment;
-import org.authena.mybatis.handler.DefaultJsonHandler;
+import org.athena.framework.mybatis.anno.FieldComment;
+import org.athena.framework.mybatis.entity.BaseEntity;
+import org.athena.framework.mybatis.handler.DefaultJsonHandler;
 
 /**
  * @author zhouzhitong

@@ -1,7 +1,7 @@
 package com.zhouzhitong.test.mybatis.mapper;
 
 import com.zhouzhitong.test.mybatis.bean.Person;
-import org.authena.mybatis.mapper.CrudMapper;
+import org.athena.framework.mybatis.mapper.CrudMapper;
 
 /**
  * @author zhouzhitong
