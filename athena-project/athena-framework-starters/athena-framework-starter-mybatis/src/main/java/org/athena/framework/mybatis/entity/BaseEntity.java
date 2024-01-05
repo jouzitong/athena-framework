@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
-import org.athena.framework.mybatis.anno.FieldComment;
+import org.athena.framework.mybatis.annotation.FieldComment;
 
 import java.io.Serial;
 import java.io.Serializable;

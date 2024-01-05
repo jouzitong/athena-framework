@@ -1,11 +1,11 @@
-package org.athena.framework.mybatis.anno;
+package org.athena.framework.mybatis.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.*;
 
 /**
- * 表字段描述
+ * 表字段描述. 这个类在自动创建表字段时有作用
  *
  * @author zhouzhitong
  * @since 2023-11-20
