@@ -10,6 +10,7 @@ import org.athena.framework.mybatis.dto.BaseDTO;
 import org.athena.framework.mybatis.entity.BaseEntity;
 import org.athena.framework.mybatis.utils.MybatisPlusWrapperUtils;
 import org.athena.framework.mybatis.vo.PageResultVO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,6 +60,7 @@ public interface MapperService<
      * @param dto DTO
      * @return DTO
      */
+    @Transactional(rollbackFor = Exception.class)
     DTO add(DTO dto);
 
     /**
@@ -68,6 +70,7 @@ public interface MapperService<
      * @param dto DTO
      * @return DTO
      */
+    @Transactional(rollbackFor = Exception.class)
     DTO update(Long id, DTO dto);
 
     /**
@@ -77,6 +80,7 @@ public interface MapperService<
      * @param dto DTO
      * @return  DTO
      */
+    @Transactional(rollbackFor = Exception.class)
     DTO edit(Long id, DTO dto);
 
     /**
@@ -113,6 +117,7 @@ public interface MapperService<
      * @param id 编号
      * @return 是否成功
      */
+    @Transactional(rollbackFor = Exception.class)
     default boolean remove(Long id) {
         Entity entity = getById(id);
         entity.setDeleted(1);

@@ -3,14 +3,13 @@ package com.zhouzhitong.test.mybatis;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @author zhouzhitong
  * @since 2023-12-11
  **/
 @SpringBootApplication
-@ComponentScan({"org.athena"})
+//@ComponentScan({"org.athena"})
 @MapperScan("com.zhouzhitong.test.mybatis.mapper")
 public class MybatisTestApplication {
 

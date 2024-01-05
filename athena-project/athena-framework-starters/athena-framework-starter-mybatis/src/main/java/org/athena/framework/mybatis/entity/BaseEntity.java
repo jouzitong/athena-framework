@@ -39,7 +39,6 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
     /**
      * 记录创建时间
      */
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @FieldComment("datetime default CURRENT_TIMESTAMP not null comment '创建时间'")
     protected LocalDateTime createTime;

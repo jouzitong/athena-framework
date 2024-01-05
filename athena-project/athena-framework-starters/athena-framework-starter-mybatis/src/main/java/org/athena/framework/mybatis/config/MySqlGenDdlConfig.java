@@ -55,6 +55,7 @@ public class MySqlGenDdlConfig implements GenTypeConfig {
         if ((res = fieldTypeMap.get(c)) != null) {
             return res;
         }
+        // 尝试通过接口, 父类获取
         Class<?>[] interfaces = c.getInterfaces();
         for (Class<?> anInterface : interfaces) {
             res = get(anInterface);

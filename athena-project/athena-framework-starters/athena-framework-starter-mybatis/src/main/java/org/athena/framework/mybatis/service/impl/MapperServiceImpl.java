@@ -51,7 +51,6 @@ public abstract class MapperServiceImpl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public DTO add(DTO dto) {
         LOGGER.info("add request: {}", dto);
         // 创建一个实体
