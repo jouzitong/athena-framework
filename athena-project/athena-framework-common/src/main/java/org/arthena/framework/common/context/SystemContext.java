@@ -33,6 +33,14 @@ public class SystemContext {
      */
     private static volatile Boolean isRunning = false;
 
+    public static void set(UserContext uc) {
+        USER_CONTEXT_THREAD_LOCAL.set(uc);
+    }
+
+    public static void remove() {
+        USER_CONTEXT_THREAD_LOCAL.remove();
+    }
+
     /**
      * 获取当前操作用户
      *

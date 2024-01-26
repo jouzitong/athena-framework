@@ -17,7 +17,7 @@ public class PackageUtil {
      * 获取抽象类的所有子类
      *
      * @param abstractClass 抽象类
-     * @return 子类列表
+     * @return 子类所在列表
      */
     public static List<Class<?>> getSubClasses(Class<?> abstractClass, List<String> packageNames) {
         List<Class<?>> subClasses = new ArrayList<>();

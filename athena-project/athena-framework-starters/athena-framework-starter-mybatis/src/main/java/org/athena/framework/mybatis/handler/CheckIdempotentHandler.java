@@ -1,4 +1,4 @@
-package org.athena.framework.mybatis.handler;//package com.zhouzhitong.lib.mapper.handler;
+//package org.athena.framework.mybatis.handler;//package com.zhouzhitong.lib.mapper.handler;
 //
 //import com.zhouzhitong.lib.common.base.Idempotent;
 //import com.zhouzhitong.lib.common.constant.CodeConstant;
