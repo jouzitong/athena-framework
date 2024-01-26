@@ -1,9 +1,12 @@
-package org.athena.framework.mybatis.config;
+package org.athena.framework.mybatis.autoGen.mysql;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import org.arthena.framework.common.base.BaseEnum;
+import org.athena.framework.mybatis.autoGen.DatabaseTypeMapConfig;
+import org.athena.framework.mybatis.properties.DefaultMapperProperties;
+import org.athena.framework.mybatis.properties.FieldTypeMap;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -35,7 +38,7 @@ public class MySqlDatabaseMapConfig implements DatabaseTypeMapConfig {
     }
 
     @PostConstruct
-    public void loadProperties(){
+    public void loadTypeMap(){
         List<FieldTypeMap> fieldTypeMaps = mapperProperties.getFieldTypeMaps();
         if (fieldTypeMaps==null){
             return;
@@ -45,7 +48,7 @@ public class MySqlDatabaseMapConfig implements DatabaseTypeMapConfig {
         }
     }
 
-    public void init() {
+    private void init() {
         // 初始化 常见的Bean实体字段类型与 mysql 数据库字段类型的映射
         fieldTypeMap.put(Long.class, new FieldTypeMap(Long.class, "bigint"));
         fieldTypeMap.put(Integer.class, new FieldTypeMap(Integer.class, "int"));
@@ -58,6 +61,7 @@ public class MySqlDatabaseMapConfig implements DatabaseTypeMapConfig {
         list.add(Integer.class, "json");
         list.add(String.class, "json");
         fieldTypeMap.put(List.class, list);
+        fieldTypeMap.put(Object.class, new FieldTypeMap("json"));
         fieldTypeMap.put(BaseEnum.class, new FieldTypeMap(BaseEnum.class, "int"));
         fieldTypeMap.put(Enum.class, new FieldTypeMap(BaseEnum.class, "int"));
     }
@@ -68,7 +72,7 @@ public class MySqlDatabaseMapConfig implements DatabaseTypeMapConfig {
             return fieldTypeMap.get(null);
         }
         if (Object.class == c) {
-            return null;
+            return fieldTypeMap.get(c);
         }
         FieldTypeMap res;
         if ((res = fieldTypeMap.get(c)) != null) {

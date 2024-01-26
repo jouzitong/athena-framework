@@ -1,4 +1,6 @@
-package org.athena.framework.mybatis.config;
+package org.athena.framework.mybatis.autoGen;
+
+import org.athena.framework.mybatis.properties.FieldTypeMap;
 
 /**
  * 数据库字段类型映射配置

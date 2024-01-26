@@ -1,4 +1,4 @@
-package org.athena.framework.mybatis.config;
+package org.athena.framework.mybatis.properties;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,19 +31,19 @@ public class DefaultMapperProperties {
     /**
      * 创建表 ddl 的文件目录
      */
-    private String tableDDLPathFile = "classpath:config/dd.sql";
+    private String tableDDLPathFile = "/config/dd.sql";
 
     /**
      * 是否开启自动更新表
      * <p>
      * 生产环境不建议开启
      */
-    private boolean autoUpdateTable = false;
+    private boolean autoUpdateTable = true;
 
     /**
      * 实体扫描包
      */
-    private List<String> baseEntityPackages = List.of("com.zhouzhitong");
+    private List<String> baseEntityPackages = List.of("org.athena.framework", "com.zhouzhitong");
 
     /**
      * 实体字段类型与数据库字段类型映射关系

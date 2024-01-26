@@ -21,10 +21,8 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface MapperService<
-        Entity extends BaseEntity
-        , DTO extends BaseDTO
-        > extends IService<Entity> {
+public interface MapperService<Entity extends BaseEntity, DTO extends BaseDTO>
+        extends IService<Entity> {
 
     /**
      * 分页查询
@@ -100,7 +98,7 @@ public interface MapperService<
      * @param <Query> 查询条件类型
      * @return 单个DTO
      */
-    default <Query extends BaseRequest> DTO getOne(Query query) {
+    default <Query extends BaseRequest> DTO get(Query query) {
         List<DTO> dtos = queryAll(query);
         if (dtos.isEmpty()) {
             return null;

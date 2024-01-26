@@ -1,5 +1,7 @@
 package org.arthena.framework.common.exception;
 
+import org.arthena.framework.common.constant.CodeConstant;
+
 /**
  * 资源不存在异常
  *
@@ -10,7 +12,7 @@ package org.arthena.framework.common.exception;
 public class ResourceNotFindException extends BaseException {
 
     public ResourceNotFindException(String message) {
-        super(message);
+        super(message, CodeConstant.RESOURCE_NOT_FOUND);
     }
 
 }

@@ -22,6 +22,10 @@ import java.util.List;
 @ToString(callSuper = true)
 public class BaseRequest extends ExtensibleProperties implements Serializable {
 
+    public static final String DATA_SPILT = ",";
+
+    public static final String DATA_TYPE_SPILT = ":";
+
     @Serial
     private static final long serialVersionUID = -5829984477493358777L;
 
@@ -75,8 +79,8 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
 
     public void setSorts(String sorts) {
         this.sorts = Lists.newArrayList();
-        for (String sort : sorts.split(",")) {
-            String[] split = sort.split(":");
+        for (String sort : sorts.split(DATA_SPILT)) {
+            String[] split = sort.split(DATA_TYPE_SPILT);
             String field = split[0].trim();
             String sortType = split[1] == null ? Sort.DESC : split[1].trim();
             this.sorts.add(Sort.of(field, sortType));
@@ -87,11 +91,12 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
         if (filedQueries == null) {
             this.filedQueries = Lists.newArrayList();
         }
-        for (String query : filedQueries.split(",")) {
-            String[] s = query.split(":");
+        for (String query : filedQueries.split(DATA_SPILT)) {
+            String[] s = query.split(DATA_TYPE_SPILT);
             String key = s[0].trim();
             String value = s[1].trim();
-            Integer type = s[2] == null ? null : Integer.parseInt(s[2].trim());
+            // 默认是等于
+            Integer type = s[2] == null ? QueryType.EQ.getCode() : Integer.parseInt(s[2].trim());
             FiledQuery filedQuery = FiledQuery.of(key, value, QueryType.of(type));
             this.filedQueries.add(filedQuery);
         }

@@ -1,4 +1,4 @@
-package org.athena.framework.mybatis.config;
+package org.athena.framework.mybatis.properties;
 
 /**
  *

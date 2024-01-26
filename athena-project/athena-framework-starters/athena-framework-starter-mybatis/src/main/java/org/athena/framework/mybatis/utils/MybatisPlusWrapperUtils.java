@@ -6,6 +6,7 @@ import org.arthena.framework.common.exception.TodoException;
 import org.athena.framework.mybatis.base.BaseRequest;
 import org.athena.framework.mybatis.base.FiledQuery;
 import org.athena.framework.mybatis.base.Sort;
+import org.athena.framework.mybatis.constant.BaseEntityConstant;
 import org.athena.framework.mybatis.type.QueryType;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +22,12 @@ public class MybatisPlusWrapperUtils {
 
     public static <T> QueryWrapper<T> simpleQuery() {
         QueryWrapper<T> wrapper = new QueryWrapper<>();
-        wrapper.eq("deleted", 0);
-        return wrapper;
-    }
-
-    public static <T> QueryWrapper<T> localeQuery() {
-        QueryWrapper<T> wrapper = new QueryWrapper<>();
-        wrapper.eq("deleted", 0);
+        wrapper.eq(BaseEntityConstant.DELETED, 0);
         return wrapper;
     }
 
     public static <T> QueryWrapper<T> simpleQuery(BaseRequest query) {
         QueryWrapper<T> wrapper = simpleQuery();
-        return buildQueryWrapper(wrapper, query);
-    }
-
-    public static <T> QueryWrapper<T> localeQuery(BaseRequest query) {
-        QueryWrapper<T> wrapper = localeQuery();
         return buildQueryWrapper(wrapper, query);
     }
 

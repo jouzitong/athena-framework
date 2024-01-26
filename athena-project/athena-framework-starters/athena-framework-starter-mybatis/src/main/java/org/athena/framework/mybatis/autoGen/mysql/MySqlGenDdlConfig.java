@@ -1,8 +1,10 @@
-package org.athena.framework.mybatis.config;
+package org.athena.framework.mybatis.autoGen.mysql;
 
 import lombok.Getter;
 import org.arthena.framework.common.base.BaseEnum;
 import org.arthena.framework.common.base.DBJson;
+import org.athena.framework.mybatis.properties.FieldTypeMap;
+import org.athena.framework.mybatis.properties.GenTypeConfig;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
