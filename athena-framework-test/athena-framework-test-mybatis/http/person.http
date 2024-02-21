@@ -24,7 +24,7 @@ Content-Type: application/json;charset=UTF-8
 ### 3. 删除权限
 DELETE {{host}}test/persons/1
 
-### 4. 查询权限
+### 4. 查询列表
 GET {{host}}test/persons
 
 ### 5. 查询权限列表

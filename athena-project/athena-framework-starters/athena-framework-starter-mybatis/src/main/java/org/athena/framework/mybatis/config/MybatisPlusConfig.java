@@ -17,7 +17,6 @@ import javax.sql.DataSource;
  * @since 2023-12-12
  **/
 @Configuration
-@PropertySource("classpath:mybatis-config.properties")
 public class MybatisPlusConfig {
 
     /**
