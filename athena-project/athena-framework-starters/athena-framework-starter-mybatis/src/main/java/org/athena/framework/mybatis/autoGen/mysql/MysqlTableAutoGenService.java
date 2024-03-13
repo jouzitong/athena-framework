@@ -37,8 +37,6 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
 
     private final DefaultMapperProperties mapperProperties;
 
-//    private final DataSource dataSource;
-
     @Override
     public void run(String... args) throws Exception {
         if (!mapperProperties.isAutoUpdateTable()) {
@@ -71,25 +69,11 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
         try {
             bw.flush();
             bw.close();
+            LOGGER.info("生成表结构文件成功, 文件路径: {}, 文件名: {}", filePath, mapperProperties.getTableDDLPathFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-//    // TODO 未完成
-//    private String updateDdlSql(Class<? extends BaseEntity> c) throws Exception {
-//        StringBuilder sql = new StringBuilder();
-//        String tableName = getTableName(c);
-//        Connection connection = dataSource.getConnection();
-//        connection.prepareStatement("""
-//        SELECT table_name, table_schema, create_time, table_comment
-//        FROM information_schema.tables
-//        WHERE table_schema = 'your_database_name' AND table_name = 'your_table_name';
-//
-//""");
-//
-//        return sql.toString();
-//    }
 
     private String createDdlSql(Class<? extends BaseEntity> c) {
         StringBuilder sql = new StringBuilder();
