@@ -2,10 +2,10 @@
 $!{define.vm}
 
 ##保存文件（宏定义）
-#save("/entity", ".java")
+#save("/bean", ".java")
 
 ##包路径（宏定义）
-#setPackageSuffix("entity")
+#setPackageSuffix("bean")
 
 #set($isLocale = false)
 
@@ -20,7 +20,7 @@ $!{autoImport.vm}
 #if (${isLocale})
 import com.zhouzhitong.lib.mapper.entity.BaseLocaleEntity;
 #else
-import com.zhouzhitong.lib.mapper.entity.BaseEntity;
+import org.athena.framework.mybatis.entity.BaseEntity;
 #end
 
 import java.io.Serializable;
@@ -39,25 +39,25 @@ import com.baomidou.mybatisplus.annotation.TableName;
 public class $!{tableInfo.name} extends #if (${isLocale}) BaseLocaleEntity #else BaseEntity #end{
 
 
-#foreach($column in $tableInfo.fullColumn)
-    #if(${column.name} == "id"
-    ||$!{column.name} == "createTime"
-    ||${column.name} == "updateTime"
-    ||${column.name} == "createdBy"
-    ||${column.name} == "locale"
-    ||${column.name} == "lastModifiedBy"
-    ||${column.name} == "version"
-    ||${column.name} == "deleted")
-    #else
-        #if(!(${column.name} == "no" && ${isLocale}))
-            #if(${column.comment})
-            /**
-             * ${column.comment}
-             */
+    #foreach($column in $tableInfo.fullColumn)
+        #if(${column.name} == "id"
+        ||$!{column.name} == "createTime"
+        ||${column.name} == "updateTime"
+        ||${column.name} == "createdBy"
+        ||${column.name} == "locale"
+        ||${column.name} == "lastModifiedBy"
+        ||${column.name} == "version"
+        ||${column.name} == "deleted")
+        #else
+            #if(!(${column.name} == "no" && ${isLocale}))
+                #if(${column.comment})
+                /**
+                 * ${column.comment}
+                 */
+                #end
+            private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
             #end
-        private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
-        #end
 
+        #end
     #end
-#end
 }

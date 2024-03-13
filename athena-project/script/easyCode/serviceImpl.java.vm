@@ -9,9 +9,9 @@ $!{define.vm}
 
 ##包路径（宏定义）
 #setPackageSuffix("service.impl")
-import com.zhouzhitong.lib.mapper.service.impl.MapperServiceImpl;
+import org.athena.framework.mybatis.service.impl.MapperServiceImpl;
 import $!{tableInfo.savePackageName}.mapper.$!{tableInfo.name}Mapper;
-import $!{tableInfo.savePackageName}.entity.$!{tableInfo.name};
+import $!{tableInfo.savePackageName}.bean.$!{tableInfo.name};
 import $!{tableInfo.savePackageName}.dto.$!{tableInfo.name}DTO;
 import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
 import org.springframework.stereotype.Service;
@@ -23,14 +23,5 @@ public class $!{tableName}
 extends MapperServiceImpl<$!{tableInfo.name}Mapper, $!{tableInfo.name},$!{tableInfo.name}DTO>
     implements $!{tableInfo.name}Service {
 
-@Override
-public $!{tableInfo.name}DTO newDTO() {
-        return new $!{tableInfo.name}DTO();
-        }
 
-@Override
-public $!{tableInfo.name} newEntity() {
-        return new $!{tableInfo.name}();
-        }
-
-        }
+}

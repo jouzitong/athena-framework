@@ -16,20 +16,24 @@ $!{define.vm}
 ##定义实体对象名
 #set($entityName = $!tool.firstLowerCase($!tableInfo.name))
 
-import com.zhouzhitong.lib.mapper.controller.BaseController;
+### TODO 这个暂时没确定好位置
+import com.zhouzhitong.test.mybatis.controller.base.BaseController;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import $!{tableInfo.savePackageName}.entity.$!tableInfo.name;
-import $!{tableInfo.savePackageName}.req.$!{tableInfo.name}Req;
 import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
+import $!{tableInfo.savePackageName}.bean.$!tableInfo.name;
+import $!{tableInfo.savePackageName}.query.$!{tableInfo.name}Query;
+import $!{tableInfo.savePackageName}.dto.$!{tableInfo.name}DTO;
 
 
-##表注释（宏定义）
-#tableComment("表控制层")
+
+    ##表注释（宏定义）
+    #tableComment("表控制层")
 @RestController
 @RequestMapping("/api/v1/$!tool.firstLowerCase($!tableInfo.name)")
 public class $!{tableName}
-    extends BaseController<$!tableInfo.name, $!{tableInfo.name}Service, $!{tableInfo.name}Req>{
+extends BaseController<$!tableInfo.name, $!{tableInfo.name}DTO , $!{tableInfo.name}Query, $!{tableInfo.name}Service>{
 
 
 }

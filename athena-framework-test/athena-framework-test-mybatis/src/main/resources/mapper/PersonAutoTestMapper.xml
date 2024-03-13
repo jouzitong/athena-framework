@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhouzhitong.test.mybatis.mapper.PersonAutoTestMapper">
+    <resultMap type="com.zhouzhitong.test.mybatis.bean.PersonAutoTest" id="PersonAutoTestMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="deleted" column="deleted" jdbcType="INTEGER"/>
+        <result property="lastModifiedBy" column="last_modified_by" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="INTEGER"/>
+        <result property="address" column="address" jdbcType="VARCHAR"
+                typeHandler="org.athena.framework.mybatis.handler.DefaultJsonHandler"/>
+    </resultMap>
+
+    <sql id="column">
+        `id`,
+ 
+ `create_time`,
+ 
+ `created_by`,
+ 
+ `deleted`,
+ 
+ `last_modified_by`,
+ 
+ `update_time`,
+ 
+ `name`,
+ 
+ `age`,
+ 
+ `phone`,
+ 
+ `gender`,
+ 
+ `address`
+    </sql>
+
+    <sql id="where">
+        <where>
+            <if test="id != null">
+                and `id` = #{id}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+            <if test="createdBy != null">
+                and `created_by` = #{createdBy}
+            </if>
+            <if test="deleted != null">
+                and `deleted` = #{deleted}
+            </if>
+            <if test="lastModifiedBy != null">
+                and `last_modified_by` = #{lastModifiedBy}
+            </if>
+            <if test="updateTime != null">
+                and `update_time` = #{updateTime}
+            </if>
+            <if test="name != null">
+                and `name` = #{name}
+            </if>
+            <if test="age != null">
+                and `age` = #{age}
+            </if>
+            <if test="phone != null">
+                and `phone` = #{phone}
+            </if>
+            <if test="gender != null">
+                and `gender` = #{gender}
+            </if>
+            <if test="address != null">
+                and `address` = #{address}
+            </if>
+            <if test="sorts != null and sorts.size > 0)">
+                order by
+                <foreach collection="sorts" item="sort" separator=", ">
+                    `#{sort.column}` #{sort.sort}
+                </foreach>
+            </if>
+
+            <if test="size != null and current != null">
+                limit #{current},#{size}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 软删除 -->
+    <delete id="remove">
+        update architecta.person_auto_test
+        set `deleted` = 1
+        <include refid="where"/>
+    </delete>
+
+    <!-- 分页查询 -->
+    <select id="pageQuery" resultMap="PersonAutoTestMap">
+        select
+        <include refid="column"/>
+        from person_auto_test
+        <include refid="where"/>
+    </select>
+</mapper>
+

@@ -10,7 +10,7 @@ $!{define.vm}
 ##自动导入包（全局变量）
 $!{autoImport.vm}
 
-import com.zhouzhitong.lib.mapper.base.BaseQuery;
+import org.athena.framework.mybatis.base.BaseRequest;
 import lombok.Setter;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,7 +20,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString(callSuper = true)
-public class $!{tableInfo.name}Query extends BaseQuery {
+public class $!{tableInfo.name}Query extends BaseRequest {
 
     #foreach($column in $tableInfo.fullColumn)
         #if(${column.name} == "id"

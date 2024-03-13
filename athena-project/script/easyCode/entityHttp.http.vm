@@ -2,10 +2,12 @@
 $!{mybatisSupport.vm}
 
 ##设置保存名称与保存位置
-$!callback.setFileName($tool.append($!{tableInfo.name}, "Mapper.xml"))
+$!callback.setFileName($tool.append($!{tableInfo.name}, "Controller.http"))
 $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/http"))
 
+#set($comment = $tool.append("#", "#", "#"))
 
+$!{comment} 1. 新增 $!{tableInfo.name} 实体
 POST {{host}}$!{tableInfo.name}s
 Content-Type: application/json;charset=UTF-8
 
@@ -28,6 +30,7 @@ Content-Type: application/json;charset=UTF-8
 
 }
 
+$!{comment} 2. 修改 $!{tableInfo.name} 实体
 PUT {{host}}permissions/1
 Content-Type: application/json;charset=UTF-8
 
@@ -47,12 +50,12 @@ Content-Type: application/json;charset=UTF-8
   ]
 }
 
-### 3. 删除权限
+$!{comment} 3. 删除 $!{tableInfo.name} 实体
 DELETE {{host}}permissions/1
 
-### 4. 查询权限
+$!{comment}4. 查询 $!{tableInfo.name} 实体
 GET {{host}}permissions/1
 
-### 5. 查询权限列表
+$!{comment} 5. 查询 $!{tableInfo.name} 实体列表
 GET {{host}}permissions?page=2&size=1&sorts=id desc
 Content-Type: text/plain

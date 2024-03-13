@@ -10,8 +10,8 @@ $!{define.vm}
 ##包路径（宏定义）
 #setPackageSuffix("mapper")
 
-import com.zhouzhitong.lib.mapper.mapper.CrudMapper;
-import $!{tableInfo.savePackageName}.entity.$!tableInfo.name;
+import org.athena.framework.mybatis.mapper.CrudMapper;
+import $!{tableInfo.savePackageName}.bean.$!tableInfo.name;
 
 ##表注释（宏定义）
 #tableComment("表数据库访问层")

@@ -5,6 +5,7 @@ import org.athena.framework.mybatis.dto.BaseDTO;
 import org.athena.framework.mybatis.entity.BaseEntity;
 import org.athena.framework.mybatis.service.MapperService;
 import org.athena.framework.mybatis.vo.PageResultVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2023/1/7
  */
-public abstract class BaseController
+public class BaseController
         // 操作实体
         <Entity extends BaseEntity
                 , DTO extends BaseDTO
@@ -26,7 +27,12 @@ public abstract class BaseController
                 // 操作service
                 , Service extends MapperService<Entity, DTO>> {
 
-    protected abstract Service service();
+    @Autowired
+    private Service service;
+
+    protected Service service() {
+        return service;
+    }
 
     @Value("${lib.mapper.size-limit:1000}")
     private Integer sizeLimit;

@@ -17,11 +17,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test/persons")
 public class PersonController extends BaseController<Person, PersonDTO, BaseRequest, PersonService> {
 
-    @Autowired
-    private PersonService service;
-
-    @Override
-    protected PersonService service() {
-        return service;
-    }
 }

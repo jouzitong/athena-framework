@@ -17,11 +17,11 @@ $!{define.vm}
 ##自动导入包（全局变量）
 $!{autoImport.vm}
 
-#if (${isLocale})
-import com.zhouzhitong.lib.common.dto.BaseLocaleDTO;
-#else
-import com.zhouzhitong.lib.common.dto.BaseDTO;
-#end
+###if (${isLocale})
+##import com.zhouzhitong.lib.common.dto.BaseLocaleDTO;
+###else
+import org.athena.framework.mybatis.dto.BaseDTO;
+###end
 import java.io.Serializable;
 
 import lombok.Setter;
