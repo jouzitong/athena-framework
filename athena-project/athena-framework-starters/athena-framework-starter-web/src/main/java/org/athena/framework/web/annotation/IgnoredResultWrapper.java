@@ -1,4 +1,4 @@
-package org.arthena.framework.common.vo;
+package org.athena.framework.web.annotation;
 
 
 import java.lang.annotation.*;

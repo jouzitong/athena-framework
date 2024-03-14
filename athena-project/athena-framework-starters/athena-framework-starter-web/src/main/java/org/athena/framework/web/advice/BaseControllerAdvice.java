@@ -1,4 +1,4 @@
-package org.athena.framework.web.exception;
+package org.athena.framework.web.advice;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +62,7 @@ public class BaseControllerAdvice {
     }
 
     /**
-     * 参数校验异常
+     * 参数校验异常. @Valid 校验抛出的异常拦截
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResultVO<Void> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {

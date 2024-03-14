@@ -2,7 +2,7 @@ package org.athena.framework.web.result;
 
 import jakarta.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.arthena.framework.common.vo.IgnoredResultWrapper;
+import org.athena.framework.web.annotation.IgnoredResultWrapper;
 import org.arthena.framework.common.vo.ResultVO;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
+ * 业务: 包装 controller 返回值的拦截器. 用于统一返回值格式: new ResultVO<>(data);
+ *
  * @author zhouzhitong
  * @since 2023-12-12
  **/
