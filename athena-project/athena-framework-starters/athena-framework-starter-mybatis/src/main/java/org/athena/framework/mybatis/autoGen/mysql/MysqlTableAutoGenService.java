@@ -43,6 +43,7 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
             LOGGER.info("未开启自动更新表. 如果需要开启, 请在配置文件中设置 lib.mapper.auto-gen.auto-update-table=true");
             return;
         }
+        LOGGER.info("开始生成表结构文件...");
         // 获取启动目录
         String userDir = SystemUtils.getDir();
         // 如果不是以 / 开头, 则添加 /

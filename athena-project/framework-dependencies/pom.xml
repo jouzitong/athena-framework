@@ -80,29 +80,13 @@
                 <artifactId>athena-framework-starter-nacos</artifactId>
                 <version>${revision}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>com.zhouzhitong.lib</groupId>-->
-<!--                <artifactId>mapper</artifactId>-->
-<!--                <version>${revision}</version>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-seata</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
-<!--            <dependency>-->
-<!--                <groupId>com.zhouzhitong.lib</groupId>-->
-<!--                <artifactId>security</artifactId>-->
-<!--                <version>${revision}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.zhouzhitong.lib</groupId>-->
-<!--                <artifactId>server</artifactId>-->
-<!--                <version>${revision}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.zhouzhitong.lib</groupId>-->
-<!--                <artifactId>app</artifactId>-->
-<!--                <version>${revision}</version>-->
-<!--            </dependency>-->
-
-            <!-- 框架依赖 -->
+            <!-- ######################## 框架依赖 ########################### -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -126,6 +110,8 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- ################################################### -->
 
             <!--  knife4j Api文档 -->
             <dependency>
@@ -161,7 +147,7 @@
                 <version>${mybatis-plus.version}</version>
             </dependency>
 
-            <!--基础组件 -->
+            <!-- ######################## 基础组件 ########################### -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
@@ -185,7 +171,6 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>org.reflections</groupId>
