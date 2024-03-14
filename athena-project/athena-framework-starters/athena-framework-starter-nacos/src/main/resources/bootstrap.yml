@@ -1,0 +1,27 @@
+dubbo:
+  provider:
+    filter: dubboExceptionFilter,-exception
+spring:
+  profiles:
+    active: dev
+    include: feign
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        namespace: ''
+        register-enabled: true
+        server-addr: ${my_ip}:8848
+        username: ''
+        password: ''
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        enabled: true
+        file-extension: yml
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        refresh-enabled: true
+        shared-configs: common-feign.yml,common-sentinel.yml,common-db.yml,common-dubbo.yml,common-redis.yml,common-job.yml,common-seata.yml,common-mq.yml,${spring.application.name}.yml
+        username: ${spring.cloud.nacos.discovery.username}
+        password: ${spring.cloud.nacos.discovery.password}
+
+my_ip: 192.168.31.31

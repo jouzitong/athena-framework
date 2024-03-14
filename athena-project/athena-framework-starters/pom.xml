@@ -15,6 +15,7 @@
     <modules>
         <module>athena-framework-starter-mybatis</module>
         <module>athena-framework-starter-web</module>
+        <module>athena-framework-starter-nacos</module>
     </modules>
 
 </project>
