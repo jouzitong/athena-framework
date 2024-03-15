@@ -22,6 +22,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
+        <!-- FIXME 项目启动类, 需要打包启动的模块, 必配 -->
+        <mainClass>xxx</mainClass>
+
         <!-- 基础框架版本 -->
         <spring-boot-version>3.0.6</spring-boot-version>
         <spring-cloud-dependencies.version>2022.0.0</spring-cloud-dependencies.version>
@@ -224,5 +227,46 @@
             <uniqueVersion>true</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- JSW 打包方式 -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>appassembler-maven-plugin</artifactId>
+                    <version>1.10</version>
+                </plugin>
+
+                <!-- spring boot jar 打包方式 -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot-version}</version>
+                    <configuration>
+                         <mainClass>${mainClass}</mainClass>
+                        <!--解决windows命令行窗口中文乱码-->
+                        <jvmArguments>-Dfile.encoding=UTF-8</jvmArguments>
+                        <layout>ZIP</layout>
+                        <!--配置需要打包进项目的jar-->
+                        <includes>
+                            <!--如果没有则non-exists, 表示不打包-->
+                            <include>
+                                <groupId>non-exists</groupId>
+                                <artifactId>non-exists</artifactId>
+                            </include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

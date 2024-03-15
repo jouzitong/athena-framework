@@ -12,6 +12,10 @@
 
     <artifactId>athena-framework-test-mybatis</artifactId>
 
+    <properties>
+        <mainClass>com.zhouzhitong.test.mybatis.MybatisTestApplication</mainClass>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -30,4 +34,17 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.zhouzhitong.test.mybatis.MybatisTestApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
