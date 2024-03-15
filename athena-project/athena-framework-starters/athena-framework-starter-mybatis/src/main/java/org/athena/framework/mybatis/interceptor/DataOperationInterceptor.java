@@ -1,6 +1,8 @@
 package org.athena.framework.mybatis.interceptor;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import lombok.SneakyThrows;
 import org.apache.ibatis.reflection.MetaObject;
 import org.arthena.framework.common.context.SystemContext;
@@ -33,6 +35,10 @@ public class DataOperationInterceptor implements MetaObjectHandler {
         checkTableField(metaObject);
     }
 
+    @Override
+    public TableInfo findTableInfo(MetaObject metaObject) {
+        return TableInfoHelper.getTableInfo(metaObject.getOriginalObject().getClass());
+    }
 
     @SneakyThrows
     private void checkTableField(MetaObject metaObject) {

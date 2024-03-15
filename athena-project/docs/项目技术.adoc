@@ -1,55 +1,84 @@
-# <img src="spring-framework.png" width="80" height="80"> zt-lib</img>
+= Athena框架
+:author: JouZiton
+:doctype: 类型
+:encoding: utf-8
+:lang: 中文
+:numbered: 编号
+:stem: latexmath
+:icons: font
+:source-highlighter: coderay
+:sectnums:
+:sectlinks:
+:sectnumlevels: 4
+:toc: left
+:toc-title: Asciidoc语法
+:toclevels: 3
 
-## 项目结构
+image::spring-framework.png[Spring Framework, 200, 100, link="https://spring.io/projects/spring-framework"]
 
-### 项目环境
+[perfer]
+== 前言
 
-操作系统: linux, mac OS, jdk(17)
+.操作环境
+|===
+|   序号  |   名称  |   版本  |   备注
 
-项目环境: springboot(3.0.0)
+|   1  |   `操作系统`  |   centos7.9  |   无
+|   2  |   `jdk`  |   17  |   无
+|   3  |   `maven`  |   3.8.3  |   无
+|   4  |   `spring boot`  |   3.0.0  |
+|   5  |   `spring cloud`  |   2020.0.3  |   https://start.spring.io/actuator/info[点击查看Spring boot与Spring cloud 版本对应关系]
+|   6  |   `spring cloud alibaba`  |   2021.0.3  |   https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E[点击查看Spring cloud alibaba 版本]
+|   7  |   `mysql`  |   `8.0.26`  |   无
+|   8  |   `redis`  |   `6.2.5`  |   无
+|   9  |   `nacos`  |   `2.0.3`  |   无
+|   10  |   `seata`  |   `1.4.2`  |   无
+// |   11  |   kafka  |   2.8.0  |   无
+|===
 
-```http request
-# 查看spring boot 对应版本
-GET https://start.spring.io/actuator/info
-```
+.项目结构
+|===
+|   序号  |   名称  |  说明   |   备注
 
-spring cloud alibaba: https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
+|   1  |   `athena-project`  |   框架模块, 用于管理框架管理工作  |   无
+|   2  |   `athena-framework-test`  |   框架测试模块, 用于测试框架功能  |   无
+|   3  |   `athena-framework-common`  |   通用模块, 主要定义框架最基本的功能和数据结构   |   无
+|   4  |   `athena-framework-starters`  |   自动装配模块, 用于自动装配框架功能   |   无
 
-### 项目模块
+|===
 
-公共模块: common
 
-基础架构: mapper, security
 
-基础服务: i18n, file-api, auth-user, email, message(开发中), sms
+== 项目管理基本介绍
 
-项目启动服务: zt-server
+=== 项目管理版本管理
 
-<hr>
+==== 使用revision管理版本号（采纳）
 
-## 项目管理版本管理
+* 顶级 POM 文件中定义了 ${revision} 变量
+* mvn -Drevision=x.x.x clean package 可以编译时指定版本号
+* revision机制必须搭配flatten-maven-plugin使用. https://www.mojohaus.org/flatten-maven-plugin/flatten-mojo.html
 
-### 使用revision管理版本号（采纳）
-
-- 顶级 POM 文件中定义了 ${revision} 变量
-- mvn -Drevision=x.x.x clean package 可以编译时指定版本号
-- revision机制必须搭配flatten-maven-plugin使用. https://www.mojohaus.org/flatten-maven-plugin/flatten-mojo.html
-
-### 其他修改版本号方式（原先方式）
+==== ``mvn``修改版本号方式
 
 在顶级 POM 文件所在目录
 
-1. mvn versions:set -DnewVersion=1.1.0 设置新版本号
-2. mvn versions:revert 撤销
-3. mvn versions:commit 确认版本号无误后提交
+.框架版本管理
+[source, shell]
+----
+mvn versions:set -DnewVersion=1.1.0 # 设置新版本号
+mvn versions:commit # 确认版本号无误后提交
+mvn versions:revert # 撤销
+----
 
-<hr>
+=== 项目部署插件
 
-### 项目部署插件
+==== JAR 打包方式
 
-#### JAR 打包方式
-
-```xml
+[%collapsible, title="JAR 打包插件配置"]
+====
+[source,xml]
+----
 
 <plugin>
     <groupId>org.springframework.boot</groupId>
@@ -77,11 +106,15 @@ spring cloud alibaba: https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%8
         </execution>
     </executions>
 </plugin>
-```
+----
+====
 
-#### JSW 打包方式
+==== JSW 打包方式
 
-```xml
+[%collapsible, title="JSW 打包插件配置"]
+====
+[source,xml]
+----
 
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
@@ -188,13 +221,15 @@ spring cloud alibaba: https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%8
         </execution>
     </executions>
 </plugin>
-```
+----
+====
 
-#### native 打包方式
+==== native 打包方式 (TODO)
 
-TODO 还没研究好???
-
-```xml
+[%collapsible, title="native 打包插件配置"]
+====
+[source,xml]
+----
 
 <build>
     <plugins>
@@ -327,12 +362,33 @@ TODO 还没研究好???
         </plugin>
     </plugins>
 </build>
-```
+----
+====
 
-执行命令
-
-```shell
+.执行命令
+[source,shell]
+----
 mvn clean install
-```
+----
 
-<hr>
+.优点:
+. 部署环境简单, 不需要JVM环境, 直接运行即可
+
+.缺点:
+. 【致命缺点】目前技术还不够成熟, 有许多框架还不支持. 例如: mybatis等
+. 生成的文件较大, 打包时间较长
+
+== 框架模块介绍
+
+=== 通用模块
+
+通用模块: `athena-framework-common`
+
+
+=== 自动装配模块
+
+自动装配模块: `athena-framework-starters`
+
+=== 框架版本管理模块
+
+框架版本管理模块: `framework-dependencies`

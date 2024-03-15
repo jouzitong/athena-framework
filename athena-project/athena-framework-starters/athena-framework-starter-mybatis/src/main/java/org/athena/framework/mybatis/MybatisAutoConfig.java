@@ -3,7 +3,6 @@ package org.athena.framework.mybatis;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * @author zhouzhitong
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.PropertySource;
  **/
 @AutoConfiguration
 @ComponentScan("org.athena.framework.mybatis")
-@PropertySource("classpath:config/mybatis-config.properties")
 @Slf4j
 public class MybatisAutoConfig {
 

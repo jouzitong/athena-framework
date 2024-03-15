@@ -23,5 +23,11 @@
             <groupId>org.athena</groupId>
             <artifactId>athena-framework-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.athena</groupId>
+            <artifactId>athena-framework-starter-nacos</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

@@ -39,8 +39,8 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (!mapperProperties.isAutoUpdateTable()) {
-            LOGGER.info("未开启自动更新表. 如果需要开启, 请在配置文件中设置 lib.mapper.auto-gen.auto-update-table=true");
+        if (!mapperProperties.isEnableCreateTableDdl()) {
+            LOGGER.info("未开启自动更新表. 如果需要开启, 请在配置文件中设置 lib.mapper.auto-gen.enableCreateTableDdl=true");
             return;
         }
         LOGGER.info("开始生成表结构文件...");
@@ -80,7 +80,7 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
         StringBuilder sql = new StringBuilder();
 
         String tableName = getTableName(c);
-        sql.append("CREATE TABLE ").append(tableName).append(" (").append("\n");
+        sql.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("` (").append("\n");
         sql.append(genBaseDdlSql());
 
         List<Field> allFields = getAllFields(c);
@@ -90,7 +90,7 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
 
             FieldComment fieldComment = field.getAnnotation(FieldComment.class);
             if (fieldComment.value() != null) {
-                sql.append("\t").append(fieldName).append("\t").append(fieldComment.value());
+                sql.append("\t`").append(fieldName).append("`\t").append(fieldComment.value());
                 if (lastIndex-- > 0) {
                     sql.append(",");
                 }
@@ -133,12 +133,12 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
 
     private String genBaseDdlSql() {
         return """
-                    id  bigint auto_increment comment '自增主键' primary key,
-                    create_time      datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
-                    created_by       varchar(64) default 'system'          null comment '创建人',
-                    deleted          tinyint(1)  default 0                 not null comment '是否被删除（0、否  1、是）',
-                    last_modified_by varchar(64) default 'system'          null comment '最后修改人',
-                    update_time      datetime    default CURRENT_TIMESTAMP not null comment '最后修改时间',
+                    `id`  bigint auto_increment comment '自增主键' primary key,
+                    `create_time`      datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+                    `created_by`       varchar(64) default 'system'          null comment '创建人',
+                    `deleted`          tinyint(1)  default 0                 not null comment '是否被删除（0、否  1、是）',
+                    `last_modified_by` varchar(64) default 'system'          null comment '最后修改人',
+                    `update_time`      datetime    default CURRENT_TIMESTAMP not null comment '最后修改时间',
                 """;
     }
 
@@ -158,7 +158,7 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
             return getUnderlineName(name);
         }
 
-        return annotation.value();
+        return annotation.value().trim();
     }
 
     private List<Field> getAllFields(Class<?> c) {

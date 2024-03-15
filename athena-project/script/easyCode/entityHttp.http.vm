@@ -31,7 +31,7 @@ Content-Type: application/json;charset=UTF-8
 }
 
 $!{comment} 2. 修改 $!{tableInfo.name} 实体
-PUT {{host}}permissions/1
+PUT {{host}}$!{tableInfo.name}s/1
 Content-Type: application/json;charset=UTF-8
 
 {
@@ -51,11 +51,11 @@ Content-Type: application/json;charset=UTF-8
 }
 
 $!{comment} 3. 删除 $!{tableInfo.name} 实体
-DELETE {{host}}permissions/1
+DELETE {{host}}$!{tableInfo.name}s/1
 
 $!{comment}4. 查询 $!{tableInfo.name} 实体
-GET {{host}}permissions/1
+GET {{host}}$!{tableInfo.name}s/1
 
 $!{comment} 5. 查询 $!{tableInfo.name} 实体列表
-GET {{host}}permissions?page=2&size=1&sorts=id desc
+GET {{host}}$!{tableInfo.name}s?page=2&size=1&sorts=id desc
 Content-Type: text/plain

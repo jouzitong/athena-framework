@@ -8,7 +8,6 @@ import org.athena.framework.mybatis.interceptor.DataOperationInterceptor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
 
@@ -24,7 +23,7 @@ public class MybatisPlusConfig {
      *
      * @return DruidDataSource
      */
-    @Bean
+//    @Bean
     @ConfigurationProperties(prefix = "spring.datasource.druid")
     public DataSource druid() {
         return new DruidDataSource();
@@ -38,7 +37,6 @@ public class MybatisPlusConfig {
     public DataOperationInterceptor dataOperationInterceptor() {
         return new DataOperationInterceptor();
     }
-
 
     /**
      * 配置MybatisPlus分页插件

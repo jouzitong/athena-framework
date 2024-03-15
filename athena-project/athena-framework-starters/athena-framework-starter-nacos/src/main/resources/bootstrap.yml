@@ -19,7 +19,7 @@ spring:
         file-extension: yml
         namespace: ${spring.cloud.nacos.discovery.namespace}
         refresh-enabled: true
-        shared-configs: common-feign.yml,common-sentinel.yml,common-db.yml,common-dubbo.yml,common-redis.yml,common-job.yml,common-seata.yml,common-mq.yml,${spring.application.name}.yml
+        shared-configs: common-feign.yml,common-sentinel.yml,common-db.yml,common-dubbo.yml,common-redis.yml,common-job.yml,common-seata.yml,common-mq.yml
         username: ${spring.cloud.nacos.discovery.username}
         password: ${spring.cloud.nacos.discovery.password}
 

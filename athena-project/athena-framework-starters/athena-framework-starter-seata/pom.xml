@@ -9,7 +9,6 @@
         <version>1.1.0</version>
     </parent>
 
-    <groupId>com.zzt.demo.cloud</groupId>
     <artifactId>athena-framework-starter-seata</artifactId>
 
     <dependencies>
@@ -43,6 +42,11 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.athena</groupId>
+            <artifactId>athena-framework-starter-mybatis</artifactId>
         </dependency>
 
     </dependencies>
