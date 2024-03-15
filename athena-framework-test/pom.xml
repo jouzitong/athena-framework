@@ -15,6 +15,7 @@
 
     <modules>
         <module>athena-framework-test-mybatis</module>
+        <module>athena-framework-test-seata</module>
     </modules>
 
     <dependencyManagement>

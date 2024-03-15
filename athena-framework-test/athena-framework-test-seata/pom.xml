@@ -4,31 +4,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.athena</groupId>
-        <artifactId>athena-framework-starters</artifactId>
+        <groupId>org.athena.test</groupId>
+        <artifactId>athena-framework-test</artifactId>
         <version>1.1.0</version>
     </parent>
 
-    <artifactId>athena-framework-starter-seata</artifactId>
+    <groupId>org.athena.example</groupId>
+    <artifactId>athena-framework-test-seata</artifactId>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
-        </dependency>
-
-
         <dependency>
             <groupId>org.athena</groupId>
-            <artifactId>athena-framework-starter-mybatis</artifactId>
+            <artifactId>athena-framework-starter-nacos</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.athena</groupId>
+            <artifactId>athena-framework-starter-seata</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

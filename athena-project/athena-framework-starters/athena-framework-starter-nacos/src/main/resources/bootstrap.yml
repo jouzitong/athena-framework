@@ -13,6 +13,7 @@ spring:
         server-addr: ${server.ip}:8848
         username: ''
         password: ''
+        group: 'DEFAULT_GROUP'
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
         enabled: true
@@ -22,6 +23,7 @@ spring:
         shared-configs: common-feign.yml,common-sentinel.yml,common-db.yml,common-dubbo.yml,common-redis.yml,common-job.yml,common-seata.yml,common-mq.yml
         username: ${spring.cloud.nacos.discovery.username}
         password: ${spring.cloud.nacos.discovery.password}
+        group: ${spring.cloud.nacos.discovery.group}
 
 
 server:

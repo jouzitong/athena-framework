@@ -1,5 +1,6 @@
 package org.athena.framework.web;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -8,6 +9,11 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @AutoConfiguration
 @ComponentScan(basePackages = "org.athena.framework.web")
+@Slf4j
 public class WebAutoConfig {
+
+    public WebAutoConfig() {
+        LOGGER.info("web 自动配置开始加载...");
+    }
 
 }
