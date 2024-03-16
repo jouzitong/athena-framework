@@ -80,7 +80,7 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
         StringBuilder sql = new StringBuilder();
 
         String tableName = getTableName(c);
-        sql.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("` (").append("\n");
+        sql.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (").append("\n");
         sql.append(genBaseDdlSql());
 
         List<Field> allFields = getAllFields(c);
@@ -157,8 +157,12 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
             String name = c.getSimpleName();
             return getUnderlineName(name);
         }
-
-        return annotation.value().trim();
+        String res = annotation.value().trim();
+        if (res.startsWith("`") && res.endsWith("`")) {
+            return res;
+        } else {
+            return "`" + res + "`";
+        }
     }
 
     private List<Field> getAllFields(Class<?> c) {
@@ -209,7 +213,7 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
                 result.append(s.toLowerCase());
             }
         }
-        return result.toString();
+        return result.toString().trim();
     }
 
 }

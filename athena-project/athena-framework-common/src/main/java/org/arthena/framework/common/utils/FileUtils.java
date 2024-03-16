@@ -36,6 +36,14 @@ public class FileUtils {
             }
         } else {
             try {
+                // 判断路径是否存在, 不存在就创建
+                File parentFile = file.getParentFile();
+                if (!parentFile.exists()) {
+                    if (!parentFile.mkdirs()) {
+                        throw new RuntimeException("创建文件夹失败: " + parentFile.getPath());
+                    }
+                }
+
                 if (!file.createNewFile()) {
                     throw new RuntimeException("创建文件失败: " + filePath);
                 }
