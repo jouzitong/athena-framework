@@ -31,7 +31,7 @@ public class DefaultMapperProperties {
     /**
      * 创建表 ddl 的文件目录
      */
-    private String tableDDLPathFile = "/config/dd.sql";
+    private String tableDDLPathFile = "/config";
 
     /**
      * 是否开启自动更新表

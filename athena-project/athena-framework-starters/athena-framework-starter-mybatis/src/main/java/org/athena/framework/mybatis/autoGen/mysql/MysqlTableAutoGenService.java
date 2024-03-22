@@ -1,10 +1,7 @@
 package org.athena.framework.mybatis.autoGen.mysql;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.utils.FileUtils;
 import org.arthena.framework.common.utils.PackageUtil;
 import org.arthena.framework.common.utils.SystemUtils;
@@ -16,26 +13,28 @@ import org.athena.framework.mybatis.properties.FieldTypeMap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhouzhitong
  * @since 2024-01-26
  **/
 @Component
-@AllArgsConstructor
 @Slf4j
-public class MysqlTableAutoGenService implements CommandLineRunner {
+public class MysqlTableAutoGenService extends BaseMysqlGenService implements CommandLineRunner {
 
-    private final DatabaseTypeMapConfig config;
-
-    private final DefaultMapperProperties mapperProperties;
+    public MysqlTableAutoGenService(DefaultMapperProperties mapperProperties, DatabaseTypeMapConfig config,
+                                    DataSource dataSource) {
+        super(mapperProperties, config, dataSource);
+    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -51,29 +50,80 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
             userDir += "/";
         }
         String filePath = userDir + mapperProperties.getTableDDLPathFile();
-        BufferedWriter bw = FileUtils.getFileOutputStream(filePath);
+        String createTableDdlFileStr = filePath + "/create_table_ddl.sql";
+        String updateTableDdlStr = filePath + "/update_table_ddl.sql";
+
+        BufferedWriter createBw = FileUtils.getFileOutputStream(createTableDdlFileStr);
+        BufferedWriter updateBw = FileUtils.getFileOutputStream(updateTableDdlStr);
         List<Class<?>> subClasses = PackageUtil.getSubClasses(BaseEntity.class, mapperProperties.getBaseEntityPackages());
+
+        Statement statement = dataSource.getConnection().createStatement();
 
         for (Class<?> subClass : subClasses) {
             if (subClass == BaseEntity.class) {
                 continue;
             }
-            String ddlSql = createDdlSql((Class<? extends BaseEntity>) subClass);
-            try {
-                bw.write("-- " + subClass.getName() + "\n");
-                bw.write(ddlSql);
-                bw.write("\n\n");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            // 获取表名
+            String tableName = getTableName(subClass);
+            // 查看表是否存在, 如果存在则生成更新表结构的sql
+            String sql = "SHOW FULL COLUMNS FROM " + tableName + " ;";
+            boolean isExist = statement.executeQuery(sql).next();
+            if (isExist) {
+                String ddlSql = updateDdlSql((Class<? extends BaseEntity>) subClass, tableName, statement);
+                updateBw.write("-- " + subClass.getName() + "\n");
+                updateBw.write(ddlSql);
+                updateBw.write("\n\n");
             }
+
+            String ddlSql = createDdlSql((Class<? extends BaseEntity>) subClass);
+            createBw.write("-- " + subClass.getName() + "\n");
+            createBw.write(ddlSql);
+            createBw.write("\n\n");
+
+
         }
         try {
-            bw.flush();
-            bw.close();
+            createBw.flush();
+            createBw.close();
+            updateBw.flush();
+            updateBw.close();
             LOGGER.info("生成表结构文件成功, 文件路径: {}, 文件名: {}", filePath, mapperProperties.getTableDDLPathFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String updateDdlSql(Class<? extends BaseEntity> c, String tableName, Statement statement) throws Exception {
+        // 获取所有字段
+        List<Field> allFields = getAllFieldsAndBase(c);
+
+        StringBuilder sb = new StringBuilder();
+
+        // 查看表结构
+        String sql = "SHOW FULL COLUMNS FROM " + tableName + ";";
+        ResultSet resultSet = statement.executeQuery(sql);
+        // 遍历结果
+        Map<String, String> dbFieldMap = new HashMap<>();
+        while (resultSet.next()) {
+            String fieldName = resultSet.getString("Field");
+            String fieldType = resultSet.getString("Type");
+            dbFieldMap.put(fieldName, fieldType);
+        }
+
+        // 遍历所有字段
+        for (Field field : allFields) {
+            String fieldName = field.getName();
+            fieldName = getUnderlineName(fieldName);
+            String fieldType = dbFieldMap.get(fieldName);
+            if (fieldType != null) {
+                continue;
+            }
+            sb.append("ALTER TABLE ").append(tableName)
+                    .append(" ADD COLUMN ").append(fieldName).append(" ")
+                    .append(getFieldType(field)).append(";\n");
+        }
+
+        return sb.toString();
     }
 
     private String createDdlSql(Class<? extends BaseEntity> c) {
@@ -148,72 +198,6 @@ public class MysqlTableAutoGenService implements CommandLineRunner {
             return "";
         }
         return annotation.value();
-    }
-
-    private String getTableName(Class<? extends BaseEntity> c) {
-        TableName annotation = c.getAnnotation(TableName.class);
-        if (annotation == null || StringUtils.isBlank(annotation.value())) {
-            // 类名的驼峰转下划线
-            String name = c.getSimpleName();
-            return getUnderlineName(name);
-        }
-        String res = annotation.value().trim();
-        if (res.startsWith("`") && res.endsWith("`")) {
-            return res;
-        } else {
-            return "`" + res + "`";
-        }
-    }
-
-    private List<Field> getAllFields(Class<?> c) {
-        List<Field> allFields = new LinkedList<>();
-        while (c != BaseEntity.class) {
-            Field[] fields = c.getDeclaredFields();
-            allFields.addAll(Arrays.asList(fields));
-            c = c.getSuperclass();
-        }
-        return allFields;
-    }
-
-    // Ljava/util/List<Ljava/lang/Long;>;
-    private Class<?> getGenericTypeName(Field field) {
-        Type genericType = field.getGenericType();
-        String signature = genericType.getTypeName();
-        // 如果没有 < 和 > 返回空
-        if (!signature.contains("<") && !signature.contains(">")) {
-            return null;
-        }
-        int begin = signature.indexOf("<");
-        int end = signature.indexOf(">");
-        String substring = signature.substring(begin + 1, end);
-        try {
-            return Class.forName(substring);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * 将字符转换成驼峰命名(小写+下划线)
-     */
-    private String getUnderlineName(String name) {
-        StringBuilder result = new StringBuilder();
-        if (name != null && name.length() > 0) {
-            // 将第一个字符处理成大写
-            result.append(name.substring(0, 1).toLowerCase());
-            // 循环处理其余字符
-            for (int i = 1; i < name.length(); i++) {
-                String s = name.substring(i, i + 1);
-                // 在大写字母前添加下划线
-                if (s.equals(s.toUpperCase()) && !Character.isDigit(s.charAt(0))) {
-                    result.append("_");
-                }
-                // 其他字符直接转成小写
-                result.append(s.toLowerCase());
-            }
-        }
-        return result.toString().trim();
     }
 
 }
