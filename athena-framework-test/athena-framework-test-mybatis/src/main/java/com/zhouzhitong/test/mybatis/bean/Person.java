@@ -22,8 +22,8 @@ public class Person extends BaseEntity {
     @FieldComment("int not null comment '年龄'")
     private Integer age;
 
-    @FieldComment("varchar(11) not null comment '手机号'")
-    private String phone;
+//    @FieldComment("varchar(11) not null comment '手机号'")
+//    private String phone;
 
     @FieldComment("int not null comment '性别'")
     private Gender gender;

@@ -24,7 +24,7 @@ public class DefaultMapperProperties {
     private boolean enableCreateTableDdl = true;
 
     /**
-     * 指定数据类型: 目前支持 mysql
+     * 指定数据类型: 目前支持 mysql, pgsql
      */
     private String type;
 
@@ -38,7 +38,7 @@ public class DefaultMapperProperties {
      * <p>
      * 生产环境不建议开启
      */
-    private boolean autoUpdateTable = true;
+    private boolean autoUpdateTable = false;
 
     /**
      * 实体扫描包

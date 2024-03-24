@@ -1,4 +1,4 @@
-package org.athena.framework.mybatis.autoGen.mysql;
+package org.athena.framework.mybatis.autoGen;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.utils.PackageUtil;
 import org.athena.framework.mybatis.annotation.FieldComment;
-import org.athena.framework.mybatis.autoGen.DatabaseTypeMapConfig;
 import org.athena.framework.mybatis.entity.BaseEntity;
 import org.athena.framework.mybatis.properties.DefaultMapperProperties;
 import org.athena.framework.mybatis.properties.FieldTypeMap;
@@ -25,7 +24,7 @@ import java.util.List;
  **/
 @Slf4j
 @AllArgsConstructor
-public abstract class BaseMysqlGenService {
+public abstract class BaseGenService {
 
     protected final DefaultMapperProperties mapperProperties;
 
@@ -63,8 +62,8 @@ public abstract class BaseMysqlGenService {
 
     protected String getFieldType(Field field) {
         FieldComment fieldComment = field.getAnnotation(FieldComment.class);
-        if (fieldComment != null) {
-            return fieldComment.value();
+        if (fieldComment != null&& !fieldComment.type().isEmpty()) {
+            return fieldComment.type();
         }
         FieldTypeMap fieldTypeMap = config.get(field.getType());
         if (fieldTypeMap == null) {

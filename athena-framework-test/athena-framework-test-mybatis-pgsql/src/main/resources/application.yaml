@@ -1,0 +1,20 @@
+server:
+  port: 20011
+
+spring:
+  datasource:
+    url: jdbc:postgresql://59.110.34.78:5432/ju?currentSchema=ju
+    username: postgres
+    password: Xxzs990416
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 5
+      initial-size: 3
+
+lib:
+  mapper:
+    auto-gen:
+      enable-create-table-ddl: true
+      type: pgsql
+      auto-update-table: false
+      baseEntityPackages: com.zhouzhitong.test.mybatis.pgsql.bean

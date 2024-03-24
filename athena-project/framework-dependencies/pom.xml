@@ -37,6 +37,7 @@
 
         <!-- 数据库版本 -->
         <mysql.version>8.0.17</mysql.version>
+        <postgresql.version>42.6.0</postgresql.version>
         <mybatis.version>3.0.2</mybatis.version>
         <mybatis-native.version>0.1.0-SNAPSHOT</mybatis-native.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
@@ -199,6 +200,15 @@
                 <version>${mysql.version}</version>
                 <scope>runtime</scope>
             </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
 
             <dependency>
                 <groupId>cn.hutool</groupId>

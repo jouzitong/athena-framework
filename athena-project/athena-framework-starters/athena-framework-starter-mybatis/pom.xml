@@ -23,15 +23,21 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.mybatis.spring.boot</groupId>-->
-<!--            <artifactId>mybatis-spring-boot-starter</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+<!--            <scope>runtime</scope>-->
+        </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.mybatis.spring.native</groupId>-->
-<!--            <artifactId>mybatis-spring-native-core</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.mybatis.spring.boot</groupId>-->
+        <!--            <artifactId>mybatis-spring-boot-starter</artifactId>-->
+        <!--        </dependency>-->
+
+        <!--        <dependency>-->
+        <!--            <groupId>org.mybatis.spring.native</groupId>-->
+        <!--            <artifactId>mybatis-spring-native-core</artifactId>-->
+        <!--        </dependency>-->
 
         <!--mybatis-plus依赖-->
         <dependency>
@@ -48,6 +54,14 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

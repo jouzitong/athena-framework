@@ -38,17 +38,5 @@ public class MybatisPlusConfig {
         return new DataOperationInterceptor();
     }
 
-    /**
-     * 配置MybatisPlus分页插件
-     *
-     * @return MybatisPlusInterceptor
-     */
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor() {
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
-        return interceptor;
-    }
-
 
 }
