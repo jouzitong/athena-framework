@@ -21,6 +21,10 @@ Content-Type: application/json;charset=UTF-8
 {
 }
 
+### 查看详情
+GET {{host}}test/persons/1
+
+
 ### 3. 删除权限
 DELETE {{host}}test/persons/1
 

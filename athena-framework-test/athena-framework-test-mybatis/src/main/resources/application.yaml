@@ -1,2 +1,8 @@
 server:
   port: 20010
+
+lib:
+  mapper:
+    auto-gen:
+      enable-create-table-ddl: true
+      type: mysql

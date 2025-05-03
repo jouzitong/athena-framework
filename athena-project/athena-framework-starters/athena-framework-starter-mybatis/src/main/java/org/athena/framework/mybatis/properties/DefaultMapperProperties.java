@@ -26,7 +26,7 @@ public class DefaultMapperProperties {
     /**
      * 指定数据类型: 目前支持 mysql, pgsql
      */
-    private String type;
+    private String type = "mysql";
 
     /**
      * 创建表 ddl 的文件目录

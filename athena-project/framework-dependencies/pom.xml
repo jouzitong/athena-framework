@@ -15,21 +15,21 @@
         <!-- 基本环境变量 -->
         <!-- 服务版本号 -->
         <revision>1.1.0</revision>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
         <!-- FIXME 项目启动类, 需要打包启动的模块, 必配 -->
-        <mainClass>xxx</mainClass>
+<!--        <mainClass>xxx</mainClass>-->
 
         <!-- 基础框架版本 -->
-        <spring-boot-version>3.0.6</spring-boot-version>
+        <spring-boot-version>3.2.5</spring-boot-version>
         <spring-cloud-dependencies.version>2022.0.0</spring-cloud-dependencies.version>
-        <spring-cloud-alibaba-dependencies.version>2022.0.0.0-RC1</spring-cloud-alibaba-dependencies.version>
-        <spring.cloud.alibaba.version>2022.0.0.0-RC1</spring.cloud.alibaba.version>
+        <spring-cloud-alibaba-dependencies.version>2023.0.1.0</spring-cloud-alibaba-dependencies.version>
+        <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
 
         <!--3.X使用OpenAPI3的结构，可能不支持springboot2.6.1，待验证-->
         <!--实用插件-->
@@ -41,6 +41,8 @@
         <mybatis.version>3.0.2</mybatis.version>
         <mybatis-native.version>0.1.0-SNAPSHOT</mybatis-native.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <pagehelper.version>1.4.6</pagehelper.version>
+
         <druid.version>1.2.15</druid.version>
         <hibernate-types.version>2.10.4</hibernate-types.version>
         <hibernate.gen.version>5.5.7.Final</hibernate.gen.version>
@@ -73,6 +75,11 @@
                 <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-mybatis</artifactId>
                 <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-data-starter-mongo</artifactId>
+                <version>1.1.0</version>
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
@@ -149,6 +156,12 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.version}</version>
             </dependency>
 
             <!-- ######################## 基础组件 ########################### -->

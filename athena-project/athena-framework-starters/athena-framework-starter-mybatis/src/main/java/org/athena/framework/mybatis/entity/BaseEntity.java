@@ -46,7 +46,6 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
     /**
      * 记录修改时间
      */
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @FieldComment("datetime default CURRENT_TIMESTAMP not null comment '修改时间'")
     protected LocalDateTime updateTime;
@@ -54,7 +53,6 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
     /**
      * 创建者
      */
-
     @FieldComment("bigint default 1' not null comment '创建者'")
     protected Long createdBy = 0L;
 
@@ -67,10 +65,9 @@ public class BaseEntity extends Model<BaseEntity> implements Serializable {
     /**
      * 版本
      */
-
 //    @Version
-//    @FieldComment("bigint default 0' not null comment '版本'")
-//    protected Long version = 0L;
+    @FieldComment("bigint default 0' not null comment '版本'")
+    protected Long version = 0L;
 
     /**
      * 软删除 0-未删除，1-已删除

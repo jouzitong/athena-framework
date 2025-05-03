@@ -2,15 +2,14 @@ package org.arthena.framework.common.event;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.stereotype.Component;
 
 /**
  * 事件发布器
  *
  * @author zhouzhitong
  */
-@Component
-@Deprecated
+//@Component("")
+//@Deprecated
 public class SpringEventPublisher implements EventPublisher, ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher applicationEventPublisher;

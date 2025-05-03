@@ -1,4 +1,4 @@
-package org.athena.framework.web.result;
+package org.athena.framework.web.Initializing;
 
 import jakarta.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
