@@ -1,8 +1,8 @@
 package org.athena.framework.web.util;
 
-import com.alibaba.fastjson.JSON;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.arthena.framework.common.utils.JacksonJsonUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,7 +21,7 @@ public class ResponseUtil {
      * response返回Object
      */
     public static void writeObject(HttpServletResponse response, Object object) {
-        writeJson(response, JSON.toJSONString(object));
+        writeJson(response, JacksonJsonUtils.writeValueAsString(object));
     }
 
     /**

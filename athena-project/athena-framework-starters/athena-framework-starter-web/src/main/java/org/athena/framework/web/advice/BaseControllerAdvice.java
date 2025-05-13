@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.constant.CodeConstant;
 import org.arthena.framework.common.exception.BaseException;
+import org.arthena.framework.common.exception.BaseUserException;
 import org.arthena.framework.common.exception.ResourceNotFindException;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
 import org.arthena.framework.common.vo.ResultVO;
@@ -59,6 +60,13 @@ public class BaseControllerAdvice {
     public ResultVO<Void> resourceNotFindException(ResourceNotFindException e) {
         LOGGER.error("", e);
         return ResultVO.fail(CodeConstant.RESOURCE_NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(BaseUserException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResultVO<Void> resourceNotFindException(BaseUserException e) {
+        LOGGER.error("");
+        return ResultVO.fail(e.getCode());
     }
 
     /**

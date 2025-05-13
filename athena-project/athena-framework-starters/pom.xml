@@ -18,6 +18,7 @@
         <module>athena-framework-starter-nacos</module>
         <module>athena-framework-starter-seata</module>
         <module>athena-framework-data-starter-mongo</module>
+        <module>athena-framework-starters-ai</module>
     </modules>
 
 </project>

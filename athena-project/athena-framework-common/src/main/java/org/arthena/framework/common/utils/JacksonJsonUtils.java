@@ -65,6 +65,14 @@ public class JacksonJsonUtils {
         JSON.registerModule(new JavaTimeModule());
     }
 
+    public static <T> T toBean(String content, Class<T> valueType) {
+        return readValue(content, valueType);
+    }
+
+    public static String toStr(Object value) {
+        return writeValueAsString(value);
+    }
+
     @SneakyThrows
     public static <T> T readValue(String content, Class<T> valueType) {
         if (null != content) {

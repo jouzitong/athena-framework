@@ -169,6 +169,7 @@ public class MysqlTableGenService extends BaseSqlTableGenService {
                     `deleted`          tinyint(1)  default 0                 not null comment '是否被删除（0、否  1、是）',
                     `last_modified_by` varchar(64) default 'system'          null comment '最后修改人',
                     `update_time`      datetime    default CURRENT_TIMESTAMP not null comment '最后修改时间',
+                    `version`          int         default 1                 not null comment '版本号',
                 """;
     }
 

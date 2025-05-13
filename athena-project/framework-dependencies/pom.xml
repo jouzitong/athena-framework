@@ -26,7 +26,7 @@
 <!--        <mainClass>xxx</mainClass>-->
 
         <!-- 基础框架版本 -->
-        <spring-boot-version>3.2.5</spring-boot-version>
+        <spring-boot-version>3.0.0</spring-boot-version>
         <spring-cloud-dependencies.version>2022.0.0</spring-cloud-dependencies.version>
         <spring-cloud-alibaba-dependencies.version>2023.0.1.0</spring-cloud-alibaba-dependencies.version>
         <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
@@ -49,7 +49,6 @@
 
         <!-- 基础工具类版本 -->
         <lombok.version>1.18.24</lombok.version>
-        <jjwt.version>0.9.1</jjwt.version>
         <easypoi.version>2.2.7</easypoi.version>
         <jackson-datatype-jsr310.version>2.8.6</jackson-datatype-jsr310.version>
         <reflections.version>0.10.2</reflections.version>
@@ -94,6 +93,11 @@
             <dependency>
                 <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-seata</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starters-ai</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -166,12 +170,6 @@
 
             <!-- ######################## 基础组件 ########################### -->
             <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>${jjwt.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
@@ -236,6 +234,14 @@
                 <version>${forest.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -250,6 +256,28 @@
             <uniqueVersion>true</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <name>Central Portal Snapshots</name>
+            <id>central-portal-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <pluginManagement>
