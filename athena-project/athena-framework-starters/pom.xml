@@ -19,6 +19,14 @@
         <module>athena-framework-starter-seata</module>
         <module>athena-framework-data-starter-mongo</module>
         <module>athena-framework-starters-ai</module>
+        <module>athena-framework-starter-es</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.athena</groupId>
+            <artifactId>athena-framework-common</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

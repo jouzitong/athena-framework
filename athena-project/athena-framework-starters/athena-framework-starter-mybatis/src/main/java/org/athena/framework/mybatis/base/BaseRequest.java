@@ -22,8 +22,14 @@ import java.util.List;
 @ToString(callSuper = true)
 public class BaseRequest extends ExtensibleProperties implements Serializable {
 
+    /**
+     * 数据分隔符
+     */
     public static final String DATA_SPILT = ",";
 
+    /**
+     * 数据类型分隔符
+     */
     public static final String DATA_TYPE_SPILT = ":";
 
     @Serial
@@ -90,6 +96,7 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
     public void setQueries(String filedQueries) {
         if (filedQueries == null) {
             this.filedQueries = Lists.newArrayList();
+            return;
         }
         for (String query : filedQueries.split(DATA_SPILT)) {
             String[] s = query.split(DATA_TYPE_SPILT);

@@ -12,16 +12,12 @@
         <option value="$PROJECT_DIR$/athena-project/authena-framework-starters/authena-framework-starter-web/pom.xml" />
         <option value="$PROJECT_DIR$/athena-project/authena-framework-starters/pom.xml" />
         <option value="$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-mybatis/pom.xml" />
+        <option value="$PROJECT_DIR$/athena-framework-test/athena-framework-test-es/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" project-jdk-name="21" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
-  </component>
-  <component name="SshConsoleOptionsProvider">
-    <option name="myEncoding" value="UTF-8" />
-    <option name="myConnectionType" value="NONE" />
-    <option name="myConnectionId" value="" />
   </component>
   <component name="SuppressionsComponent">
     <option name="suppComments" value="[]" />

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-es/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-es/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-mybatis-pgsql/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-mybatis-pgsql/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-mybatis/src/main/java" charset="UTF-8" />
@@ -13,6 +15,8 @@
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-data-starter-mongo/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-data-starter-mongo/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-es/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-es/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-mybatis/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-mybatis/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-nacos/src/main/java" charset="UTF-8" />

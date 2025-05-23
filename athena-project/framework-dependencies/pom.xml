@@ -100,6 +100,11 @@
                 <artifactId>athena-framework-starters-ai</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>athena-framework-starter-es</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
             <!-- ######################## 框架依赖 ########################### -->
             <dependency>

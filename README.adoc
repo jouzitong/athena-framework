@@ -1,4 +1,45 @@
 
+== 项目结构
+
+
+starters::
+* mybatis、mongo、es
+* web
+* nacos、seata
+
+
+'''
+
+athena-framework-common
+
+`jdk17`, `maven3.8.1`, `spring-boot 3.0.0`
+
+centos7.9
+
+
+== 项目功能介绍
+
+=== common 模块
+
+.导入依赖
+[source,xml]
+----
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-common</artifactId>
+    <version>${revision}</version>
+</dependency>
+----
+
+==== 功能介绍
+
+* 主要是定义基础对象、工具类、异常类、常量类等
+
+=== starts-web 模块
+
+=== starts-mybatis 模块
+
+
 
 == Maven
 

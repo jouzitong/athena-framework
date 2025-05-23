@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>athena-framework-test-es</module>
         <module>athena-framework-test-mybatis</module>
         <module>athena-framework-test-seata</module>
         <module>athena-framework-test-mybatis-pgsql</module>
