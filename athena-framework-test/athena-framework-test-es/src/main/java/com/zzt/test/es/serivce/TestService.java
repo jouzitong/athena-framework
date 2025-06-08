@@ -5,12 +5,7 @@ import com.zzt.test.es.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.client.elc.QueryBuilders;
 import org.springframework.data.elasticsearch.client.erhlc.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.client.erhlc.NativeSearchQuery;
-import org.springframework.data.elasticsearch.client.erhlc.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,8 +36,23 @@ public class TestService {
 
         System.out.println(products);
 
-
-        SearchHits<Product> hits = template.search(query, Product.class);
+//        NativeSearchQuery query = new NativeSearchQueryBuilder()
+//                .withQuery(QueryBuilders,()
+//                        .must(QueryBuilders.matchQuery("title", "phone"))
+//                        .must(QueryBuilders.termQuery("category.id", "c1"))
+//                        .must(QueryBuilders.rangeQuery("price").gte(1000).lte(3000))
+//                        .must(QueryBuilders.nestedQuery("attributes",
+//                                QueryBuilders.boolQuery()
+//                                        .must(QueryBuilders.termQuery("attributes.name", "color"))
+//                                        .must(QueryBuilders.matchQuery("attributes.value", "black")),
+//                                ScoreMode.Avg
+//                        ))
+//                )
+//                .withSort(SortBuilders.fieldSort("price").order(SortOrder.ASC))
+//                .withPageable(PageRequest.of(1, 10))
+//                .build();
+//
+//        SearchHits<Product> hits = elasticsearchRestTemplate.search(query, Product.class);
 
 
 
