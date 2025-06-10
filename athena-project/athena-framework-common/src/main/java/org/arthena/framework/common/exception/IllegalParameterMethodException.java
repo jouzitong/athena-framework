@@ -2,6 +2,7 @@ package org.arthena.framework.common.exception;
 
 import org.arthena.framework.common.constant.CodeConstant;
 import lombok.Getter;
+import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
 /**
  * 非法参数异常
@@ -11,17 +12,10 @@ import lombok.Getter;
  * @since 2022/5/15 15:55
  */
 @Getter
-public class IllegalParameterMethodException extends BaseException {
+public class IllegalParameterMethodException extends BaseRuntimeException {
 
-    private final Object parameter;
-
-    public IllegalParameterMethodException(Object parameter) {
-        super(parameter.toString(), CodeConstant.ILLEGAL_PARAMETER_ERROR);
-        this.parameter = parameter;
+    public IllegalParameterMethodException() {
+        super(CodeConstant.ILLEGAL_PARAMETER_ERROR);
     }
 
-    @Override
-    public String getMsg() {
-        return "非法参数异常: " + parameter;
-    }
 }

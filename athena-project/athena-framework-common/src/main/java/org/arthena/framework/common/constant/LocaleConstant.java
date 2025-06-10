@@ -1,5 +1,7 @@
 package org.arthena.framework.common.constant;
 
+import lombok.Data;
+
 /**
  * @author zhouzhitong
  * @since 2023/5/29
@@ -40,5 +42,21 @@ public interface LocaleConstant {
      * 德文
      */
     String DE = "de_DE";
+
+
+
+    @Data
+    class LocaleType {
+
+        private String locale;
+
+        private String name;
+
+        public LocaleType(String locale, String name) {
+            this.locale = locale;
+            this.name = name;
+        }
+
+    }
 
 }

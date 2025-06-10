@@ -1,7 +1,5 @@
 package org.arthena.framework.common.constant;
 
-import org.arthena.framework.common.exception.Code;
-
 /**
  * 所有的错误码
  *
@@ -11,49 +9,29 @@ import org.arthena.framework.common.exception.Code;
  */
 public interface CodeConstant {
 
-    Code SUCCESS = new Code(0, "成功");
+    Integer SUCCESS = 0;
 
     /**
      * 请求合法的失败
      */
-    Code FAIL = new Code(1, "失败");
+    Integer FAIL = 1;
 
-    Code UN_KNOW_ERROR = new Code(2, "未知异常");
+    String UN_KNOW_ERROR_MSG = "未知异常";
 
-    Code DUPLICATE_REQUEST = new Code(3, "重复请求, 不可重复提交, 请稍后重试");
+    Integer UN_KNOW_ERROR = 2;
+    Integer DUPLICATE_REQUEST = 3;
 
-    Code RESOURCE_NOT_FOUND = new Code(4, "资源不存在");
+    Integer RESOURCE_NOT_FOUND = 4;
 
-    Code CONFIG_ERROR = new Code(99998, "配置文件异常");
+    Integer CONFIG_ERROR = 5;
 
     /**
      * 请求出现异常而导致为捕获异常的失败
      */
-    Code TODO_ERROR = new Code(99999, "功能未开发");
+    Integer TODO_ERROR = 99999;
 
-    Code ILLEGAL_PARAMETER_ERROR = new Code(10101, "非法参数异常");
+    Integer ILLEGAL_PARAMETER_ERROR = 10101;
 
-    Code I18N_RESOLVER_ERROR = new Code(30100, "国际化解析异常");
-
-    Code USER_UN_LOGIN = new Code(40400, "未登陆, 请先登陆");
-
-    Code USER_TOKEN_INVALID_ERROR = new Code(40401, "token失效, 请重新登录");
-
-    Code USER_LOGIN_ERROR = new Code(40402, "登录失败, 请重新登录");
-
-    Code PERMISSION_DENIED = new Code(40403, "没有权限");
-
-    Code USERNAME_NOT_FOUND_ERROR = new Code(40404, "用户名不存在");
-
-    Code USERNAME_PASSWORD_NOT_FOUND_ERROR = new Code(40405, "用户名和密码不匹配异常");
-
-    Code USER_DISABLE_ERROR = new Code(40411, "账户被冻结");
-
-    Code USER_ROLE_DISABLE_ERROR = new Code(40412, "角色被冻结");
-
-
-    Code USER_TOKEN_DENIED_PERMISSION = new Code(40415, "权限不足, 不能访问");
-
-    Code DATABASE_UNKNOWN_EXCEPTION = new Code(50_000, "数据库未知异常");
+    Integer USER_LOGIN_ERROR = 40402;
 
 }

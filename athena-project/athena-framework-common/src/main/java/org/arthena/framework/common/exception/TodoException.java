@@ -2,6 +2,7 @@ package org.arthena.framework.common.exception;
 
 import org.arthena.framework.common.constant.CodeConstant;
 import lombok.Getter;
+import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
 /**
  * 功能未开发异常
@@ -11,10 +12,10 @@ import lombok.Getter;
  * @since 2022/5/15 15:55
  */
 @Getter
-public class TodoException extends BaseException {
+public class TodoException extends BaseRuntimeException {
 
     public TodoException(String message) {
-        super(message, CodeConstant.TODO_ERROR);
+        super(CodeConstant.TODO_ERROR);
     }
 
     public TodoException() {

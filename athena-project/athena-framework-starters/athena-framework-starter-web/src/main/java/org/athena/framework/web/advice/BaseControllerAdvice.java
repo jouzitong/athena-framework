@@ -3,7 +3,7 @@ package org.athena.framework.web.advice;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.constant.CodeConstant;
-import org.arthena.framework.common.exception.BaseException;
+import org.arthena.framework.common.exception.base.BaseRuntimeException;
 import org.arthena.framework.common.exception.BaseUserException;
 import org.arthena.framework.common.exception.ResourceNotFindException;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
@@ -34,7 +34,7 @@ public class BaseControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ResultVO<Void> exception(Exception e) {
         LOGGER.error("", e);
-        return ResultVO.fail(CodeConstant.UN_KNOW_ERROR, e.getMessage());
+        return ResultVO.fail(CodeConstant.UN_KNOW_ERROR);
     }
 
     /**
@@ -43,23 +43,23 @@ public class BaseControllerAdvice {
     @ExceptionHandler(RuntimeException.class)
     public ResultVO<Void> runtimeException(RuntimeException e) {
         LOGGER.error("", e);
-        return ResultVO.fail(CodeConstant.UN_KNOW_ERROR, e.getMessage());
+        return ResultVO.fail(CodeConstant.UN_KNOW_ERROR);
     }
 
     /**
      * 系统异常
      */
-    @ExceptionHandler(BaseException.class)
-    public ResultVO<Void> userException(BaseException e) {
+    @ExceptionHandler(BaseRuntimeException.class)
+    public ResultVO<Void> userException(BaseRuntimeException e) {
         LOGGER.error("", e);
-        return ResultVO.fail(e.getCode(), e.getMsg());
+        return ResultVO.fail(e.getCode(), e.getArgs());
     }
 
     @ExceptionHandler(ResourceNotFindException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResultVO<Void> resourceNotFindException(ResourceNotFindException e) {
         LOGGER.error("", e);
-        return ResultVO.fail(CodeConstant.RESOURCE_NOT_FOUND, e.getMessage());
+        return ResultVO.fail(CodeConstant.RESOURCE_NOT_FOUND, e.getArgs());
     }
 
     @ExceptionHandler(BaseUserException.class)

@@ -1,6 +1,7 @@
 package org.arthena.framework.common.exception;
 
 import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
 import java.io.Serial;
 
@@ -10,25 +11,13 @@ import java.io.Serial;
  * @author zhouzhitong
  * @since 2021/8/27
  */
-public class BaseUserException extends BaseException {
+public class BaseUserException extends BaseRuntimeException {
 
     @Serial
     private static final long serialVersionUID = -8993934800066999384L;
 
-    public BaseUserException() {
-        this(CodeConstant.USER_LOGIN_ERROR);
-    }
-
-    public BaseUserException(String message) {
-        this(message, CodeConstant.USER_LOGIN_ERROR);
-    }
-
-    public BaseUserException(Code code) {
-        this(code.desc(), code);
-    }
-
-    public BaseUserException(String message, Code code) {
-        super(message, code);
+    public BaseUserException(Integer code) {
+        super(code);
     }
 
 }

@@ -1,8 +1,9 @@
 package org.arthena.framework.common.vo;
 
-import org.arthena.framework.common.constant.CodeConstant;
-import org.arthena.framework.common.exception.Code;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.arthena.framework.common.constant.CodeConstant;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,16 +24,17 @@ public class ResultVO<T> implements Serializable {
     /**
      * code=0 成功, 其他都是失败
      */
-    private final Code code;
+    @Getter
+    private final Integer code;
 
-    /**
-     * 请求出现异常时, 给前端的提示信息
-     */
-    private final String msg;
+    @Setter
+    private Object[] args;
 
     /**
      * 具体数据
      */
+    @Getter
+    @Setter
     private T data;
 
     protected ResultVO() {
@@ -44,28 +46,19 @@ public class ResultVO<T> implements Serializable {
         this.data = data;
     }
 
-
-    protected ResultVO(Code code, String msg) {
+    protected ResultVO(Integer code) {
         this.code = code;
-        this.msg = msg;
     }
 
-    public ResultVO(Code code) {
-        this(code,code.desc());
+    protected ResultVO(Integer code, Object... args) {
+        this.code = code;
+        this.args = args;
     }
 
-    public Integer getCode() {
-        return code.code();
+    public String getMsg() {
+        // TODO
+        return null;
     }
-
-    public String getDesc() {
-        return code.desc();
-    }
-
-//    protected ResultVO(Code code, T data) {
-//        this.code = code;
-//        this.data = data;
-//    }
 
     public static ResultVO<Void> success() {
         return new ResultVO<>();
@@ -79,21 +72,9 @@ public class ResultVO<T> implements Serializable {
         return new ResultVO<>(data);
     }
 
-    public static ResultVO<Void> fail(String msg) {
-        return new ResultVO<>(CodeConstant.FAIL, msg);
+    public static ResultVO<Void> fail(Integer code, Object... args) {
+        return new ResultVO<>(code,args);
     }
-
-    public static ResultVO<Void> fail(Code code) {
-        return new ResultVO<>(code);
-    }
-
-    public static ResultVO<Void> fail(Code code, String msg) {
-        return new ResultVO<>(code, msg);
-    }
-
-//    public static  <T> ResultVO<T> fail(Code code, T data) {
-//        return new ResultVO<>(code, data);
-//    }
 
     public static ResultVO<Void> fail() {
         return new ResultVO<>(CodeConstant.FAIL);

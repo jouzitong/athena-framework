@@ -26,6 +26,7 @@ import java.io.Serializable;
  * @version 1.0
  * @since 2022/5/19 23:11
  */
+@Deprecated
 public record Code(int code, String desc) implements Serializable {
 
 }
