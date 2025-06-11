@@ -24,15 +24,19 @@ public class ErrorCodeUtils {
 
     public static final String FILE_TYPE = ".properties";
 
+    public static final String CODE_MSG_PARAM_PLACEHOLDER = "{}";
+
     private static final Map<String, Properties> errorCodeMap = new ConcurrentHashMap<>();
     private static final Logger log = LoggerFactory.getLogger(ErrorCodeUtils.class);
 
     public static String getMsg(Integer code, Object... args) {
         String msg = getMsg(code);
-        if (args != null && args.length > 0) {
-            for (int i = 0; i < args.length; i++) {
-                msg = msg.replace("{" + i + "}", args[i].toString());
-            }
+        int msgIndex = msg.indexOf(CODE_MSG_PARAM_PLACEHOLDER);
+        int argsIndex = 0;
+        while (msgIndex != -1) {
+            String rMsg = args.length > argsIndex ? " " + args[argsIndex++].toString() + " " : "";
+            msg = msg.replace(CODE_MSG_PARAM_PLACEHOLDER, rMsg);
+            msgIndex = msg.indexOf(CODE_MSG_PARAM_PLACEHOLDER, msgIndex + 1);
         }
         return msg;
     }
@@ -91,7 +95,7 @@ public class ErrorCodeUtils {
     /**
      * 加载错误码文件
      *
-     * @param key  key
+     * @param key      key
      * @param fileName 文件名
      * @return 文件内容
      */
