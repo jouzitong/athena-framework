@@ -77,7 +77,7 @@ public class ResultVO<T> implements Serializable {
     }
 
     public static ResultVO<Void> fail() {
-        return new ResultVO<>(CodeConstant.FAIL);
+        return new ResultVO<>(CodeConstant.UN_KNOW_ERROR);
     }
 
 }

@@ -2,6 +2,7 @@ package org.arthena.framework.common.exception.base;
 
 import lombok.Getter;
 import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.utils.ErrorCodeUtils;
 
 /**
  * @author zhouzhitong
@@ -16,10 +17,6 @@ public class BaseException extends Exception {
     @Getter
     private final Object[] args;
 
-    public BaseException(String message) {
-        this(message, CodeConstant.UN_KNOW_ERROR);
-    }
-
     public BaseException(Exception e) {
         super(e);
         if (e instanceof BaseException baseException) {
@@ -28,25 +25,23 @@ public class BaseException extends Exception {
         } else {
             this.code = CodeConstant.UN_KNOW_ERROR;
             this.args = null;
+
         }
     }
 
-    public BaseException(Integer code) {
-        this(null, code);
-    }
-
-    public BaseException(String message, Integer code) {
-        super(message);
+    public BaseException(Integer code,Object... args) {
+        super(ErrorCodeUtils.getMsg(code, args));
         this.code = code;
-        this.args = null;
-    }
-
-    public String getMsg() {
-        return getMessage();
+        this.args = args;
     }
 
     public Integer code() {
         return this.code;
+    }
+
+    @Override
+    public String getMessage() {
+        return ErrorCodeUtils.getMsg(this.code, this.args);
     }
 
 }

@@ -1,6 +1,4 @@
-package org.arthena.framework.common.exception;
-
-import org.arthena.framework.common.exception.base.BaseRuntimeException;
+package org.arthena.framework.common.exception.base;
 
 /**
  * 业务异常
@@ -10,8 +8,8 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
  **/
 public class BusinessRuntimeException extends BaseRuntimeException {
 
-    public BusinessRuntimeException(Integer code) {
-        super(code);
+    public BusinessRuntimeException(Integer code, Object... args) {
+        super(code, args);
     }
 
     public BusinessRuntimeException(Exception e) {

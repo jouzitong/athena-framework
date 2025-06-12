@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.constant.CodeConstant;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
-import org.arthena.framework.common.exception.BaseUserException;
+import org.arthena.framework.common.exception.base.BaseUserException;
 import org.arthena.framework.common.exception.ResourceNotFindException;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
 import org.arthena.framework.common.vo.ResultVO;

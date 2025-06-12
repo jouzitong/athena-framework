@@ -28,24 +28,18 @@ public class BaseRuntimeException extends RuntimeException {
         }
     }
 
-    public BaseRuntimeException(Integer code) {
-        super(ErrorCodeUtils.getMsg(code));
-        this.code = code;
-        this.args = null;
-    }
-
     public BaseRuntimeException(Integer code, Object... args) {
-        super(ErrorCodeUtils.getMsg(code, args));
         this.code = code;
         this.args = args;
     }
 
-    public String getMsg() {
-        return ErrorCodeUtils.getMsg(code, args);
-    }
-
     public Integer code() {
         return this.code;
+    }
+
+    @Override
+    public String getMessage() {
+        return ErrorCodeUtils.getMsg(this.code, this.args);
     }
 
 }

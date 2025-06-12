@@ -1,7 +1,4 @@
-package org.arthena.framework.common.exception;
-
-import org.arthena.framework.common.constant.CodeConstant;
-import org.arthena.framework.common.exception.base.BaseRuntimeException;
+package org.arthena.framework.common.exception.base;
 
 import java.io.Serial;
 
@@ -16,8 +13,12 @@ public class BaseUserException extends BaseRuntimeException {
     @Serial
     private static final long serialVersionUID = -8993934800066999384L;
 
-    public BaseUserException(Integer code) {
-        super(code);
+    public BaseUserException(Exception e) {
+        super(e);
+    }
+
+    public BaseUserException(Integer code, Object... args) {
+        super(code,args);
     }
 
 }

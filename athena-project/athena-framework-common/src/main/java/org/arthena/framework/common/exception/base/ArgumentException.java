@@ -1,6 +1,4 @@
-package org.arthena.framework.common.exception;
-
-import org.arthena.framework.common.exception.base.BaseRuntimeException;
+package org.arthena.framework.common.exception.base;
 
 /**
  * 参数异常
@@ -14,7 +12,7 @@ public class ArgumentException extends BaseRuntimeException {
         super(e);
     }
 
-    public ArgumentException(Integer code) {
-        super(code);
+    public ArgumentException(Integer code, Object... args) {
+        super(code, args);
     }
 }
