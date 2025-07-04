@@ -1,0 +1,36 @@
+{
+  "mdc": {
+    "traceId": "$${ctx:traceId:-}"
+  },
+  "timestamp": {
+    "$resolver": "date",
+    "pattern": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+    }
+  },
+  "level": {
+    "$resolver": "level",
+    "field": "name"
+  },
+  "thread": {
+    "$resolver": "thread",
+    "field": "name"
+  },
+  "logger": {
+    "$resolver": "logger",
+    "field": "name"
+  },
+  "message": {
+    "$resolver": "message",
+    "stringified": true
+  },
+  "throwable": {
+    "$resolver": "throwable",
+    "renderer": {
+      "name": "default",
+      "stackTraceEnabled": true,
+      "rootCauseFirst": true,
+      "maxDepth": 20
+    }
+  }
+}

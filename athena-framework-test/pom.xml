@@ -18,6 +18,7 @@
         <module>athena-framework-test-mybatis</module>
         <module>athena-framework-test-seata</module>
         <module>athena-framework-test-mybatis-pgsql</module>
+        <module>athena-framework-test-log4j2</module>
     </modules>
 
     <dependencyManagement>

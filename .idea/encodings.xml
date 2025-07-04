@@ -3,6 +3,8 @@
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-es/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-es/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-log4j2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-log4j2/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-mybatis-pgsql/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-mybatis-pgsql/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-framework-test/athena-framework-test-mybatis/src/main/java" charset="UTF-8" />

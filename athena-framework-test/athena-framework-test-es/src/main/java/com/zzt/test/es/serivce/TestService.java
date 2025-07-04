@@ -5,7 +5,6 @@ import com.zzt.test.es.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.elasticsearch.client.erhlc.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +19,6 @@ public class TestService {
 
     @Resource
     private ProductRepository productRepository;
-
-    @Resource
-    private ElasticsearchRestTemplate template;
 
     @PostConstruct
     public void test() {

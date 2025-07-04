@@ -13,6 +13,8 @@ target/
 *.ipr
 *.idea
 idea/
+logs/
+*/logs/
 
 ### Eclipse ###
 .apt_generated
@@ -40,5 +42,7 @@ build/
 .DS_Store
 
 ### framework auto generated files ###
+.flattened-pom.xml
+
 # 自动生成 ddl 文件
 **/*ddl.sql

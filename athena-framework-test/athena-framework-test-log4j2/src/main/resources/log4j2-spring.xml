@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" packages="com.example.logconfig">
+    <!-- 定义变量 -->
+    <Properties>
+        <Property name="esHost">localhost</Property>
+        <Property name="esPort">9200</Property>
+        <Property name="esIndex">springboot-logs</Property>
+        <Property name="esType">log</Property>
+        <Property name="esTimeout">5000</Property>
+        <Property name="esMaxRetries">3</Property>
+    </Properties>
+
+    <!-- 定义日志格式 -->
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <!-- Elasticsearch输出 -->
+        <Elasticsearch name="Elasticsearch"
+                       hostNames="${esHost}:${esPort}"
+                       index="${esIndex}"
+                       documentType="${esType}"
+                       timeout="${esTimeout}"
+                       maxRetries="${esMaxRetries}"
+                       layout="${esLayout}">
+            <JsonLayout>
+                <KeyValuePair key="service" value="springboot-demo"/>
+                <KeyValuePair key="environment" value="dev"/>
+            </JsonLayout>
+        </Elasticsearch>
+    </Appenders>
+
+    <!-- 定义日志布局 -->
+    <Layouts>
+        <JsonLayout name="esLayout">
+            <KeyValuePair key="service" value="springboot-demo"/>
+            <KeyValuePair key="environment" value="dev"/>
+        </JsonLayout>
+    </Layouts>
+
+    <!-- 定义日志根级别 -->
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="Elasticsearch"/>
+        </Root>
+
+        <!-- 可以为特定包设置不同的日志级别 -->
+        <Logger name="org.springframework" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="Elasticsearch"/>
+        </Logger>
+    </Loggers>
+</Configuration>
