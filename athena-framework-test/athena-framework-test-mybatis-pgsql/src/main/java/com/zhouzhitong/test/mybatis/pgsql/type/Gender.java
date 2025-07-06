@@ -3,7 +3,7 @@ package com.zhouzhitong.test.mybatis.pgsql.type;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
-import org.arthena.framework.common.base.BaseEnum;
+import org.arthena.framework.common.base.IEnum;
 
 /**
  * @author zhouzhitong
@@ -11,7 +11,7 @@ import org.arthena.framework.common.base.BaseEnum;
  **/
 
 @Getter
-public enum Gender implements BaseEnum {
+public enum Gender implements IEnum {
 
     MAN(1, "男"),
     WOMAN(2, "女"),

@@ -13,13 +13,13 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>athena-framework-starter-mybatis</module>
         <module>athena-framework-starter-web</module>
         <module>athena-framework-starter-nacos</module>
         <module>athena-framework-starter-seata</module>
         <module>athena-framework-data-starter-mongo</module>
         <module>athena-framework-starters-ai</module>
         <module>athena-framework-starter-es</module>
+        <module>athena-framework-starter-data</module>
     </modules>
 
     <dependencies>

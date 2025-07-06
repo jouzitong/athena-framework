@@ -1,8 +1,10 @@
 package com.zhouzhitong.test.mybatis;
 
+import com.baomidou.mybatisplus.autoconfigure.DdlApplicationRunner;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
 /**
  * @author zhouzhitong
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  **/
 @SpringBootApplication
 @MapperScan("com.zhouzhitong.test.mybatis.mapper")
+@Import(DdlApplicationRunner.class)
 public class MybatisTestApplication {
 
     public static void main(String[] args) {

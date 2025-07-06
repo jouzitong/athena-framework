@@ -20,7 +20,7 @@ $!{autoImport.vm}
 ###if (${isLocale})
 ##import com.zhouzhitong.lib.common.dto.BaseLocaleDTO;
 ###else
-import org.athena.framework.mybatis.dto.BaseDTO;
+import dto.org.athena.framework.data.mybatis.BaseDTO;
 ###end
 import java.io.Serializable;
 

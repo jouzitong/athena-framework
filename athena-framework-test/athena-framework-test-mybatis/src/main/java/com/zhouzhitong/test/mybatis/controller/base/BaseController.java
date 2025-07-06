@@ -1,14 +1,21 @@
 package com.zhouzhitong.test.mybatis.controller.base;
 
-import org.athena.framework.mybatis.base.BaseRequest;
-import org.athena.framework.mybatis.dto.BaseDTO;
-import org.athena.framework.mybatis.entity.BaseEntity;
-import org.athena.framework.mybatis.service.MapperService;
-import org.athena.framework.mybatis.vo.PageResultVO;
+import org.athena.framework.data.mybatis.dto.BaseDTO;
+import org.athena.framework.data.mybatis.entity.BaseEntity;
+import org.athena.framework.data.mybatis.req.BaseRequest;
+import org.athena.framework.data.mybatis.service.MapperService;
+import org.athena.framework.data.mybatis.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 

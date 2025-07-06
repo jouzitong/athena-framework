@@ -17,6 +17,12 @@
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-data-starter-mongo/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-data-starter-mongo/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-data/athena-framework-starter-data-jdbc/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-data/athena-framework-starter-data-jdbc/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-data/athena-framework-starter-data-mybatis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-data/athena-framework-starter-data-mybatis/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-data/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-data/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-es/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-es/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/athena-project/athena-framework-starters/athena-framework-starter-mybatis/src/main/java" charset="UTF-8" />

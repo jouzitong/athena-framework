@@ -10,7 +10,7 @@ $!{define.vm}
 ##包路径（宏定义）
 #setPackageSuffix("mapper")
 
-import org.athena.framework.mybatis.mapper.CrudMapper;
+import mapper.org.athena.framework.data.mybatis.CrudMapper;
 import $!{tableInfo.savePackageName}.bean.$!tableInfo.name;
 
 ##表注释（宏定义）

@@ -26,7 +26,7 @@
 
         <dependency>
             <groupId>org.athena</groupId>
-            <artifactId>athena-framework-starter-mybatis</artifactId>
+            <artifactId>athena-framework-starter-data-mybatis</artifactId>
         </dependency>
 
     </dependencies>

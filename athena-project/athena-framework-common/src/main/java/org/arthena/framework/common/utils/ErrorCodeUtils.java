@@ -31,6 +31,9 @@ public class ErrorCodeUtils {
 
     public static String getMsg(Integer code, Object... args) {
         String msg = getMsg(code);
+        if (args == null) {
+            return msg;
+        }
         int msgIndex = msg.indexOf(CODE_MSG_PARAM_PLACEHOLDER);
         int argsIndex = 0;
         while (msgIndex != -1) {

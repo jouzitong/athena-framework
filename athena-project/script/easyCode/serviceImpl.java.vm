@@ -9,7 +9,7 @@ $!{define.vm}
 
 ##包路径（宏定义）
 #setPackageSuffix("service.impl")
-import org.athena.framework.mybatis.service.impl.MapperServiceImpl;
+import impl.service.org.athena.framework.data.mybatis.MapperServiceImpl;
 import $!{tableInfo.savePackageName}.mapper.$!{tableInfo.name}Mapper;
 import $!{tableInfo.savePackageName}.bean.$!{tableInfo.name};
 import $!{tableInfo.savePackageName}.dto.$!{tableInfo.name}DTO;

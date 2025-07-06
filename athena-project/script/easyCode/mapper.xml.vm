@@ -18,7 +18,7 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
 
         <resultMap type="$!{tableInfo.savePackageName}.bean.$!{tableInfo.name}" id="$!{tableInfo.name}Map">
             #foreach($column in $tableInfo.fullColumn)
-                <result property="$!{column.name}" column="$!column.obj.name" jdbcType="$!{column.ext.jdbcType}"#if($!{column.ext.sqlType}=='json') typeHandler="org.athena.framework.mybatis.handler.DefaultJsonHandler" #end/>
+                <result property="$!{column.name}" column="$!column.obj.name" jdbcType="$!{column.ext.jdbcType}"#if($!{column.ext.sqlType}=='json') typeHandler="handler.org.athena.framework.data.mybatis.DefaultJsonHandler" #end/>
             #end
         </resultMap>
 

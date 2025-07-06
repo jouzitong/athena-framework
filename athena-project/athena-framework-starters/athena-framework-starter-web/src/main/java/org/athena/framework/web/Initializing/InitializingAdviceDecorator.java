@@ -3,7 +3,7 @@ package org.athena.framework.web.Initializing;
 import jakarta.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.athena.framework.web.annotation.IgnoredResultWrapper;
-import org.arthena.framework.common.vo.ResultVO;
+import org.athena.framework.web.vo.R;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * 业务: 包装 controller 返回值的拦截器. 用于统一返回值格式: new ResultVO<>(data);
+ * 描述: 包装 controller 返回值的拦截器. 用于统一返回值格式: new ResultVO<>(data);
  *
  * @author zhouzhitong
  * @since 2023-12-12
@@ -30,6 +30,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class InitializingAdviceDecorator implements InitializingBean {
+
     private final RequestMappingHandlerAdapter adapter;
 
     @Autowired
@@ -115,12 +116,12 @@ public class InitializingAdviceDecorator implements InitializingBean {
                 }
             }
             //如果已经封装了结构体就直接放行
-            if (returnValue instanceof ResultVO) {
+            if (returnValue instanceof R) {
                 handler.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
                 return;
             }
             //正常返回success
-            ResultVO<Object> success = ResultVO.success(returnValue);
+            R<Object> success = R.ok(returnValue);
             handler.handleReturnValue(success, returnType, mavContainer, webRequest);
         }
     }

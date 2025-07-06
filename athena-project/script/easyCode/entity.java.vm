@@ -20,7 +20,7 @@ $!{autoImport.vm}
 #if (${isLocale})
 import com.zhouzhitong.lib.mapper.entity.BaseLocaleEntity;
 #else
-import org.athena.framework.mybatis.entity.BaseEntity;
+import entity.org.athena.framework.data.mybatis.BaseEntity;
 #end
 
 import java.io.Serializable;

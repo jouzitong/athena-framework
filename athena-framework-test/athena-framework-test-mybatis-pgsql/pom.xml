@@ -16,13 +16,14 @@
 
         <dependency>
             <groupId>org.athena</groupId>
-            <artifactId>athena-framework-starter-mybatis</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>mysql</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>athena-framework-starter-data-mybatis</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>provided</scope><!-- 保证使用方不会直接导入该依赖 -->
         </dependency>
 
         <dependency>

@@ -1,6 +1,6 @@
 package org.arthena.framework.common.utils;
 
-import org.arthena.framework.common.base.BaseEnum;
+import org.arthena.framework.common.base.IEnum;
 import org.arthena.framework.common.exception.EnumNotFindException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ import java.util.Objects;
 @Slf4j
 public class EnumUtils {
 
-    public static <T extends BaseEnum> T codeOf(Class<T> c, Integer code) {
+    public static <T extends IEnum> T codeOf(Class<T> c, Integer code) {
         if (code == null) {
             return null;
         }

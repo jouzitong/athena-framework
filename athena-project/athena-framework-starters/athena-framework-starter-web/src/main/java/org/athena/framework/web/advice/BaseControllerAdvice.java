@@ -7,7 +7,7 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
 import org.arthena.framework.common.exception.base.BaseUserException;
 import org.arthena.framework.common.exception.ResourceNotFindException;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
-import org.arthena.framework.common.vo.ResultVO;
+import org.athena.framework.web.vo.R;
 import org.athena.framework.web.vo.ErrorParamVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.ObjectError;
@@ -32,48 +32,48 @@ public class BaseControllerAdvice {
      * 未知异常
      */
     @ExceptionHandler(Exception.class)
-    public ResultVO<Void> exception(Exception e) {
+    public R<Void> exception(Exception e) {
         LOGGER.error("", e);
-        return ResultVO.fail(CodeConstant.UN_KNOW_ERROR);
+        return R.fail(CodeConstant.UN_KNOW_ERROR);
     }
 
     /**
      * 未知运行时异常
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResultVO<Void> runtimeException(RuntimeException e) {
+    public R<Void> runtimeException(RuntimeException e) {
         LOGGER.error("", e);
-        return ResultVO.fail(CodeConstant.UN_KNOW_ERROR);
+        return R.fail(CodeConstant.UN_KNOW_ERROR);
     }
 
     /**
      * 系统异常
      */
     @ExceptionHandler(BaseRuntimeException.class)
-    public ResultVO<Void> userException(BaseRuntimeException e) {
+    public R<Void> userException(BaseRuntimeException e) {
         LOGGER.error("", e);
-        return ResultVO.fail(e.getCode(), e.getArgs());
+        return R.fail(e.getCode(), e.getArgs());
     }
 
     @ExceptionHandler(ResourceNotFindException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResultVO<Void> resourceNotFindException(ResourceNotFindException e) {
+    public R<Void> resourceNotFindException(ResourceNotFindException e) {
         LOGGER.error("", e);
-        return ResultVO.fail(CodeConstant.RESOURCE_NOT_FOUND, e.getArgs());
+        return R.fail(CodeConstant.RESOURCE_NOT_FOUND, e.getArgs());
     }
 
     @ExceptionHandler(BaseUserException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResultVO<Void> resourceNotFindException(BaseUserException e) {
+    public R<Void> resourceNotFindException(BaseUserException e) {
         LOGGER.error("");
-        return ResultVO.fail(e.getCode());
+        return R.fail(e.getCode());
     }
 
     /**
      * 参数校验异常. @Valid 校验抛出的异常拦截
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResultVO<Void> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+    public R<Void> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
         LOGGER.error("", e);
         // 从异常对象中拿到ObjectError对象
         List<ObjectError> errors = e.getBindingResult().getAllErrors();
@@ -85,7 +85,7 @@ public class BaseControllerAdvice {
             vo.setMessage(error.getDefaultMessage());
             res.add(vo);
         }
-        return ResultVO.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, JacksonJsonUtils.writeValueAsString(res));
+        return R.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, JacksonJsonUtils.writeValueAsString(res));
     }
 
 }
