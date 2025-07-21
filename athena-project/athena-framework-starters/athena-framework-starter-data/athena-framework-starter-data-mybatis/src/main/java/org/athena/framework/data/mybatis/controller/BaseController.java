@@ -1,9 +1,9 @@
 package org.athena.framework.data.mybatis.controller;
 
 import jakarta.annotation.Resource;
+import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.mybatis.dto.BaseDTO;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
-import org.athena.framework.data.mybatis.req.BaseRequest;
 import org.athena.framework.data.mybatis.service.MapperService;
 import org.athena.framework.data.mybatis.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Value;

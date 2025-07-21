@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.athena.framework.data.mybatis.properties.bean.FieldTypeMap;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,6 +35,8 @@ public class DefaultMapperProperties {
      * 创建表 ddl 的文件目录
      */
     private String tableDDLPathFile = "/config";
+
+    private Resource tableDDLPathFile2 = new ClassPathResource("config/");
 
     /**
      * 是否开启自动更新表

@@ -1,13 +1,12 @@
 package org.athena.framework.data.mybatis.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.arthena.framework.common.exception.TodoException;
 import org.arthena.framework.common.utils.BeanUtils;
+import org.athena.framework.data.jdbc.req.BaseRequest;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.mybatis.dto.BaseDTO;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
-import org.athena.framework.data.mybatis.req.BaseRequest;
-import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
 import org.athena.framework.data.mybatis.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +16,10 @@ import java.util.List;
  * CRUD 基础服务类
  *
  * @author zhouzhitong
+ * @see IMapperService NewMapperService
  * @since 2022/9/28
  */
+@Deprecated
 public interface MapperService<Entity extends BaseEntity, DTO extends BaseDTO>
         extends IService<Entity> {
 
@@ -171,16 +172,6 @@ public interface MapperService<Entity extends BaseEntity, DTO extends BaseDTO>
      */
     Entity newEntity();
 
-    /**
-     * 实例化Query
-     *
-     * @param query   查询条件
-     * @param <Query> 查询条件类型
-     * @return Query对象
-     */
-    default <Query extends BaseRequest> QueryWrapper<Entity> buildQuery(Query query) {
-        return MybatisPlusWrapperUtils.simpleQuery(query);
-    }
 
     /**
      * 编号生成器

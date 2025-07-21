@@ -7,6 +7,7 @@ import lombok.Data;
 import org.athena.framework.data.jdbc.annotation.FieldComment;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
 import org.athena.framework.data.mybatis.handler.DefaultJsonHandler;
+import org.springframework.stereotype.Indexed;
 
 /**
  * @author zhouzhitong

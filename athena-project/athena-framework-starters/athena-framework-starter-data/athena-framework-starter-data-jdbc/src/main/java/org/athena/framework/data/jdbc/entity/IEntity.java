@@ -21,4 +21,17 @@ public interface IEntity<ID extends Serializable> extends Serializable {
 
     Long getVersion();
 
+    default boolean isDeleted() {
+        return false;
+    }
+
+    default void setDeleted(boolean deleted) {
+
+    }
+
+
+    default Long getAndIncrementVersion() {
+        return 0L;
+    }
+
 }

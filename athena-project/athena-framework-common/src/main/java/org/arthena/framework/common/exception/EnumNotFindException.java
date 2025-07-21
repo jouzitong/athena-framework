@@ -1,6 +1,6 @@
 package org.arthena.framework.common.exception;
 
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 import org.arthena.framework.common.constant.CodeConstant;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 

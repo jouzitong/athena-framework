@@ -4,12 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageInfo;
 import org.athena.framework.data.mybatis.dto.BaseDTO;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
 import org.athena.framework.data.mybatis.mapper.CrudMapper;
-import org.athena.framework.data.mybatis.req.BaseRequest;
 import org.athena.framework.data.mybatis.service.MapperService;
+import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
 import org.athena.framework.data.mybatis.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,10 @@ import java.util.List;
 
 /**
  * @author zhouzhitong
+ * @see MapperServiceImplV2 MapperServiceImplV2
  * @since 2022/9/28
  */
+@Deprecated
 @Slf4j
 public abstract class MapperServiceImpl
         <Mapper extends CrudMapper<Entity>,
@@ -99,6 +102,17 @@ public abstract class MapperServiceImpl
         LOGGER.trace("get request: {}", id);
         Entity entity = getEntity(id);
         return toDTO(entity);
+    }
+
+    /**
+     * 实例化Query
+     *
+     * @param query   查询条件
+     * @param <Query> 查询条件类型
+     * @return Query对象
+     */
+    protected <Query extends BaseRequest> QueryWrapper<Entity> buildQuery(Query query) {
+        return MybatisPlusWrapperUtils.simpleQuery(query);
     }
 
     private Entity getEntity(Long id) {

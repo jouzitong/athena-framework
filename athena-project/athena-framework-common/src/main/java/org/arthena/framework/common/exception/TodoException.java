@@ -14,8 +14,8 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
 @Getter
 public class TodoException extends BaseRuntimeException {
 
-    public TodoException(String message) {
-        super(CodeConstant.TODO_ERROR);
+    public TodoException(int code) {
+        super(code);
     }
 
     public TodoException() {

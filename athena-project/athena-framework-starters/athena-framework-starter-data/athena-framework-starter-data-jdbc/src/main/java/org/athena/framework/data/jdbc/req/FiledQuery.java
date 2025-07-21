@@ -1,7 +1,7 @@
-package org.athena.framework.data.mybatis.req;
+package org.athena.framework.data.jdbc.req;
 
 import lombok.Data;
-import org.athena.framework.data.mybatis.type.QueryType;
+import org.athena.framework.data.jdbc.type.QueryType;
 
 import javax.annotation.Nullable;
 import java.io.Serial;

@@ -3,7 +3,7 @@ package org.athena.framework.data.mybatis.autoGen.mysql;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.Getter;
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 import org.athena.framework.data.mybatis.autoGen.DatabaseTypeMapConfig;
 import org.athena.framework.data.mybatis.properties.DefaultMapperProperties;
 import org.athena.framework.data.mybatis.properties.bean.FieldTypeMap;

@@ -86,7 +86,7 @@ public class BaseEntity extends Model<BaseEntity> implements IEntity<Long>{
         return this.id;
     }
 
-    public long getAndIncrementVersion() {
+    public Long getAndIncrementVersion() {
 //        return ++version;
         return -1L;
     }

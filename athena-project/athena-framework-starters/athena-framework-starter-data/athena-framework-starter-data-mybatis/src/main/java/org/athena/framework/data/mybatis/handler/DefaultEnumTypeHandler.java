@@ -3,7 +3,7 @@ package org.athena.framework.data.mybatis.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 import org.arthena.framework.common.utils.EnumUtils;
 
 import java.sql.CallableStatement;

@@ -1,4 +1,4 @@
-package org.arthena.framework.common.base;
+package org.arthena.framework.common.enums;
 
 import org.arthena.framework.common.annotation.GlobalEnum;
 
@@ -19,13 +19,26 @@ public interface IEnum extends Serializable {
      *
      * @return code
      */
-    Integer getCode();
+    int getCode();
 
     /**
      * 枚举描述
      *
      * @return 枚举描述
      */
-    String getDesc();
+    String getName();
+
+    /**
+     * 当前枚举值是否可用
+     *
+     * @return 是否可用
+     */
+    default boolean isEnable() {
+        return true;
+    }
+
+    default String toStr() {
+        return getName();
+    }
 
 }

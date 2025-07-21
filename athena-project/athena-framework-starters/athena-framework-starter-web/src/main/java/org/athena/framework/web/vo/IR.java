@@ -23,6 +23,10 @@ public interface IR<T> extends Serializable {
         return null;
     }
 
+    default Object getOpCode() {
+        return null;
+    }
+
     /**
      * 描述信息. 如果有操作码, 则是对操作码的描述. 如果操作码没有值, 则描述状态的的信息
      *
@@ -45,5 +49,15 @@ public interface IR<T> extends Serializable {
     default String getSign() {
         return null;
     }
+
+    /**
+     * 获取状态码
+     *
+     * @return 状态码
+     */
+    default int getStatus() {
+        return getCode() == 0 ? 200 : 500;
+    }
+
 
 }

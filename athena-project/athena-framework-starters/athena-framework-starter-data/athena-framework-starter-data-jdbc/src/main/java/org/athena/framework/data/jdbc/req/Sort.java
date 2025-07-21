@@ -1,4 +1,4 @@
-package org.athena.framework.data.mybatis.req;
+package org.athena.framework.data.jdbc.req;
 
 import lombok.Getter;
 

@@ -1,9 +1,9 @@
-package org.athena.framework.data.mybatis.type;
+package org.athena.framework.data.jdbc.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 import org.arthena.framework.common.utils.EnumUtils;
 
 import java.io.Serial;
@@ -49,17 +49,17 @@ public enum QueryType implements IEnum {
     private static final long serialVersionUID = 1L;
 
     @JsonValue
-    private final Integer code;
+    private final int code;
 
-    private final String desc;
+    private final String name;
 
-    QueryType(Integer code, String desc) {
+    QueryType(int code, String name) {
         this.code = code;
-        this.desc = desc;
+        this.name = name;
     }
 
     @JsonCreator
-    public static QueryType of(Integer code) {
+    public static QueryType of(int code) {
         return EnumUtils.codeOf(QueryType.class, code);
     }
 

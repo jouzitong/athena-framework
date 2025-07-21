@@ -1,6 +1,6 @@
 package org.arthena.framework.common.annotation;
 
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

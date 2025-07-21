@@ -3,7 +3,7 @@ package com.zhouzhitong.test.mybatis.pgsql.type;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 
 /**
  * @author zhouzhitong
@@ -19,12 +19,12 @@ public enum Gender implements IEnum {
 
     @JsonValue
     @EnumValue
-    private final Integer code;
+    private final int code;
 
-    private final String desc;
+    private final String name;
 
-    Gender(Integer code, String desc) {
+    Gender(int code, String name) {
         this.code = code;
-        this.desc = desc;
+        this.name = name;
     }
 }

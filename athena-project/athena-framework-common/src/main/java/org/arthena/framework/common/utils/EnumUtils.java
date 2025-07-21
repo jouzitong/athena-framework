@@ -1,6 +1,6 @@
 package org.arthena.framework.common.utils;
 
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 import org.arthena.framework.common.exception.EnumNotFindException;
 import lombok.extern.slf4j.Slf4j;
 

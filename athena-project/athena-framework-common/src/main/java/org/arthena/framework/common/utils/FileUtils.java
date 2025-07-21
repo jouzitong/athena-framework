@@ -59,6 +59,48 @@ public class FileUtils {
 
     }
 
+    /**
+     * 拼接路径
+     *
+     * @param paths 路径数组
+     * @return 路径
+     */
+    public static String getPathSplicing(String... paths) {
+        if (paths == null || paths.length == 0) {
+            return System.getProperty("user.dir");
+        }
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        String path = paths[i++];
+        if (path.startsWith(File.separator)) {
+            sb.append(path);
+        } else {
+            sb.append(System.getProperty("user.dir")).append(File.separator).append(path);
+        }
+        // TODO
+        // TODO
+        // TODO
 
+        return sb.toString();
+    }
+
+    public static File getFile(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            try {
+                if (!file.getParentFile().exists()) {
+                    file.getParentFile().mkdirs();
+                }
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return file;
+    }
+
+    public static String getAbsolutePath(String filePath) {
+        return getFile(filePath).getAbsolutePath();
+    }
 
 }

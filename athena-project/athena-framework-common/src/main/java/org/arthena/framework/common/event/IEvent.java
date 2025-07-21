@@ -8,5 +8,5 @@ import java.io.Serializable;
  * @author zhouzhitong
  * @since 2023/2/13
  */
-public interface Event extends Serializable {
+public interface IEvent extends Serializable {
 }

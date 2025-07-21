@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @ToString
-public class BaseDTO extends ExtensibleProperties implements IDTO {
+public class BaseDTO extends ExtensibleProperties implements IDTO<Long> {
 
     @Serial
     private static final long serialVersionUID = 6328681439535050530L;
@@ -55,6 +55,6 @@ public class BaseDTO extends ExtensibleProperties implements IDTO {
     /**
      * 版本
      */
-    private long version;
+    private Long version;
 
 }

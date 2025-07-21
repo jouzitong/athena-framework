@@ -1,7 +1,7 @@
 package org.athena.framework.data.mybatis.autoGen.mysql;
 
 import lombok.Getter;
-import org.arthena.framework.common.base.IEnum;
+import org.arthena.framework.common.enums.IEnum;
 import org.arthena.framework.common.base.DBJson;
 import org.athena.framework.data.mybatis.properties.bean.FieldTypeMap;
 import org.athena.framework.data.mybatis.properties.bean.GenTypeConfig;
