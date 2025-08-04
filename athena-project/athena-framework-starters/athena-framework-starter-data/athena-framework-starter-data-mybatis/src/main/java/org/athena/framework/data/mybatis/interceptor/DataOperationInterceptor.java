@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.athena.framework.data.mybatis.constant.BaseEntityConstant.*;
+import static org.athena.framework.data.jdbc.constant.BaseEntityConstant.*;
 
 /**
  * 自动插入的数据包括：创建人、创建时间、修改人、修改时间

@@ -1,11 +1,11 @@
-package org.athena.framework.data.mybatis.controller;
+package org.athena.framework.data.jdbc.web;
 
 import jakarta.annotation.Resource;
+import org.athena.framework.data.jdbc.dto.BaseDTO;
 import org.athena.framework.data.jdbc.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
-import org.athena.framework.data.jdbc.dto.BaseDTO;
-import org.athena.framework.data.mybatis.service.MapperService;
-import org.athena.framework.data.mybatis.vo.PageResultVO;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
+import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -29,10 +30,11 @@ public class BaseController
         // 操作实体
         <Entity extends BaseEntity
                 , DTO extends BaseDTO
+                , ID extends Serializable
                 // 分页参数
                 , Query extends BaseRequest
                 // 操作service
-                , Service extends MapperService<Entity, DTO>> {
+                , Service extends IMapperService<Entity, DTO, ID>> {
 
     @Resource
     private Service service;
@@ -76,7 +78,7 @@ public class BaseController
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public DTO get(@PathVariable("id") Long id) {
-        return this.service().get(id);
+        return this.service().get((ID) id);
     }
 
     /**
@@ -101,7 +103,7 @@ public class BaseController
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public DTO update(@PathVariable("id") Long id, @RequestBody DTO dto) {
-        return this.service().update(id, dto);
+        return this.service().update((ID) id, dto);
     }
 
     /**
@@ -114,7 +116,7 @@ public class BaseController
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public DTO edit(@PathVariable("id") Long id, @RequestBody DTO dto) {
-        return this.service().edit(id, dto);
+        return this.service().edit((ID) id, dto);
     }
 
 
@@ -127,7 +129,7 @@ public class BaseController
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Boolean delete(@PathVariable("id") Long id) {
-        return this.service().remove(id);
+        return this.service().remove((ID) id);
     }
 
 }

@@ -1,17 +1,15 @@
-package org.athena.framework.data.mybatis.handler;//package org.athena.framework.mybatis.handler;//package com.zhouzhitong.lib.mapper.handler;
+//package org.athena.framework.data.mybatis.handler;//package org.athena.framework.mybatis.handler;//package com.zhouzhitong.lib.mapper.handler;
 //
-//import com.zhouzhitong.lib.common.base.Idempotent;
-//import com.zhouzhitong.lib.common.constant.CodeConstant;
-//import com.zhouzhitong.lib.common.exception.BaseException;
-//import com.zhouzhitong.lib.common.utils.JacksonJsonUtils;
+//import org.arthena.framework.common.annotation.Idempotent;
+//import org.arthena.framework.common.constant.CodeConstant;
+//import org.arthena.framework.common.exception.base.BaseException;
+//import org.arthena.framework.common.utils.JacksonJsonUtils;
 //import org.aspectj.lang.JoinPoint;
 //import org.aspectj.lang.annotation.Aspect;
 //import org.aspectj.lang.annotation.Before;
 //import org.aspectj.lang.annotation.Pointcut;
 //import org.aspectj.lang.reflect.MethodSignature;
 //import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.data.redis.core.StringRedisTemplate;
-//import org.springframework.data.redis.core.ValueOperations;
 //import org.springframework.stereotype.Component;
 //import org.springframework.util.DigestUtils;
 //

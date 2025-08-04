@@ -3,11 +3,11 @@ package org.athena.framework.data.mybatis.utils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.exception.TodoException;
+import org.athena.framework.data.jdbc.constant.BaseEntityConstant;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
 import org.athena.framework.data.jdbc.type.QueryType;
-import org.athena.framework.data.mybatis.constant.BaseEntityConstant;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

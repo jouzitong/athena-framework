@@ -1,4 +1,4 @@
-package org.athena.framework.data.mybatis.constant;
+package org.athena.framework.data.jdbc.constant;
 
 /**
  * @author zhouzhitong

@@ -4,7 +4,7 @@ import org.athena.framework.data.jdbc.dto.BaseDTO;
 import org.athena.framework.data.jdbc.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
-import org.athena.framework.data.mybatis.vo.PageResultVO;
+import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
