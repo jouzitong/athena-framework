@@ -24,7 +24,7 @@
 
         <!-- 基础框架版本 -->
         <spring-boot-version>3.2.5</spring-boot-version>
-        <spring-cloud-dependencies.version>2022.0.0</spring-cloud-dependencies.version>
+        <spring-cloud-dependencies.version>2023.0.4</spring-cloud-dependencies.version>
         <spring-cloud-alibaba-dependencies.version>2023.0.1.0</spring-cloud-alibaba-dependencies.version>
         <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
 
@@ -37,7 +37,7 @@
         <postgresql.version>42.6.0</postgresql.version>
         <mybatis.version>3.0.3</mybatis.version>
         <mybatis-native.version>0.1.0-SNAPSHOT</mybatis-native.version>
-        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <pagehelper.version>1.4.6</pagehelper.version>
 
         <druid.version>1.2.15</druid.version>

@@ -1,9 +1,9 @@
 package com.zhouzhitong.test.mybatis.controller.base;
 
+import org.athena.framework.data.jdbc.dto.BaseDTO;
+import org.athena.framework.data.jdbc.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
-import org.athena.framework.data.mybatis.dto.BaseDTO;
-import org.athena.framework.data.mybatis.entity.BaseEntity;
-import org.athena.framework.data.mybatis.service.MapperService;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.mybatis.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,7 @@ public class BaseController
                 // 分页参数
                 , Query extends BaseRequest
                 // 操作service
-                , Service extends MapperService<Entity, DTO>> {
+                , Service extends IMapperService<Entity, DTO, Long>> {
 
     @Autowired
     private Service service;
@@ -46,7 +46,7 @@ public class BaseController
 
     /**
      * 查询所有(如果带了分页参数,则分页查询, 否则查询所有)
-     *
+     * <p>
      * 但是为了安全起见, 查询所有的时候还是限制一千条
      *
      * @param page 分页参数
@@ -59,7 +59,7 @@ public class BaseController
             return service().page(page);
         } else {
             // 为了安全起见, 查询所有的时候还是限制一千条
-            if (page.getSize() == null){
+            if (page.getSize() == null) {
                 page.setSize(sizeLimit);
             }
             List<DTO> resList = service().queryAll(page);

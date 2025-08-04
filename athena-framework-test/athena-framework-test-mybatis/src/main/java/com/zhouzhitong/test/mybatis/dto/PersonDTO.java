@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.bean.Address;
 import com.zhouzhitong.test.mybatis.type.Gender;
 import lombok.Data;
-import org.athena.framework.data.mybatis.dto.BaseDTO;
+import org.athena.framework.data.jdbc.dto.BaseDTO;
 
 /**
  * @author zhouzhitong

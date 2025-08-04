@@ -1,5 +1,6 @@
 package org.athena.framework.web.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.arthena.framework.common.constant.CodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
@@ -51,6 +52,21 @@ public class R<D> implements IR<D> {
 
     public String getMsg() {
         return ErrorCodeUtils.getMsg(code, errorMsgArgs);
+    }
+
+    @JsonIgnore
+    public boolean isOk() {
+        return code == CodeConstant.SUCCESS;
+    }
+
+    @JsonIgnore
+    public boolean isSuccess() {
+        return isOk();
+    }
+
+    @JsonIgnore
+    public boolean isFail() {
+        return !isOk();
     }
 
 }

@@ -12,6 +12,15 @@ import java.io.IOException;
 public class FileUtils {
 
     /**
+     * 获取当前系统的工作目录
+     *
+     * @return 系统工作目录
+     */
+    public static String getSystemWorkDir() {
+        return System.getProperty("user.dir");
+    }
+
+    /**
      * 获取文件输出流
      * <p>
      * 如果文件存在就清空里面的内容, 如果不存在就创建

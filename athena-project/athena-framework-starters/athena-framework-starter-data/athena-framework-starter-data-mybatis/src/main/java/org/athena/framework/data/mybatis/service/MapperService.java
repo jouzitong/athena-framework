@@ -3,10 +3,10 @@ package org.athena.framework.data.mybatis.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.arthena.framework.common.exception.TodoException;
 import org.arthena.framework.common.utils.BeanUtils;
+import org.athena.framework.data.jdbc.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
-import org.athena.framework.data.mybatis.dto.BaseDTO;
-import org.athena.framework.data.mybatis.entity.BaseEntity;
+import org.athena.framework.data.jdbc.dto.BaseDTO;
 import org.athena.framework.data.mybatis.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
 

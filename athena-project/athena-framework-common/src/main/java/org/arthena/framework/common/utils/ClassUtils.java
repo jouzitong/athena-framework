@@ -15,7 +15,10 @@ public class ClassUtils {
         List<Field> allFields = new LinkedList<>();
         while (c != Object.class) {
             Field[] fields = c.getDeclaredFields();
-            allFields.addAll(Arrays.asList(fields));
+            // 过滤掉可能的代理字段, 静态字段
+            allFields.addAll(Arrays.stream(fields)
+                    .filter(field -> !field.isSynthetic())
+                    .toList());
             c = c.getSuperclass();
         }
         return allFields;

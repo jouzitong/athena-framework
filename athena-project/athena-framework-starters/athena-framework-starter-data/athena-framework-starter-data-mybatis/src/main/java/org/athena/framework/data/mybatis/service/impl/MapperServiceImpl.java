@@ -2,33 +2,33 @@ package org.athena.framework.data.mybatis.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.athena.framework.data.jdbc.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageInfo;
-import org.athena.framework.data.mybatis.dto.BaseDTO;
-import org.athena.framework.data.mybatis.entity.BaseEntity;
+import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.jdbc.dto.BaseDTO;
 import org.athena.framework.data.mybatis.mapper.CrudMapper;
-import org.athena.framework.data.mybatis.service.MapperService;
 import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
-import org.athena.framework.data.mybatis.vo.PageResultVO;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author zhouzhitong
- * @see MapperServiceImplV2 MapperServiceImplV2
- * @since 2022/9/28
- */
-@Deprecated
+ * @since 2025/7/13
+ **/
 @Slf4j
-public abstract class MapperServiceImpl
-        <Mapper extends CrudMapper<Entity>,
-                Entity extends BaseEntity,
-                DTO extends BaseDTO>
+public abstract class MapperServiceImpl<
+        Entity extends BaseEntity,
+        Mapper extends CrudMapper<Entity>,
+        DTO extends BaseDTO,
+        ID extends Serializable>
         extends ServiceImpl<Mapper, Entity>
-        implements MapperService<Entity, DTO> {
+        implements IMapperService<Entity, DTO, ID>, IService<Entity> {
 
     @Override
     public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
@@ -54,6 +54,12 @@ public abstract class MapperServiceImpl
     }
 
     @Override
+    public <Query extends BaseRequest> long count(Query query) {
+        LOGGER.trace("count request: {}", query);
+        return this.count(buildQuery(query));
+    }
+
+    @Override
     public DTO add(DTO dto) {
         LOGGER.info("add request: {}", dto);
         // 创建一个实体
@@ -67,8 +73,7 @@ public abstract class MapperServiceImpl
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public DTO update(Long id, DTO dto) {
+    public DTO update(ID id, DTO dto) {
         LOGGER.info("update request: {}", dto);
         Entity entity = getEntity(id);
         copyAllowNullProperties(dto, entity);
@@ -80,7 +85,7 @@ public abstract class MapperServiceImpl
     }
 
     @Override
-    public DTO edit(Long id, DTO dto) {
+    public DTO edit(ID id, DTO dto) {
         LOGGER.info("edit request: {}", dto);
         Entity entity = getEntity(id);
         copyProperties(dto, entity);
@@ -92,13 +97,7 @@ public abstract class MapperServiceImpl
     }
 
     @Override
-    public <Query extends BaseRequest> long count(Query query) {
-        LOGGER.trace("count request: {}", query);
-        return this.count(buildQuery(query));
-    }
-
-    @Override
-    public DTO get(Long id) {
+    public DTO get(ID id) {
         LOGGER.trace("get request: {}", id);
         Entity entity = getEntity(id);
         return toDTO(entity);
@@ -115,7 +114,7 @@ public abstract class MapperServiceImpl
         return MybatisPlusWrapperUtils.simpleQuery(query);
     }
 
-    private Entity getEntity(Long id) {
+    private Entity getEntity(ID id) {
         return this.getById(id);
     }
 

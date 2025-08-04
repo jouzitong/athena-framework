@@ -1,6 +1,7 @@
 package org.arthena.framework.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.arthena.framework.common.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,7 +18,7 @@ public class CommonAutoConfig {
 
     public CommonAutoConfig() {
         LOGGER.info("CommonAutoConfig init");
-        log.info("project dir: {}", System.getProperty("user.dir"));
+        LOGGER.info("project work dir: {}", FileUtils.getSystemWorkDir());
     }
 
 }
