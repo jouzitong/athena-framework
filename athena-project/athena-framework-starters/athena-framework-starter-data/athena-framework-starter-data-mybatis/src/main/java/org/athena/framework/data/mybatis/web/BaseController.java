@@ -1,7 +1,7 @@
 package org.athena.framework.data.mybatis.web;
 
 import jakarta.annotation.Resource;
-import org.athena.framework.data.jdbc.dto.BaseDTO;
+import org.athena.framework.data.mybatis.entity.dto.BaseDTO;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;

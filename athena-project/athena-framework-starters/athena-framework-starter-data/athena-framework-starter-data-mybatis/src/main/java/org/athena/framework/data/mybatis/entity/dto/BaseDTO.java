@@ -1,10 +1,11 @@
-package org.athena.framework.data.jdbc.dto;
+package org.athena.framework.data.mybatis.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.arthena.framework.common.base.ExtensibleProperties;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serial;

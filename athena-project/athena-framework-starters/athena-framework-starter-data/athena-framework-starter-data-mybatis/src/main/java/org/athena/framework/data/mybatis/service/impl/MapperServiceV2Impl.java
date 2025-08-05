@@ -5,13 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.athena.framework.data.mybatis.entity.BaseEntity;
+import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
-import org.athena.framework.data.mybatis.service.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageInfo;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
-import org.athena.framework.data.mybatis.entity.dto.BaseDTO;
 import org.athena.framework.data.mybatis.mapper.CrudMapper;
+import org.athena.framework.data.mybatis.service.IMapperServiceV2;
 import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
 
 import java.io.Serializable;
@@ -19,27 +18,25 @@ import java.util.List;
 
 /**
  * @author zhouzhitong
- * @since 2025/7/13
+ * @since 2025/8/6
  **/
 @Slf4j
-public abstract class MapperServiceImpl<
-        Entity extends BaseEntity,
-        Mapper extends CrudMapper<Entity>,
-        DTO extends BaseDTO,
-        ID extends Serializable>
+public class MapperServiceV2Impl<
+        ID extends Serializable,
+        Entity extends IEntity<ID>,
+        Mapper extends CrudMapper<Entity>>
         extends ServiceImpl<Mapper, Entity>
-        implements IMapperService<Entity, DTO, ID>, IService<Entity> {
+        implements IMapperServiceV2<Entity, ID>, IService<Entity> {
 
     @Override
-    public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
+    public <Query extends BaseRequest> List<Entity> queryAll(Query query) {
         LOGGER.trace("queryAll request: {}", query);
         QueryWrapper<Entity> wrapper = buildQuery(query);
-        List<Entity> list = this.list(wrapper);
-        return list.stream().map(this::toDTO).toList();
+        return this.list(wrapper);
     }
 
     @Override
-    public <Query extends BaseRequest> PageResultVO<DTO> page(Query query) {
+    public <Query extends BaseRequest> PageResultVO<Entity> page(Query query) {
         LOGGER.trace("page request: {}", query);
         QueryWrapper<Entity> wrapper = buildQuery(query);
         Page<Entity> objectPage = query.buildPage();
@@ -49,8 +46,7 @@ public abstract class MapperServiceImpl<
         records = objectPage.getRecords();
 
         PageInfo pageInfo = new PageInfo(objectPage.getTotal(), query.size(), query.page());
-        List<DTO> dtoList = records.stream().map(this::toDTO).toList();
-        return PageResultVO.ok(dtoList, pageInfo);
+        return PageResultVO.ok(records, pageInfo);
     }
 
     @Override
@@ -60,47 +56,28 @@ public abstract class MapperServiceImpl<
     }
 
     @Override
-    public DTO add(DTO dto) {
-        LOGGER.info("add request: {}", dto);
-        // 创建一个实体
-        Entity entity = newEntity();
-        // 赋值
-        copyProperties(dto, entity);
-        // 保存
-        return save(entity)
-                ? toDTO(entity)
-                : null;
+    public Entity add(Entity entity) {
+        LOGGER.info("add request: {}", entity);
+        return save(entity) ? entity : null;
     }
 
     @Override
-    public DTO update(ID id, DTO dto) {
-        LOGGER.info("update request: {}", dto);
-        Entity entity = getEntity(id);
-        copyAllowNullProperties(dto, entity);
-
+    public Entity update(ID id, Entity entity) {
+        LOGGER.info("update request: {}", entity);
         boolean update = this.updateById(entity);
-        return update
-                ? toDTO(entity)
-                : null;
+        return update ? entity : null;
     }
 
     @Override
-    public DTO edit(ID id, DTO dto) {
-        LOGGER.info("edit request: {}", dto);
-        Entity entity = getEntity(id);
-        copyProperties(dto, entity);
-
+    public Entity edit(ID id, Entity entity) {
+        LOGGER.info("edit request: {}", entity);
         boolean update = this.updateById(entity);
-        return update
-                ? toDTO(entity)
-                : null;
+        return update ? entity : null;
     }
 
     @Override
-    public DTO get(ID id) {
-        LOGGER.trace("get request: {}", id);
-        Entity entity = getEntity(id);
-        return toDTO(entity);
+    public Entity get(ID id) {
+        return this.getById(id);
     }
 
     /**
@@ -112,10 +89,6 @@ public abstract class MapperServiceImpl<
      */
     protected <Query extends BaseRequest> QueryWrapper<Entity> buildQuery(Query query) {
         return MybatisPlusWrapperUtils.simpleQuery(query);
-    }
-
-    private Entity getEntity(ID id) {
-        return this.getById(id);
     }
 
 }

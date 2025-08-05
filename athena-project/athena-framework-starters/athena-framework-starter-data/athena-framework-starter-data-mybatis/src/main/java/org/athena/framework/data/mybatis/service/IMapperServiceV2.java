@@ -1,9 +1,6 @@
 package org.athena.framework.data.mybatis.service;
 
-import org.arthena.framework.common.exception.TodoException;
-import org.arthena.framework.common.utils.BeanUtils;
 import org.athena.framework.data.jdbc.entity.IEntity;
-import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +14,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID extends Serializable> {
+public interface IMapperServiceV2<Entity extends IEntity<ID>, ID extends Serializable> {
 
     /**
      * 列表查询
@@ -26,7 +23,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @param <Query> 查询条件类型
      * @return 查询结果
      */
-    <Query extends BaseRequest> List<DTO> queryAll(Query query);
+    <Query extends BaseRequest> List<Entity> queryAll(Query query);
 
     /**
      * 分页查询
@@ -35,7 +32,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @param <Query> 查询条件类型
      * @return 分页结果
      */
-    <Query extends BaseRequest> PageResultVO<DTO> page(Query query);
+    <Query extends BaseRequest> PageResultVO<Entity> page(Query query);
 
     /**
      * 查询总数
@@ -54,26 +51,26 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    DTO add(DTO dto);
+    Entity add(Entity dto);
 
     /**
-     * 根据ID 更新全部的字段
+     * 根据ID 更新全部的字段（允许设置null）
      *
      * @param dto DTO
      * @return 更新成功, 则返回DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    DTO update(ID id, DTO dto);
+    Entity update(ID id, Entity dto);
 
     /**
-     * 更新部分字段
+     * 更新部分字段(不允许设置null)
      *
      * @param id  编号
      * @param dto DTO
      * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    DTO edit(ID id, DTO dto);
+    Entity edit(ID id, Entity dto);
 
     /**
      * 根据ID查询
@@ -81,7 +78,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @param id 主键ID
      * @return DTO
      */
-    DTO get(ID id);
+    Entity get(ID id);
 
     /**
      * 根据 query 查询
@@ -92,8 +89,8 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @param <Query> 查询条件类型
      * @return 单个DTO
      */
-    default <Query extends BaseRequest> DTO get(Query query) {
-        List<DTO> dtos = queryAll(query);
+    default <Query extends BaseRequest> Entity get(Query query) {
+        List<Entity> dtos = queryAll(query);
         if (dtos.isEmpty()) {
             return null;
         }
@@ -111,73 +108,9 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      */
     @Transactional(rollbackFor = Exception.class)
     default boolean remove(ID id) {
-        DTO dto = get(id);
+        Entity dto = get(id);
         dto.setDeleted(true);
         return update(id, dto) != null;
-    }
-
-    /**
-     * Entity转DTO
-     *
-     * @param entity Entity
-     * @return DTO
-     */
-    default DTO toDTO(Entity entity) {
-        if (entity == null) {
-            return null;
-        }
-        DTO dto = newDTO();
-        BeanUtils.copy(entity, dto);
-        return dto;
-    }
-
-    /**
-     * DTO转Entity
-     *
-     * @param dto    DTO
-     * @param entity Entity
-     */
-    default void copyProperties(DTO dto, Entity entity) {
-        BeanUtils.copy(dto, entity);
-        entity.getAndIncrementVersion();
-    }
-
-    /**
-     * DTO转Entity
-     *
-     * @param dto    DTO
-     * @param entity Entity
-     */
-    default void copyAllowNullProperties(DTO dto, Entity entity) {
-        BeanUtils.copyForUpdate(dto, entity);
-        entity.getAndIncrementVersion();
-    }
-
-    /**
-     * 实例化DTO
-     *
-     * @return DTO对象
-     */
-    DTO newDTO();
-
-    /**
-     * 实例化Entity
-     *
-     * @return Entity对象
-     */
-    Entity newEntity();
-
-    default Class<Entity> getEntityClass() {
-        return (Class<Entity>) newEntity().getClass();
-    }
-
-    /**
-     * 编号生成器
-     *
-     * @return 编号
-     */
-    default String generateNo() {
-        throw new TodoException();
     }
 
 }

@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.dto;
+package org.athena.framework.data.jdbc.entity.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
