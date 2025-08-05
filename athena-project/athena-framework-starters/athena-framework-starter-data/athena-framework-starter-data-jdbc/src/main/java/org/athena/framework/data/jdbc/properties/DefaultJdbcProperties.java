@@ -31,7 +31,7 @@ public class DefaultJdbcProperties {
     /**
      * 创建表 ddl 的文件目录
      */
-    private String tableDDLPathFile = "/config";
+    private String tableDDLPathFile = "config";
 
     private Resource tableDDLPathFile2 = new ClassPathResource("config/");
 

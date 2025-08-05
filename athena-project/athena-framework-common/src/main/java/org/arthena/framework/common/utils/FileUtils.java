@@ -33,6 +33,7 @@ public class FileUtils {
         // 判断文件是否存在, 不存在就创建, 如果存在就清空里面的内容
         if (file.exists()) {
             try {
+
                 if (!file.delete()) {
                     throw new RuntimeException("清空文件失败: " + filePath);
                 }
@@ -78,17 +79,23 @@ public class FileUtils {
         if (paths == null || paths.length == 0) {
             return System.getProperty("user.dir");
         }
+        // TODO 去掉 paths 中的后缀 /
         StringBuilder sb = new StringBuilder();
         int i = 0;
         String path = paths[i++];
         if (path.startsWith(File.separator)) {
-            sb.append(path);
+            sb.append(System.getProperty("user.dir")).append(path);
         } else {
-            sb.append(System.getProperty("user.dir")).append(File.separator).append(path);
+            sb.append(path);
         }
-        // TODO
-        // TODO
-        // TODO
+        for (; i < paths.length; i++) {
+            path = paths[i];
+            if (path.endsWith(File.separator)) {
+                sb.append(path);
+            } else {
+                sb.append(File.separator).append(path);
+            }
+        }
 
         return sb.toString();
     }

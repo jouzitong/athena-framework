@@ -1,5 +1,6 @@
 package org.athena.framework.data.jdbc.type;
 
+import org.arthena.framework.common.enums.IEnum;
 import org.athena.framework.data.jdbc.utils.JdbcUtils;
 
 import java.time.LocalDate;
@@ -28,6 +29,27 @@ public enum DbType {
                 || JdbcUtils.isDateType(clazz)) {
             return typeMap.get(clazz);
         }
+        if (clazz.isAssignableFrom(IEnum.class)) {
+            return typeMap.get(IEnum.class);
+        }
+        return typeMap.get(Object.class);
+    }
+
+    public String getType(Class<?> clazz, int length) {
+        if (JdbcUtils.isBaseType(clazz)
+                || JdbcUtils.isDateType(clazz)) {
+            String s = typeMap.get(clazz);
+            if (s==null){
+                return length > 0 ? s + "(" + length + ")" : s;
+            }
+            if (s.equals("VARCHAR")) {
+                return s + "(" + length + ")";
+            }
+            return s;
+        }
+        if (clazz.isAssignableFrom(IEnum.class)) {
+            return typeMap.get(IEnum.class);
+        }
         return typeMap.get(Object.class);
     }
 
@@ -41,6 +63,7 @@ public enum DbType {
         map.put(Boolean.class, "BOOLEAN");
         map.put(Byte.class, "TINYINT");
         map.put(Short.class, "SMALLINT");
+        map.put(IEnum.class, "SMALLINT");
         map.put(Byte[].class, "BLOB");
         map.put(java.util.Date.class, "TIMESTAMP");
         map.put(LocalDate.class, "TIMESTAMP");

@@ -34,4 +34,11 @@ public class ClassTableInfo {
      */
     private List<Field> columns;
 
+    public String getTableName() {
+        if (table == null) {
+            return clazz.getSimpleName();
+        }
+        return table.name();
+    }
+
 }

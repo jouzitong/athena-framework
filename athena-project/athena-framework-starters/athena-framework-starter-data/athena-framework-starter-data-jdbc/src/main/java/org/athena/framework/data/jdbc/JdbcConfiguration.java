@@ -6,6 +6,7 @@ import org.athena.framework.data.jdbc.create.impl.MysqlDdlCreateService;
 import org.athena.framework.data.jdbc.create.impl.PgsqlDdlCreateService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
  **/
 @Configuration
 @Slf4j
+@ComponentScan("org.athena.framework.data.jdbc")
 public class JdbcConfiguration {
 
     @Bean

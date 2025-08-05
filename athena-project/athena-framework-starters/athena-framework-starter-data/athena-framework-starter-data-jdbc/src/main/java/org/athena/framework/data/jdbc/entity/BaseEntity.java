@@ -2,9 +2,10 @@ package org.athena.framework.data.jdbc.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
-import org.athena.framework.data.jdbc.annotation.FieldComment;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
@@ -30,13 +31,15 @@ public class BaseEntity implements IEntity<Long> {
     /**
      * 主键
      */
+    @Id
+    @GeneratedValue
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "'主键ID'")
     protected Long id;
 
     /**
      * 记录创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @FieldComment("datetime default CURRENT_TIMESTAMP not null comment '创建时间'")
     @Column(name = "create_time", updatable = false, nullable = false, columnDefinition = "'创建时间' default CURRENT_TIMESTAMP")
     protected LocalDateTime createTime;
 
@@ -44,32 +47,32 @@ public class BaseEntity implements IEntity<Long> {
      * 记录修改时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @FieldComment("datetime default CURRENT_TIMESTAMP not null comment '修改时间'")
+    @Column(name = "update_time", nullable = false, columnDefinition = "'修改时间' default CURRENT_TIMESTAMP")
     protected LocalDateTime updateTime;
 
     /**
      * 创建者
      */
-    @FieldComment("bigint default 1' not null comment '创建者'")
+    @Column(name = "created_by", nullable = false, columnDefinition = "'创建者' default 0")
     protected Long createdBy = 0L;
 
     /**
      * 修改者
      */
-    @FieldComment("bigint default 1' not null comment '修改者'")
+    @Column(name = "last_modified_by", nullable = false, columnDefinition = "'修改者' default 0")
     protected Long lastModifiedBy = 0L;
 
     /**
      * 版本
      */
 //    @Version
-    @FieldComment("bigint default 0' not null comment '版本'")
-    protected Long version = 0L;
+    @Column(name = "version", nullable = false, columnDefinition = "'版本' default 1")
+    protected Long version = 1L;
 
     /**
      * 软删除 0-未删除，1-已删除
      */
-    @FieldComment("tinyint default 0' not null comment '软删除 0-未删除，1-已删除'")
+    @Column(name = "deleted", nullable = false, columnDefinition = "'软删除 0-未删除，1-已删除' default 0")
     protected Integer deleted = 0;
 
     public Long getAndIncrementVersion() {

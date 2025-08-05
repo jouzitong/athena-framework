@@ -23,7 +23,12 @@ public class MysqlDdlCreateService extends BaseDdlCreateService {
     protected String getHeaderTable(ClassTableInfo tableInfo) {
         // create if not exists  table_name
         Table table = tableInfo.getTable();
-        String tableName = table.name();
+        String tableName;
+        if (table != null) {
+            tableName = table.name();
+        } else {
+            tableName = CamelCaseUtils.toSnakeCase(tableInfo.getClazz().getSimpleName());
+        }
         String tableNameCamelCase = CamelCaseUtils.toCamelCase(tableName);
         return "create table if not exists " + tableNameCamelCase;
     }
@@ -31,9 +36,15 @@ public class MysqlDdlCreateService extends BaseDdlCreateService {
     @Override
     protected String getAllColumnDdl(ClassTableInfo tableInfo) {
         StringBuilder sb = new StringBuilder();
-        for (Field field : tableInfo.getColumns()) {
+        int lastIndex = tableInfo.getColumns().size()-1;
+        for (int i = 0; i < tableInfo.getColumns().size(); i++) {
+            Field field = tableInfo.getColumns().get(i);
             String fieldDdl = JdbcUtils.getColumnDdl(field, jdbcProperties.getType());
-            sb.append(fieldDdl).append(",\n");
+            if (i == lastIndex) {
+                sb.append(fieldDdl).append("\n");
+            } else {
+                sb.append(fieldDdl).append(",\n");
+            }
         }
         return sb.toString();
     }

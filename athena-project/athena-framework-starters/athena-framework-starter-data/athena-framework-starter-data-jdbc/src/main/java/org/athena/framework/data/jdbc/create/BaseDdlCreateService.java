@@ -76,7 +76,7 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
         List<Class<?>> subClasses = getSubClasses(BaseEntity.class);
         for (Class<?> clazz : subClasses) {
             ClassTableInfo classTableInfo = JdbcUtils.buildClassTableInfo(clazz);
-            String tableNameSnakeCase = CamelCaseUtils.toSnakeCase(classTableInfo.getTable().name());
+            String tableNameSnakeCase = CamelCaseUtils.toSnakeCase(classTableInfo.getTableName());
 
             String createTableDdl = getCreateTableDdl(classTableInfo);
             // 生成注释

@@ -1,6 +1,8 @@
 package org.athena.framework.data.jdbc.utils;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +33,8 @@ public class JdbcUtils {
      * @return 是否是基础类型
      */
     public static boolean isBaseType(Class<?> clazz) {
-        return clazz.isPrimitive() || clazz.isEnum() || clazz.isAssignableFrom(String.class)
-                || clazz.isAssignableFrom(Number.class) || clazz.isAssignableFrom(Boolean.class);
+        return clazz.isPrimitive() || String.class.isAssignableFrom(clazz)
+                || Number.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz);
     }
 
     /**
@@ -48,14 +50,19 @@ public class JdbcUtils {
 
     public static ClassTableInfo buildClassTableInfo(Class<?> clazz) {
         Table table = clazz.getAnnotation(Table.class);
-        Field[] allField = clazz.getDeclaredFields();
         List<Field> columns = new LinkedList<>();
-        for (Field field : allField) {
-            if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
-                continue;
+        Class<?> tempClazz = clazz;
+        while (tempClazz != Object.class) {
+            Field[] allField = tempClazz.getDeclaredFields();
+            for (Field field : allField) {
+                if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
+                    continue;
+                }
+                columns.add(field);
             }
-            columns.add(field);
+            tempClazz = tempClazz.getSuperclass();
         }
+
 
         return ClassTableInfo.builder()
                 .clazz(clazz)
@@ -83,7 +90,7 @@ public class JdbcUtils {
         String columnName = CamelCaseUtils.toSnakeCase(column.name());
         tableName = CamelCaseUtils.toSnakeCase(tableName);
         sb.append("ALTER TABLE `").append(tableName).append("`");
-        sb.append(" ADD `").append(columnName).append("` ").append(dbType.getType(field.getType()));
+        sb.append(" ADD `").append(columnName).append("` ").append(dbType.getType(field.getType(), column.length()));
         String columnDefinition = column.columnDefinition();
         if (!column.nullable()) {
             sb.append(" NOT NULL");
@@ -100,7 +107,7 @@ public class JdbcUtils {
         Column column = field.getAnnotation(Column.class);
         StringBuilder sb = new StringBuilder();
         if (column == null) {
-            log.info("field:{} no @Column annotation", field.getName());
+            log.error("field:{} no @Column annotation", field.getName());
             throw new TodoException();
         }
         if (StringUtils.isNotBlank(column.name())) {
@@ -110,20 +117,27 @@ public class JdbcUtils {
         }
         sb.append(" ");
 
-        String type = dbType.getType(field.getType());
+        String type = dbType.getType(field.getType(), column.length());
         sb.append(type).append(" ");
 
+        Id id = field.getAnnotation(Id.class);
+        if (id != null) {
+            GeneratedValue generatedValue = field.getAnnotation(GeneratedValue.class);
+            if (generatedValue != null) {
+                if (generatedValue.strategy() == GenerationType.AUTO) {
+                    sb.append(" AUTO_INCREMENT ");
+                }
+            }
+            sb.append(" PRIMARY KEY ");
+        }
+
         if (!column.nullable()) {
-            sb.append("not null ");
+            sb.append(" NOT NULL ");
         }
         if (StringUtils.isNotBlank(column.columnDefinition())) {
             sb.append("comment ").append(column.columnDefinition()).append(" ");
         }
 
-        Id id = field.getAnnotation(Id.class);
-        if (id != null) {
-            sb.append("primary key ");
-        }
 
         return sb.toString();
     }

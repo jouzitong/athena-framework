@@ -13,7 +13,7 @@ spring:
 
 
 lib:
-  mapper:
-    auto-gen:
-      enable-create-table-ddl: true
-      type: mysql
+  jdbc:
+    type: MYSQL
+    baseEntityPackages:
+      - com.zhouzhitong.test.mybatis.bean
