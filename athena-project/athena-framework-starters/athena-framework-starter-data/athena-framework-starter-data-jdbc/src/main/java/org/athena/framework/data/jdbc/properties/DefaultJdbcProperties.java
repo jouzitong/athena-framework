@@ -47,4 +47,14 @@ public class DefaultJdbcProperties {
      */
     private List<String> baseEntityPackages = List.of("org.athena.framework");
 
+    /**
+     * 忽略表前缀
+     */
+    private String ignorePrefix;
+
+    /**
+     * 忽略表后缀
+     */
+    private String ignoreSubfix;
+
 }

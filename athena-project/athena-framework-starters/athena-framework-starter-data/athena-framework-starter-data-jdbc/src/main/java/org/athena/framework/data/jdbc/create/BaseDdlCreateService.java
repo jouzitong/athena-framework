@@ -76,15 +76,17 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
         List<Class<?>> subClasses = getSubClasses(BaseEntity.class);
         for (Class<?> clazz : subClasses) {
             ClassTableInfo classTableInfo = JdbcUtils.buildClassTableInfo(clazz);
-            String tableNameSnakeCase = CamelCaseUtils.toSnakeCase(classTableInfo.getTableName());
+            String tableName = JdbcUtils.getTableName(classTableInfo, jdbcProperties.getIgnorePrefix(), jdbcProperties.getIgnoreSubfix());
 
+            // 生成建表DDL
             String createTableDdl = getCreateTableDdl(classTableInfo);
             // 生成注释
             createDdlSql.append(COMMENT_SYMBOL).append(clazz.getName()).append("\n");
             // 生成建表语句
             createDdlSql.append(createTableDdl).append("\n");
 
-            Map<String, DbTableColumn> dbTableColumns = getDbTableColumns(tableNameSnakeCase, statement);
+            // 获取数据库中的表字段信息
+            Map<String, DbTableColumn> dbTableColumns = getDbTableColumns(tableName, statement);
             String updateTableDdl = null;
             if (MapUtils.isNotEmpty(dbTableColumns)) {
                 updateTableDdl = getUpdateTableDdl(classTableInfo, dbTableColumns);
@@ -93,7 +95,7 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
             }
             if (jdbcProperties.isAutoUpdateTable()) {
                 try {
-                    if (!isExistTable(tableNameSnakeCase, statement)) {
+                    if (!isExistTable(tableName, statement)) {
                         statement.execute(createTableDdl);
                     }
                     if (updateTableDdl != null) {
@@ -207,7 +209,10 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
      * @param tableInfo 表 Class 信息
      * @return 表头 DDL
      */
-    protected abstract String getHeaderTable(ClassTableInfo tableInfo);
+    protected String getHeaderTable(ClassTableInfo tableInfo) {
+        String tableName = JdbcUtils.getTableName(tableInfo, jdbcProperties.getIgnorePrefix(), jdbcProperties.getIgnoreSubfix());
+        return "create table if not exists " + tableName;
+    }
 
     /**
      * 获取所有的字段 DDL

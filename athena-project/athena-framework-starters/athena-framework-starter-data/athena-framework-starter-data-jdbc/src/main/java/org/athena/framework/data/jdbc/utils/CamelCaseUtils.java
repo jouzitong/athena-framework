@@ -51,11 +51,20 @@ public class CamelCaseUtils {
         return result.toString();
     }
 
+    /**
+     * 首字母小写
+     *
+     * @param str 字符串
+     * @return 首字母小写的字符串
+     */
+    public static String firstLowerCase(String str) {
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+    }
 
     /**
      * 将字符串按照分隔符（下划线、短横线、空格等）转换为驼峰格式
      *
-     * @param input       原始字符串
+     * @param input           原始字符串
      * @param capitalizeFirst 是否首字母大写（PascalCase）
      * @return 转换后的字符串
      */

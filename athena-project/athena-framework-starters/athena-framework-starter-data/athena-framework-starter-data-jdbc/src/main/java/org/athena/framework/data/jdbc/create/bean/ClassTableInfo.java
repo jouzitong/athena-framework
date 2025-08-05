@@ -1,5 +1,6 @@
 package org.athena.framework.data.jdbc.create.bean;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,16 +30,12 @@ public class ClassTableInfo {
      */
     private Table table;
 
+    private TableName mybatisPlusTable;
+
     /**
      * 表字段列表
      */
     private List<Field> columns;
 
-    public String getTableName() {
-        if (table == null) {
-            return clazz.getSimpleName();
-        }
-        return table.name();
-    }
 
 }

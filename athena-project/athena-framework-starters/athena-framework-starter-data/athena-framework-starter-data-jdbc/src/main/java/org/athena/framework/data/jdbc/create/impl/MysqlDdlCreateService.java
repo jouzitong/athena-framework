@@ -1,11 +1,9 @@
 package org.athena.framework.data.jdbc.create.impl;
 
-import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.athena.framework.data.jdbc.create.BaseDdlCreateService;
 import org.athena.framework.data.jdbc.create.bean.ClassTableInfo;
 import org.athena.framework.data.jdbc.create.bean.DbTableColumn;
-import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
 import org.athena.framework.data.jdbc.utils.JdbcUtils;
 
 import java.lang.reflect.Field;
@@ -20,23 +18,9 @@ import java.util.Map;
 public class MysqlDdlCreateService extends BaseDdlCreateService {
 
     @Override
-    protected String getHeaderTable(ClassTableInfo tableInfo) {
-        // create if not exists  table_name
-        Table table = tableInfo.getTable();
-        String tableName;
-        if (table != null) {
-            tableName = table.name();
-        } else {
-            tableName = CamelCaseUtils.toSnakeCase(tableInfo.getClazz().getSimpleName());
-        }
-        String tableNameCamelCase = CamelCaseUtils.toCamelCase(tableName);
-        return "create table if not exists " + tableNameCamelCase;
-    }
-
-    @Override
     protected String getAllColumnDdl(ClassTableInfo tableInfo) {
         StringBuilder sb = new StringBuilder();
-        int lastIndex = tableInfo.getColumns().size()-1;
+        int lastIndex = tableInfo.getColumns().size() - 1;
         for (int i = 0; i < tableInfo.getColumns().size(); i++) {
             Field field = tableInfo.getColumns().get(i);
             String fieldDdl = JdbcUtils.getColumnDdl(field, jdbcProperties.getType());

@@ -8,8 +8,10 @@ import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
 import org.athena.framework.data.jdbc.type.QueryType;
+import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -45,6 +47,9 @@ public class MybatisPlusWrapperUtils {
             }
         });
 
+        // 处理类中字段的查询条件
+        doProcessClass(wrapper, query);
+
         List<FiledQuery> fieldQueries = query.getFiledQueries();
         fieldQueries.forEach(filedQuery -> {
             String fieldName = filedQuery.getFiledName();
@@ -69,5 +74,30 @@ public class MybatisPlusWrapperUtils {
 
         return wrapper;
     }
+
+    private static <T> void doProcessClass(QueryWrapper<T> wrapper, BaseRequest query) {
+        Class<?> clazz = query.getClass();
+        while (clazz != BaseRequest.class) {
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
+                    continue;
+                }
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(query);
+                    String fieldName = CamelCaseUtils.firstLowerCase(field.getName());
+                    wrapper.eq(fieldName, value);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            clazz = clazz.getSuperclass();
+        }
+
+
+    }
+
 }
 
