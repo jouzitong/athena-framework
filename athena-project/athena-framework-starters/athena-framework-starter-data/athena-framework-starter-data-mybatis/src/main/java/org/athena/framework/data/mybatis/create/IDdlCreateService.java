@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.create;
+package org.athena.framework.data.mybatis.create;
 
 /**
  * @author zhouzhitong

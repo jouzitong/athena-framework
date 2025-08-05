@@ -1,7 +1,7 @@
 package org.athena.framework.data.jdbc.type;
 
 import org.arthena.framework.common.enums.IEnum;
-import org.athena.framework.data.jdbc.utils.JdbcUtils;
+import org.arthena.framework.common.utils.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,8 +25,8 @@ public enum DbType {
     }
 
     public String getType(Class<?> clazz) {
-        if (JdbcUtils.isBaseType(clazz)
-                || JdbcUtils.isDateType(clazz)) {
+        if (ObjectUtils.isBaseType(clazz)
+                || ObjectUtils.isDateType(clazz)) {
             return typeMap.get(clazz);
         }
         if (clazz.isAssignableFrom(IEnum.class)) {
@@ -36,8 +36,8 @@ public enum DbType {
     }
 
     public String getType(Class<?> clazz, int length) {
-        if (JdbcUtils.isBaseType(clazz)
-                || JdbcUtils.isDateType(clazz)) {
+        if (ObjectUtils.isBaseType(clazz)
+                || ObjectUtils.isDateType(clazz)) {
             String s = typeMap.get(clazz);
             if (s==null){
                 return length > 0 ? s + "(" + length + ")" : s;

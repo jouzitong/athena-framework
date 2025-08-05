@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.serivce;
+package org.athena.framework.data.mybatis.service;
 
 import org.arthena.framework.common.exception.TodoException;
 import org.arthena.framework.common.utils.BeanUtils;

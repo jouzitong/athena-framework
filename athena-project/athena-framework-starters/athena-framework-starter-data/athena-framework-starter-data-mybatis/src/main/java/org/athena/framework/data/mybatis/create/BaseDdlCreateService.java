@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.create;
+package org.athena.framework.data.mybatis.create;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -6,12 +6,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.arthena.framework.common.properties.CommonProperties;
 import org.arthena.framework.common.utils.FileUtils;
 import org.arthena.framework.common.utils.PackageUtil;
-import org.athena.framework.data.jdbc.create.bean.ClassTableInfo;
-import org.athena.framework.data.jdbc.create.bean.DbTableColumn;
-import org.athena.framework.data.jdbc.entity.BaseEntity;
+import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.properties.DefaultJdbcProperties;
 import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
-import org.athena.framework.data.jdbc.utils.JdbcUtils;
+import org.athena.framework.data.mybatis.utils.JdbcUtils;
+import org.athena.framework.data.mybatis.create.bean.ClassTableInfo;
+import org.athena.framework.data.mybatis.create.bean.DbTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 
@@ -73,7 +73,7 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
         StringBuilder updateDdlSql = new StringBuilder();
 
 
-        List<Class<?>> subClasses = getSubClasses(BaseEntity.class);
+        List<Class<?>> subClasses = getSubClasses(IEntity.class);
         for (Class<?> clazz : subClasses) {
             ClassTableInfo classTableInfo = JdbcUtils.buildClassTableInfo(clazz);
             String tableName = JdbcUtils.getTableName(classTableInfo, jdbcProperties.getIgnorePrefix(), jdbcProperties.getIgnoreSubfix());

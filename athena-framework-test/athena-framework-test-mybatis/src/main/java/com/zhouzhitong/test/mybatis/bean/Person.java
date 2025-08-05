@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.type.Gender;
 import jakarta.persistence.Column;
 import lombok.Data;
-import org.athena.framework.data.jdbc.entity.BaseEntity;
+import org.athena.framework.data.mybatis.entity.BaseEntity;
 
 /**
  * @author zhouzhitong

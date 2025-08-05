@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.utils;
+package org.athena.framework.data.mybatis.utils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -8,13 +8,12 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.exception.TodoException;
-import org.athena.framework.data.jdbc.create.bean.ClassTableInfo;
 import org.athena.framework.data.jdbc.type.DbType;
+import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
+import org.athena.framework.data.mybatis.create.bean.ClassTableInfo;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,28 +23,6 @@ import java.util.List;
  **/
 @Slf4j
 public class JdbcUtils {
-
-    /**
-     * 判断是否是基础类型
-     *
-     * @param clazz 类
-     * @return 是否是基础类型
-     */
-    public static boolean isBaseType(Class<?> clazz) {
-        return clazz.isPrimitive() || String.class.isAssignableFrom(clazz)
-                || Number.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz);
-    }
-
-    /**
-     * 判断是否是日期类型
-     *
-     * @param clazz 类
-     * @return 是否是日期类型
-     */
-    public static boolean isDateType(Class<?> clazz) {
-        return clazz.isAssignableFrom(java.util.Date.class)
-                || clazz.isAssignableFrom(LocalDateTime.class) || clazz.isAssignableFrom(LocalDate.class);
-    }
 
     /**
      * 构建ClassTableInfo

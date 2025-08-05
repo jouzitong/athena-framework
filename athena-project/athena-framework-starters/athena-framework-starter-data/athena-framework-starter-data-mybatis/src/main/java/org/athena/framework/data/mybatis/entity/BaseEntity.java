@@ -1,12 +1,12 @@
 package org.athena.framework.data.mybatis.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
+import org.athena.framework.data.jdbc.entity.IEntity;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
@@ -35,7 +35,6 @@ public class BaseEntity implements IEntity<Long> {
     @Id
     @GeneratedValue
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "'主键ID'")
-    @TableField
     protected Long id;
 
     /**

@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.create.bean;
+package org.athena.framework.data.mybatis.create.bean;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.persistence.Table;

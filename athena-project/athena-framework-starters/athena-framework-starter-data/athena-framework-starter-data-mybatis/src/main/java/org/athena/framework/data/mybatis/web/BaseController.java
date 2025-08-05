@@ -1,11 +1,11 @@
-package org.athena.framework.data.jdbc.web;
+package org.athena.framework.data.mybatis.web;
 
 import jakarta.annotation.Resource;
 import org.athena.framework.data.jdbc.dto.BaseDTO;
-import org.athena.framework.data.jdbc.entity.BaseEntity;
+import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
-import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.mybatis.service.IMapperService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class BaseController
         // 操作实体
-        <Entity extends BaseEntity
+        <Entity extends IEntity<ID>
                 , DTO extends BaseDTO
                 , ID extends Serializable
                 // 分页参数

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.pgsql.type.Gender;
 import lombok.Data;
 import org.athena.framework.data.jdbc.annotation.FieldComment;
-import org.athena.framework.data.jdbc.entity.BaseEntity;
+import org.athena.framework.data.mybatis.entity.BaseEntity;
 import org.athena.framework.data.mybatis.handler.DefaultJsonHandler;
 
 /**

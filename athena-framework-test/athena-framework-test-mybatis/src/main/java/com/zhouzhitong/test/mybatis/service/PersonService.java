@@ -2,7 +2,7 @@ package com.zhouzhitong.test.mybatis.service;
 
 import com.zhouzhitong.test.mybatis.bean.Person;
 import com.zhouzhitong.test.mybatis.dto.PersonDTO;
-import org.athena.framework.data.jdbc.serivce.IMapperService;
+import org.athena.framework.data.mybatis.service.IMapperService;
 
 /**
  * @author zhouzhitong

@@ -1,9 +1,9 @@
 package com.zhouzhitong.test.mybatis.controller.base;
 
 import org.athena.framework.data.jdbc.dto.BaseDTO;
-import org.athena.framework.data.jdbc.entity.BaseEntity;
+import org.athena.framework.data.mybatis.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
-import org.athena.framework.data.jdbc.serivce.IMapperService;
+import org.athena.framework.data.mybatis.service.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
