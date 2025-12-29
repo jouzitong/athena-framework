@@ -46,3 +46,5 @@ build/
 
 # 自动生成 ddl 文件
 **/*ddl.sql
+
+**/node_modules/
