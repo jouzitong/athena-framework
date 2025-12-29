@@ -66,8 +66,8 @@ public class BaseEntity implements IEntity<Long> {
     /**
      * 版本
      */
-//    @Version
     @Column(name = "version", nullable = false, columnDefinition = "'版本' default 1")
+//    @Version
     protected Long version = 1L;
 
     /**

@@ -2,6 +2,7 @@ package org.athena.framework.web.annotation.web;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -65,5 +66,15 @@ public @interface ApiRequestMapping {
      */
     @AliasFor(annotation = RequestMapping.class)
     String[] produces() default {};
+
+    /**
+     * The HTTP request methods to map to, narrowing the primary mapping:
+     * GET, POST, HEAD, OPTIONS, PUT, PATCH, DELETE, TRACE.
+     * <p><b>Supported at the type level as well as at the method level!</b>
+     * When used at the type level, all method-level mappings inherit this
+     * HTTP method restriction.
+     */
+    @AliasFor(annotation = RequestMapping.class)
+    RequestMethod[] method() default {};
 
 }

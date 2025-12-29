@@ -3,6 +3,7 @@ package com.zhouzhitong.test.mybatis.bean;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.type.Gender;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import lombok.Data;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
 
@@ -26,7 +27,7 @@ public class Person extends BaseEntity {
     @Column(name = "gender", nullable = false, columnDefinition = "'性别'")
     private Gender gender;
 
-    @Column(name = "address", nullable = false, columnDefinition = "'地址'")
+    @Embedded
     private Address address;
 
 }

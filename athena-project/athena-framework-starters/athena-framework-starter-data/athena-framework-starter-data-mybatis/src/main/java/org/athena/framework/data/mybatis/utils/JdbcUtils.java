@@ -1,10 +1,6 @@
 package org.athena.framework.data.mybatis.utils;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.exception.TodoException;
@@ -40,6 +36,8 @@ public class JdbcUtils {
                 if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
                     continue;
                 }
+                // 如果 添加了 @Embedded 注解, 则认为
+
                 columns.add(field);
             }
             tempClazz = tempClazz.getSuperclass();
@@ -127,6 +125,7 @@ public class JdbcUtils {
      */
     public static String getColumnDdl(Field field, DbType dbType) {
         Column column = field.getAnnotation(Column.class);
+//        Embedded embedded = field.getAnnotation(Embedded.class);
         StringBuilder sb = new StringBuilder();
         if (column == null) {
             LOGGER.error("field:{} no @Column annotation", field.getName());
