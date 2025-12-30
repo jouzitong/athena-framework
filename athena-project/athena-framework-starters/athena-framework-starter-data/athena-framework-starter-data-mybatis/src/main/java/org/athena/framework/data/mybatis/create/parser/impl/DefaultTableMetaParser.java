@@ -9,6 +9,7 @@ import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 import org.athena.framework.data.mybatis.create.parser.ITableMetaParser;
 import org.athena.framework.data.mybatis.utils.TableFieldParseUtils;
+import org.springframework.core.Ordered;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -27,8 +28,13 @@ public class DefaultTableMetaParser implements ITableMetaParser {
         // 解析字段定义信息
         List<ColumnMeta> columns = parseColumnInfo(clazz);
         tableMeta.setColumns(columns);
-        // 解析索引定义信息
+        // TODO 解析索引定义信息
         return true;
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     protected List<ColumnMeta> parseColumnInfo(Class<?> clazz) {

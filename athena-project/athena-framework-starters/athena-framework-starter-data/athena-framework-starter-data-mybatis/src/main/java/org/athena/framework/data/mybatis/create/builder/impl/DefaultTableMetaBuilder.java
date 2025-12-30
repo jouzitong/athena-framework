@@ -2,11 +2,11 @@ package org.athena.framework.data.mybatis.create.builder.impl;
 
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.create.builder.ITableMetaBuilder;
-import org.athena.framework.data.mybatis.create.parser.impl.DefaultTableMetaParser;
 import org.athena.framework.data.mybatis.create.parser.ITableMetaParser;
+import org.athena.framework.data.mybatis.create.parser.impl.DefaultTableMetaParser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -18,7 +18,7 @@ import java.util.List;
 public class DefaultTableMetaBuilder implements ITableMetaBuilder {
 
     private Class<?> clazz;
-    private List<ITableMetaParser> parsers;
+    private List<ITableMetaParser> parsers = new ArrayList<>();
 
     @Override
     public ITableMetaBuilder clazz(Class<?> clazz) {
@@ -28,8 +28,16 @@ public class DefaultTableMetaBuilder implements ITableMetaBuilder {
 
     @Override
     public ITableMetaBuilder addParser(ITableMetaParser... parsers) {
-        initParser();
-        this.parsers.addAll(Arrays.asList(parsers));
+        if (parsers == null) {
+            return this;
+        }
+        for (ITableMetaParser parser : parsers) {
+            // 排除掉 DefaultTableMetaParser 解析器
+            if (parser.getClass() == DefaultTableMetaParser.class) {
+                continue;
+            }
+            this.parsers.add(parser);
+        }
         return this;
     }
 
@@ -53,10 +61,9 @@ public class DefaultTableMetaBuilder implements ITableMetaBuilder {
      * 初始化解析器, 主要是把默认的解析器添加进去
      */
     protected void initParser() {
-        if (parsers == null) {
-            this.parsers = new ArrayList<>();
-            this.parsers.add(new DefaultTableMetaParser());
-        }
+        this.parsers.add(new DefaultTableMetaParser());
+        // 排序下 从小到大排序
+        parsers.sort(Comparator.comparingInt(ITableMetaParser::getOrder));
     }
 
 }

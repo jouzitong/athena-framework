@@ -40,7 +40,7 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
     /**
      * 数据库注释符号
      */
-    protected static final String COMMENT_SYMBOL = "-- ";
+    public static final String COMMENT_SYMBOL = "-- ";
 
     // ================= 自定义变量 =================
     protected Statement statement;
