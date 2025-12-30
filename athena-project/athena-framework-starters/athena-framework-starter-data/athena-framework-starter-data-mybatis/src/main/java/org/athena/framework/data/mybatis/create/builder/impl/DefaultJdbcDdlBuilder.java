@@ -1,9 +1,10 @@
-package org.athena.framework.data.mybatis.builder;
+package org.athena.framework.data.mybatis.create.builder.impl;
 
 import lombok.NoArgsConstructor;
 import org.athena.framework.data.jdbc.type.DbType;
 import org.athena.framework.data.mybatis.bean.TableMeta;
-import org.athena.framework.data.mybatis.utils.JdbcDdlUtils;
+import org.athena.framework.data.mybatis.create.builder.IJdbcDdlBuilder;
+import org.athena.framework.data.mybatis.utils.MysqlJdbcDdlUtils;
 
 @NoArgsConstructor
 public class DefaultJdbcDdlBuilder implements IJdbcDdlBuilder {
@@ -34,11 +35,11 @@ public class DefaultJdbcDdlBuilder implements IJdbcDdlBuilder {
 
     @Override
     public String buildCreate() {
-        return JdbcDdlUtils.genCreateDdlSql(this.newTableMeta);
+        return MysqlJdbcDdlUtils.genCreateDdlSql(this.newTableMeta);
     }
 
     @Override
     public String buildAlter() {
-        return "";
+        return MysqlJdbcDdlUtils.genUpdateDdlSql(this.newTableMeta, this.oldTableMeta);
     }
 }

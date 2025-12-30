@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 import org.athena.framework.data.mybatis.bean.meta.IndexMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,13 +32,12 @@ public class TableMeta {
     /**
      * 表字段列表
      */
-    private List<ColumnMeta> columns;
+    private List<ColumnMeta> columns = new ArrayList<>();
 
     /**
      * 表索引列表
      */
-    private List<IndexMeta> indexes;
-
+    private List<IndexMeta> indexes = new ArrayList<>();
 
 
 }

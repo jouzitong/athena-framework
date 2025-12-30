@@ -5,10 +5,13 @@ import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 import org.athena.framework.data.mybatis.bean.meta.IndexMeta;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class JdbcDdlUtils {
+public class MysqlJdbcDdlUtils {
+
+    private static final String COMMENT_SYMBOL = "--";
 
     /**
      * 生成 创建表的 DDL SQL
@@ -52,6 +55,7 @@ public class JdbcDdlUtils {
         return sb.toString();
     }
 
+
     /**
      * 生成 修改表的 DDL SQL
      *
@@ -67,69 +71,25 @@ public class JdbcDdlUtils {
         StringBuilder sb = new StringBuilder();
         sb.append("ALTER TABLE ").append(newTableMeta.getName()).append("\n");
 
-        // Add new columns
-        List<ColumnMeta> newColumns = newTableMeta.getColumns().stream()
-                .filter(column -> !oldTableMeta.getColumns().contains(column))
-                .collect(Collectors.toList());
-        if (!newColumns.isEmpty()) {
-            sb.append("ADD (").append(String.join(",\n", newColumns.stream()
-                    .map(column -> buildColumnDefinition(column, DbType.MYSQL))
-                    .collect(Collectors.toList()))).append("),\n");
-        }
+        // 添加新列
+        addNewColumns(sb, newTableMeta, oldTableMeta);
 
-        // Modify existing columns
-        List<ColumnMeta> modifiedColumns = newTableMeta.getColumns().stream()
-                .filter(newColumn -> oldTableMeta.getColumns().stream()
-                        .anyMatch(oldColumn -> !newColumn.equals(oldColumn) && newColumn.getName().equals(oldColumn.getName())))
-                .collect(Collectors.toList());
-        if (!modifiedColumns.isEmpty()) {
-            for (ColumnMeta column : modifiedColumns) {
-                sb.append(buildColumnAlterDefinition(column, DbType.MYSQL)).append(",\n");
-            }
-        }
+        // 修改现有列
+        modifyExistingColumns(sb, newTableMeta, oldTableMeta);
 
-        // Drop removed columns
-        List<ColumnMeta> removedColumns = oldTableMeta.getColumns().stream()
-                .filter(column -> !newTableMeta.getColumns().contains(column))
-                .collect(Collectors.toList());
-        if (!removedColumns.isEmpty()) {
-            for (ColumnMeta column : removedColumns) {
-                sb.append("DROP COLUMN `").append(column.getName()).append("`,\n");
-            }
-        }
+        // 删除移除的列
+        dropRemovedColumns(sb, newTableMeta, oldTableMeta);
 
-        // Add new indexes
-        List<IndexMeta> newIndexes = newTableMeta.getIndexes().stream()
-                .filter(index -> !oldTableMeta.getIndexes().contains(index))
-                .collect(Collectors.toList());
-        if (!newIndexes.isEmpty()) {
-            for (IndexMeta index : newIndexes) {
-                sb.append(buildIndexAlterDefinition(index, "ADD")).append(",\n");
-            }
-        }
+        // 添加新索引
+        addNewIndexes(sb, newTableMeta, oldTableMeta);
 
-        // Modify existing indexes
-        List<IndexMeta> modifiedIndexes = newTableMeta.getIndexes().stream()
-                .filter(newIndex -> oldTableMeta.getIndexes().stream()
-                        .anyMatch(oldIndex -> !newIndex.equals(oldIndex) && newIndex.getName().equals(oldIndex.getName())))
-                .collect(Collectors.toList());
-        if (!modifiedIndexes.isEmpty()) {
-            for (IndexMeta index : modifiedIndexes) {
-                sb.append(buildIndexAlterDefinition(index, "ALTER")).append(",\n");
-            }
-        }
+        // 修改现有索引
+        modifyExistingIndexes(sb, newTableMeta, oldTableMeta);
 
-        // Drop removed indexes
-        List<IndexMeta> removedIndexes = oldTableMeta.getIndexes().stream()
-                .filter(index -> !newTableMeta.getIndexes().contains(index))
-                .collect(Collectors.toList());
-        if (!removedIndexes.isEmpty()) {
-            for (IndexMeta index : removedIndexes) {
-                sb.append("DROP INDEX ").append(index.getName()).append(",\n");
-            }
-        }
+        // 删除移除的索引
+        dropRemovedIndexes(sb, newTableMeta, oldTableMeta);
 
-        // Remove the last comma and newline
+        // 移除最后一个逗号和换行
         if (sb.charAt(sb.length() - 1) == ',') {
             sb.setLength(sb.length() - 2);
         }
@@ -139,34 +99,83 @@ public class JdbcDdlUtils {
         return sb.toString();
     }
 
-    private static String buildColumnAlterDefinition(ColumnMeta column, DbType dbType) {
-        StringBuilder columnDef = new StringBuilder("  MODIFY ");
-        columnDef.append(column.getName()).append(" ").append(dbType.getType(column.getJavaType(), column.getLength()));
-
-        if (column.isNullable()) {
-            columnDef.append(" NULL");
-        } else {
-            columnDef.append(" NOT NULL");
+    private static void addNewColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<ColumnMeta> newColumns = newTableMeta.getColumns().stream()
+                .filter(column -> !oldTableMeta.getColumns().contains(column))
+                .collect(Collectors.toList());
+        if (!newColumns.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 新增字段\n");
+            sb.append("ADD (").append(String.join(",\n", newColumns.stream()
+                    .map(column -> buildColumnDefinition(column, DbType.MYSQL))
+                    .collect(Collectors.toList()))).append("),\n");
         }
-
-        if (column.getDefaultValue() != null) {
-            columnDef.append(" DEFAULT ").append(column.getDefaultValue());
-        }
-
-        return columnDef.toString();
     }
 
-    private static String buildIndexAlterDefinition(IndexMeta index, String operation) {
-        StringBuilder indexDef = new StringBuilder("  ").append(operation).append(" INDEX ").append(index.getName())
-                .append(" (").append(String.join(", ", index.getColumnNames()))
-                .append(")").append(index.isUnique() ? " UNIQUE" : "");
+    private static void modifyExistingColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<ColumnMeta> modifiedColumns = newTableMeta.getColumns().stream()
+                .filter(newColumn -> oldTableMeta.getColumns().stream()
+                        .anyMatch(oldColumn -> !newColumn.equals(oldColumn) && newColumn.getName().equals(oldColumn.getName())))
+                .collect(Collectors.toList());
+        if (!modifiedColumns.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 修改字段\n");
+            for (ColumnMeta column : modifiedColumns) {
+                sb.append(buildColumnAlterDefinition(column, DbType.MYSQL)).append(",\n");
+            }
+        }
+    }
 
-        return indexDef.toString();
+    private static void dropRemovedColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<ColumnMeta> removedColumns = oldTableMeta.getColumns().stream()
+                .filter(column -> !newTableMeta.getColumns().contains(column))
+                .collect(Collectors.toList());
+        if (!removedColumns.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 删除字段\n");
+            for (ColumnMeta column : removedColumns) {
+                sb.append("DROP COLUMN `").append(column.getName()).append("`,\n");
+            }
+        }
+    }
+
+    private static void addNewIndexes(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<IndexMeta> newIndexes = newTableMeta.getIndexes().stream()
+                .filter(index -> !oldTableMeta.getIndexes().contains(index))
+                .collect(Collectors.toList());
+        if (!newIndexes.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 新增索引\n");
+            for (IndexMeta index : newIndexes) {
+                sb.append(buildIndexAlterDefinition(index, "ADD")).append(",\n");
+            }
+        }
+    }
+
+    private static void modifyExistingIndexes(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<IndexMeta> modifiedIndexes = newTableMeta.getIndexes().stream()
+                .filter(newIndex -> oldTableMeta.getIndexes().stream()
+                        .anyMatch(oldIndex -> !newIndex.equals(oldIndex) && newIndex.getName().equals(oldIndex.getName())))
+                .collect(Collectors.toList());
+        if (!modifiedIndexes.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 修改索引\n");
+            for (IndexMeta index : modifiedIndexes) {
+                sb.append(buildIndexAlterDefinition(index, "ALTER")).append(",\n");
+            }
+        }
+    }
+
+    private static void dropRemovedIndexes(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<IndexMeta> removedIndexes = oldTableMeta.getIndexes().stream()
+                .filter(index -> !newTableMeta.getIndexes().contains(index))
+                .collect(Collectors.toList());
+        if (!removedIndexes.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 删除索引\n");
+            for (IndexMeta index : removedIndexes) {
+                sb.append("DROP INDEX ").append(index.getName()).append(",\n");
+            }
+        }
     }
 
     private static String buildColumnDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  ");
-        columnDef.append(column.getName()).append(" ").append(dbType.getType(column.getJavaType(), column.getLength()));
+        columnDef.append("`").append(column.getName()).append("` ").append(dbType.getType(column.getJavaType(), column.getLength()));
 
         if (column.isNullable()) {
             columnDef.append(" NULL");
@@ -181,91 +190,108 @@ public class JdbcDdlUtils {
         return columnDef.toString();
     }
 
+    private static String buildColumnAlterDefinition(ColumnMeta column, DbType dbType) {
+        StringBuilder columnDef = new StringBuilder("  MODIFY COLUMN ");
+        columnDef.append("`").append(column.getName()).append("` ").append(dbType.getType(column.getJavaType(), column.getLength()));
+
+        if (column.isNullable()) {
+            columnDef.append(" NULL");
+        } else {
+            columnDef.append(" NOT NULL");
+        }
+
+        if (column.getDefaultValue() != null) {
+            columnDef.append(" DEFAULT ").append(column.getDefaultValue());
+        }
+
+        return columnDef.toString();
+    }
+
+    private static String buildIndexAlterDefinition(IndexMeta index, String action) {
+        StringBuilder indexDef = new StringBuilder("  ").append(action).append(" INDEX ");
+        indexDef.append("`").append(index.getName()).append("` (");
+        indexDef.append(String.join(", ", index.getColumnNames()));
+        indexDef.append(")");
+
+        return indexDef.toString();
+    }
 
     public static void main(String[] args) {
-        // 创建示例 TableMeta 对象
-        TableMeta tableMeta = TableMeta.builder()
+        // 旧表定义
+        TableMeta oldTableMeta = TableMeta.builder()
                 .name("example_table")
-                .columns(List.of(
+                .comment("Old Example Table")
+                .columns(Arrays.asList(
                         ColumnMeta.builder()
                                 .name("id")
                                 .javaType(Integer.class)
-                                .length(11)
                                 .nullable(false)
-                                .defaultValue(null)
                                 .build(),
                         ColumnMeta.builder()
                                 .name("name")
                                 .javaType(String.class)
                                 .length(50)
                                 .nullable(true)
-                                .defaultValue("'default_name'")
+                                .build(),
+                        ColumnMeta.builder()
+                                .name("created_at")
+                                .javaType(java.util.Date.class)
+                                .nullable(false)
                                 .build()
                 ))
-                .indexes(List.of(
-                        IndexMeta.builder()
-                                .name("primary_key")
-                                .type("PRIMARY")
-                                .columnNames(List.of("id"))
-                                .unique(true)
-                                .build(),
+                .indexes(Arrays.asList(
                         IndexMeta.builder()
                                 .name("idx_name")
+                                .columnNames(Arrays.asList("name"))
                                 .type("INDEX")
-                                .columnNames(List.of("name"))
-                                .unique(false)
                                 .build()
-
-
                 ))
                 .build();
 
-        // 生成创建表的 DDL SQL
-        String createDdlSql = genCreateDdlSql(tableMeta);
-        // 打印生成的 DDL SQL
-        System.out.println(createDdlSql);
-
-        // 创建新的 TableMeta 对象，新增两列，删除 name 列
+        // 新表定义
         TableMeta newTableMeta = TableMeta.builder()
                 .name("example_table")
-                .columns(List.of(
+                .comment("New Example Table")
+                .columns(Arrays.asList(
                         ColumnMeta.builder()
                                 .name("id")
                                 .javaType(Integer.class)
-                                .length(11)
                                 .nullable(false)
-                                .defaultValue(null)
                                 .build(),
                         ColumnMeta.builder()
                                 .name("age")
                                 .javaType(Integer.class)
-                                .length(3)
                                 .nullable(true)
-                                .defaultValue(null)
                                 .build(),
                         ColumnMeta.builder()
                                 .name("email")
                                 .javaType(String.class)
-                                .length(50)
+                                .length(100)
                                 .nullable(true)
-                                .defaultValue(null)
+                                .build(),
+                        ColumnMeta.builder()
+                                .name("created_at")
+                                .javaType(java.util.Date.class)
+                                .nullable(false)
                                 .build()
                 ))
-                .indexes(List.of(
+                .indexes(Arrays.asList(
                         IndexMeta.builder()
-                                .name("primary_key")
-                                .type("PRIMARY")
-                                .columnNames(List.of("id"))
-                                .unique(true)
+                                .name("idx_email")
+                                .columnNames(Arrays.asList("email"))
+                                .type("INDEX")
                                 .build()
                 ))
                 .build();
 
-        // 生成修改表的 DDL SQL
-        String updateDdlSql = genUpdateDdlSql(newTableMeta, tableMeta);
+        String createDdlSql = genCreateDdlSql(newTableMeta);
+        System.out.println("创建表SQL : \n" + createDdlSql);
 
-        // 打印生成的 DDL SQL
-        System.out.println(updateDdlSql);
+        // 生成 DDL SQL
+        String ddlSql = MysqlJdbcDdlUtils.genUpdateDdlSql(newTableMeta, oldTableMeta);
+
+        // 输出结果
+        System.out.println("修改表SQL : \n" + ddlSql);
     }
 
 }

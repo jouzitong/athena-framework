@@ -1,4 +1,4 @@
-package org.athena.framework.data.mybatis.builder;
+package org.athena.framework.data.mybatis.create.builder;
 
 import org.athena.framework.data.jdbc.type.DbType;
 import org.athena.framework.data.mybatis.bean.TableMeta;

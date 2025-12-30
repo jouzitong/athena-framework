@@ -33,7 +33,7 @@ public class ColumnMeta {
     /**
      * 长度
      */
-    private Integer length;
+    private int length;
 
     /**
      * 小数位数

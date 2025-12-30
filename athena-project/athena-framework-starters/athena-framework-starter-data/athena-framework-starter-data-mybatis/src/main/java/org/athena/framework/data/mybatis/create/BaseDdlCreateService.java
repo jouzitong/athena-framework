@@ -29,6 +29,7 @@ import java.util.Map;
  * @since 2025/7/13
  **/
 @Slf4j
+@Deprecated
 public abstract class BaseDdlCreateService implements IDdlCreateService, CommandLineRunner {
 
     @Resource
