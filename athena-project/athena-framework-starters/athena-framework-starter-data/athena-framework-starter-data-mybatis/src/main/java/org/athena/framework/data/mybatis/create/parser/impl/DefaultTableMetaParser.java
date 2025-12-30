@@ -3,18 +3,19 @@ package org.athena.framework.data.mybatis.create.parser.impl;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
+import org.athena.framework.data.mybatis.bean.meta.IndexMeta;
 import org.athena.framework.data.mybatis.create.parser.ITableMetaParser;
 import org.athena.framework.data.mybatis.utils.TableFieldParseUtils;
 import org.springframework.core.Ordered;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -28,13 +29,39 @@ public class DefaultTableMetaParser implements ITableMetaParser {
         // 解析字段定义信息
         List<ColumnMeta> columns = parseColumnInfo(clazz);
         tableMeta.setColumns(columns);
-        // TODO 解析索引定义信息
+        List<IndexMeta> indexMetas = parseIndexMeta(clazz);
+        tableMeta.setIndexes(indexMetas);
+
         return true;
     }
 
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    protected List<IndexMeta> parseIndexMeta(Class<?> clazz) {
+
+        List<IndexMeta> indexMetas = new ArrayList<>();
+        Class<?> tempClazz = clazz;
+
+        while (tempClazz != Object.class) {
+            Field[] allField = tempClazz.getDeclaredFields();
+            for (Field field : allField) {
+                if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
+                    continue;
+                }
+                Annotation id = field.getAnnotation(Id.class);
+                if (id != null) {
+                    indexMetas.add(IndexMeta.builder()
+                            .type("PRIMARY")
+                            .columnNames(List.of(field.getName()))
+                            .build());
+                }
+            }
+            tempClazz = tempClazz.getSuperclass();
+        }
+        return indexMetas;
     }
 
     protected List<ColumnMeta> parseColumnInfo(Class<?> clazz) {
@@ -89,6 +116,7 @@ public class DefaultTableMetaParser implements ITableMetaParser {
         }
         if (StringUtils.isNotBlank(tableName)) {
             tableMeta.setName(tableName);
+            tableMeta.setComment(tableName);
         }
     }
 

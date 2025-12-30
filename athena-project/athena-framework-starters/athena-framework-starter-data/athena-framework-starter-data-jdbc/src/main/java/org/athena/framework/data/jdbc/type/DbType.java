@@ -29,7 +29,7 @@ public enum DbType {
                 || ObjectUtils.isDateType(clazz)) {
             return typeMap.get(clazz);
         }
-        if (clazz.isAssignableFrom(IEnum.class)) {
+        if (IEnum.class.isAssignableFrom(clazz)) {
             return typeMap.get(IEnum.class);
         }
         return typeMap.get(Object.class);
@@ -39,7 +39,7 @@ public enum DbType {
         if (ObjectUtils.isBaseType(clazz)
                 || ObjectUtils.isDateType(clazz)) {
             String s = typeMap.get(clazz);
-            if (s==null){
+            if (s == null) {
                 return length > 0 ? s + "(" + length + ")" : s;
             }
             if (s.equals("VARCHAR")) {
@@ -47,7 +47,7 @@ public enum DbType {
             }
             return s;
         }
-        if (clazz.isAssignableFrom(IEnum.class)) {
+        if (IEnum.class.isAssignableFrom(clazz)) {
             return typeMap.get(IEnum.class);
         }
         return typeMap.get(Object.class);

@@ -175,7 +175,9 @@ public class MysqlJdbcDdlUtils {
 
     private static String buildColumnDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  ");
-        columnDef.append("`").append(column.getName()).append("` ").append(dbType.getType(column.getJavaType(), column.getLength()));
+        columnDef
+                .append("`").append(column.getName()).append("` ")
+                .append(dbType.getType(column.getJavaType(), column.getLength()));
 
         if (column.isNullable()) {
             columnDef.append(" NULL");
@@ -185,6 +187,10 @@ public class MysqlJdbcDdlUtils {
 
         if (column.getDefaultValue() != null) {
             columnDef.append(" DEFAULT ").append(column.getDefaultValue());
+        }
+        // comment
+        if (column.getComment() != null) {
+            columnDef.append(" COMMENT ").append(column.getComment());
         }
 
         return columnDef.toString();
@@ -202,6 +208,10 @@ public class MysqlJdbcDdlUtils {
 
         if (column.getDefaultValue() != null) {
             columnDef.append(" DEFAULT ").append(column.getDefaultValue());
+        }
+        // comment
+        if (column.getComment() != null) {
+            columnDef.append(" COMMENT '").append(column.getComment()).append("'");
         }
 
         return columnDef.toString();

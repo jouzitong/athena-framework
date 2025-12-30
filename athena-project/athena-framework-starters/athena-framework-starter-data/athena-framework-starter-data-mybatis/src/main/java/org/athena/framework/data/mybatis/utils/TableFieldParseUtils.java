@@ -27,8 +27,9 @@ public class TableFieldParseUtils {
         }
 
         String name = StringUtils.isNotBlank(column.name()) ? column.name() : field.getName();
-        String dataType = column.columnDefinition();
         Class<?> javaType = field.getType();
+//        String dataType = DbType.MYSQL.getType(javaType);
+        String dataType = null;
         int length = column.length();
         Integer scale = column.scale();
         boolean nullable = column.nullable();
