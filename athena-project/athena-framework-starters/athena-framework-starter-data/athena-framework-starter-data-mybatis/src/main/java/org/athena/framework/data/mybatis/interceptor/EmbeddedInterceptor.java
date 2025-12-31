@@ -60,28 +60,6 @@ public class EmbeddedInterceptor implements Interceptor {
             return;
         }
         rewriteBoundSql(bs, flatSql.sql, flatSql.params);
-//        try {
-//            Field sqlField = BoundSql.class.getDeclaredField("sql");
-//            Field additionalParametersField = BoundSql.class.getDeclaredField("additionalParameters");
-//            sqlField.setAccessible(true);
-//            additionalParametersField.setAccessible(true);
-//
-//            sqlField.set(bs, flatSql.getSql());
-//
-//            // JacksonJsonUtils.toMap(flatSql.getParams());
-//            Map<String, Object> paramsMap = ClassUtils.getFieldValue(bs, additionalParametersField);
-//            paramsMap.putAll(flatSql.getParams());
-////            Object parameter = paramsMap.get("_parameter");
-////            Map<String, Object> map = JacksonJsonUtils.toMap(parameter);
-////            map.putAll(flatSql.getParams());
-////            paramsMap.put("_parameter", map);
-////            additionalParametersField.set(bs, flatSql.getParams());
-//
-//            sqlField.setAccessible(false);
-//            additionalParametersField.setAccessible(false);
-//        } catch (NoSuchFieldException | IllegalAccessException e) {
-//            throw new RuntimeException("无法通过反射修改 BoundSql 对象", e);
-//        }
     }
 
     @SuppressWarnings("unchecked")

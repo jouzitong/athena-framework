@@ -2,13 +2,18 @@ package org.athena.framework.data.mybatis.builder;
 
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import jakarta.persistence.Embedded;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.arthena.framework.common.provider.ApplicationContextProvider;
 import org.arthena.framework.common.utils.ClassUtils;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
+import org.athena.framework.data.mybatis.builder.rewrite.*;
 import org.athena.framework.data.mybatis.interceptor.EmbeddedInterceptor;
 import org.athena.framework.data.mybatis.utils.EmbeddedPrefixUtils;
 import org.athena.framework.data.mybatis.utils.TableFieldParseUtils;
@@ -18,7 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class EmbeddedSqlBuilder {
+
+    private static DeleteEnhancer deleteEnhancer;
+    private static InsertEnhancer insertEnhancer;
+    private static SelectEnhancer selectEnhancer;
+    private static UpdateEnhancer updateEnhancer;
 
     /**
      *
@@ -88,23 +99,39 @@ public class EmbeddedSqlBuilder {
     }
 
     private static String appendInsertColumns(String sql, Map<String, Object> newColumns) {
-        SQLStatement statement = SQLUtils.parseSingleStatement(sql, DbType.mysql);
-        SQLInsertStatement insert = (SQLInsertStatement) statement;
-
-        // 1. 字段列表
-        List<SQLExpr> columns = insert.getColumns();
-        // 2. VALUES 列表
-        SQLInsertStatement.ValuesClause values = insert.getValuesList().get(0);
-        List<SQLExpr> valueExprs = values.getValues();
-
-        for (Map.Entry<String, Object> entry : newColumns.entrySet()) {
-            columns.add(new SQLIdentifierExpr(entry.getKey()));
-//            valueExprs.add(new SQLIdentifierExpr(entry.getValue())); // 一般是 "?" 或 SQLExpr
-            valueExprs.add(new SQLIdentifierExpr("?")); // 一般是 "?" 或 SQLExpr
+        SQLStatement stmt = SQLUtils.parseSingleStatement(sql, DbType.mysql);
+        init();
+        if (stmt instanceof SQLInsertStatement) {
+            return insertEnhancer.enhance(stmt, newColumns);
+        } else if (stmt instanceof SQLUpdateStatement) {
+            return updateEnhancer.enhance(stmt, newColumns);
+        } else if (stmt instanceof SQLSelectStatement) {
+            return selectEnhancer.enhance(stmt, newColumns);
+        } else if (stmt instanceof SQLDeleteStatement) {
+            return deleteEnhancer.enhance(stmt, newColumns);
         }
-
-        return SQLUtils.toSQLString(insert, DbType.mysql);
+        LOGGER.error("未知SQL: {}", sql);
+        return null;
     }
 
+    private static void init() {
+        if (EmbeddedSqlBuilder.selectEnhancer != null) {
+            return;
+        }
+        List<SqlRewriteEngine> beans = ApplicationContextProvider.getBeansOfType(SqlRewriteEngine.class);
+        if (CollectionUtils.isNotEmpty(beans)) {
+            for (SqlRewriteEngine bean : beans) {
+                if (bean.getClass().equals(DeleteEnhancer.class)) {
+                    EmbeddedSqlBuilder.deleteEnhancer = (DeleteEnhancer) bean;
+                } else if (bean.getClass().equals(InsertEnhancer.class)) {
+                    EmbeddedSqlBuilder.insertEnhancer = (InsertEnhancer) bean;
+                } else if (bean.getClass().equals(UpdateEnhancer.class)) {
+                    EmbeddedSqlBuilder.updateEnhancer = (UpdateEnhancer) bean;
+                } else if (bean.getClass().equals(SelectEnhancer.class)) {
+                    EmbeddedSqlBuilder.selectEnhancer = (SelectEnhancer) bean;
+                }
+            }
+        }
+    }
 
 }
