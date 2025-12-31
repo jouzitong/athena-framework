@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * json 工具类
@@ -130,6 +131,20 @@ public class JacksonJsonUtils {
         return null;
     }
 
+    /**
+     * Converts the provided object into a Map with String keys and Object values.
+     *
+     * @param value the object to be converted into a map
+     * @return a Map representation of the given object, with keys as Strings and values as Objects
+     */
+    @SneakyThrows
+    public static Map<String, Object> toMap(Object value) {
+        if (null != value) {
+            return JSON.convertValue(value, new TypeReference<Map<String, Object>>() {
+            });
+        }
+        return null;
+    }
 
     @SneakyThrows
     public static JsonNode readTree(String content) {

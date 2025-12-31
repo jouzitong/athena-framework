@@ -23,7 +23,7 @@ public class SystemContext {
     /**
      * 系统默认操作用户: 0L
      */
-    public static final Long DEFAULT_OPERATOR = 0L;
+    public static final Long DEFAULT_OPERATOR = 999999999L;
 
     private static final ThreadLocal<Map<String, Object>> CONTEXT_THREAD_LOCAL = new ThreadLocal<>();
 

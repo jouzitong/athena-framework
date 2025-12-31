@@ -1,4 +1,4 @@
-package org.athena.framework.data.mybatis.interceptor;
+package org.athena.framework.data.mybatis.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -8,6 +8,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.arthena.framework.common.context.SystemContext;
 import org.arthena.framework.common.service.IUserContextService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,7 +20,8 @@ import static org.athena.framework.data.jdbc.constant.BaseEntityConstant.*;
  *
  * @author liao
  */
-public class DataOperationInterceptor implements MetaObjectHandler {
+@Component
+public class DataOperationHandler implements MetaObjectHandler {
 
     @Autowired(required = false)
     private IUserContextService userContextService;
@@ -53,7 +55,6 @@ public class DataOperationInterceptor implements MetaObjectHandler {
     private Long getCurrentUserId() {
         if (userContextService != null) {
             return Optional.ofNullable(userContextService.getUserId()).orElse(0L);
-
         }
         return SystemContext.DEFAULT_OPERATOR;
     }

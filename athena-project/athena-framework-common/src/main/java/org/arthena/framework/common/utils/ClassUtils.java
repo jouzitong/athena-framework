@@ -24,5 +24,15 @@ public class ClassUtils {
         return allFields;
     }
 
+    public static <T> T getFieldValue(Object o, Field field) {
+        try {
+            field.setAccessible(true);
+            return (T) field.get(o);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("无法访问字段: " + field.getName(), e);
+        } finally {
+            field.setAccessible(false);
+        }
+    }
 
 }

@@ -139,7 +139,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      */
     default void copyProperties(DTO dto, Entity entity) {
         BeanUtils.copy(dto, entity);
-        entity.getAndIncrementVersion();
+//        entity.getAndIncrementVersion();
     }
 
     /**
@@ -150,7 +150,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      */
     default void copyAllowNullProperties(DTO dto, Entity entity) {
         BeanUtils.copyForUpdate(dto, entity);
-        entity.getAndIncrementVersion();
+//        entity.getAndIncrementVersion();
     }
 
     /**

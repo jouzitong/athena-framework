@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import org.apache.commons.lang3.StringUtils;
+import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 
 import java.lang.reflect.Field;
@@ -26,7 +27,9 @@ public class TableFieldParseUtils {
             throw new IllegalArgumentException("Field is missing @Column annotation");
         }
 
-        String name = StringUtils.isNotBlank(column.name()) ? column.name() : field.getName();
+        String name = StringUtils.isNotBlank(column.name())
+                ? column.name()
+                : CamelCaseUtils.toSnakeCase(field.getName());
         Class<?> javaType = field.getType();
 //        String dataType = DbType.MYSQL.getType(javaType);
         String dataType = null;

@@ -1,5 +1,7 @@
 package org.athena.framework.data.mybatis.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -42,6 +44,7 @@ public class BaseEntity implements IEntity<Long> {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "create_time", updatable = false, nullable = false, columnDefinition = "'创建时间' default CURRENT_TIMESTAMP")
+    @TableField( fill = FieldFill.INSERT)
     protected LocalDateTime createTime;
 
     /**
@@ -49,18 +52,21 @@ public class BaseEntity implements IEntity<Long> {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "update_time", nullable = false, columnDefinition = "'修改时间' default CURRENT_TIMESTAMP")
+    @TableField( fill = FieldFill.INSERT_UPDATE)
     protected LocalDateTime updateTime;
 
     /**
      * 创建者
      */
     @Column(name = "created_by", nullable = false, columnDefinition = "'创建者' default 0")
+//    @TableField( fill = FieldFill.INSERT)
     protected Long createdBy = 0L;
 
     /**
      * 修改者
      */
     @Column(name = "last_modified_by", nullable = false, columnDefinition = "'修改者' default 0")
+//    @TableField( fill = FieldFill.INSERT_UPDATE)
     protected Long lastModifiedBy = 0L;
 
     /**
@@ -73,13 +79,14 @@ public class BaseEntity implements IEntity<Long> {
     /**
      * 软删除 0-未删除，1-已删除
      */
-    @Column(name = "deleted", nullable = false, columnDefinition = "'软删除 0-未删除，1-已删除' default 0")
-    protected Integer deleted = 0;
+//    @Column(name = "deleted", nullable = false, columnDefinition = "'软删除 0-未删除，1-已删除' default 0")
+//    @TableLogic
+//    protected Integer deleted = 0;
 
-    public Long getAndIncrementVersion() {
-//        return ++version;
-        return -1L;
-    }
+//    public Long getAndIncrementVersion() {
+////        return ++version;
+//        return -1L;
+//    }
 
 }
 

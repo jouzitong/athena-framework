@@ -1,9 +1,8 @@
 package org.athena.framework.data.mybatis.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import org.athena.framework.data.mybatis.interceptor.DataOperationInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
@@ -13,6 +12,7 @@ import javax.sql.DataSource;
  * @since 2023-12-12
  **/
 @Configuration
+@Slf4j
 public class MybatisPlusConfig {
 
     /**
@@ -30,10 +30,11 @@ public class MybatisPlusConfig {
      * 数据自动插入拦截器
      * 自动插入的数据包括：创建人、创建时间、修改人、修改时间
      */
-    @Bean
-    public DataOperationInterceptor dataOperationInterceptor() {
-        return new DataOperationInterceptor();
-    }
+//    @Bean
+//    public DataOperationInterceptor dataOperationInterceptor() {
+//        LOGGER.info("添加数据默认拦截器: DataOperationInterceptor");
+//        return new DataOperationInterceptor();
+//    }
 
 
 }

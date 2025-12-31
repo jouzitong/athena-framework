@@ -1,5 +1,7 @@
 package com.zhouzhitong.test.mybatis.bean;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.zhouzhitong.test.mybatis.type.Gender;
 import jakarta.persistence.Column;
@@ -15,7 +17,7 @@ import org.athena.framework.data.mybatis.entity.BaseEntity;
 @TableName("person")
 public class Person extends BaseEntity {
 
-    @Column(name = "name",length = 64, nullable = false, columnDefinition = "'姓名'")
+    @Column(name = "name", length = 64, nullable = false, columnDefinition = "'姓名'")
     private String name;
 
     @Column(name = "age", nullable = false, columnDefinition = "'年龄'")
@@ -28,6 +30,8 @@ public class Person extends BaseEntity {
     private Gender gender;
 
     @Embedded
+    @TableField(exist = false,fill = FieldFill.INSERT_UPDATE)
+//    @TableField( fill = FieldFill.INSERT_UPDATE)
     private Address address;
 
 }
