@@ -30,7 +30,7 @@ public class Person extends BaseEntity {
     private Gender gender;
 
     @Embedded
-    @TableField(exist = false,fill = FieldFill.INSERT_UPDATE)
+    @TableField(exist = false, fill = FieldFill.INSERT_UPDATE)
 //    @TableField( fill = FieldFill.INSERT_UPDATE)
     private Address address;
 

@@ -43,21 +43,6 @@ public class EmbeddedSqlBuilder {
      */
     public static EmbeddedInterceptor.FlatSql rewrite(String sql, Object param) {
         Map<String, Object> map = parseParam(param);
-
-        if (sql.startsWith("SELECT")) {
-            return processQuery(sql, map);
-        } else if (sql.startsWith("INSERT")) {
-            return processInsert(sql, map);
-        }
-        return null;
-    }
-
-    private static EmbeddedInterceptor.FlatSql processQuery(String sql, Map<String, Object> map) {
-
-        return null;
-    }
-
-    private static EmbeddedInterceptor.FlatSql processInsert(String sql, Map<String, Object> map) {
         // INSERT INTO person  ( id, name, age, gender, create_time, update_time, created_by, last_modified_by, version ) VALUES (  ?, ?, ?, ?, ?, ?, ?, ?, ?  )
         String newSql = appendInsertColumns(sql, map);
 

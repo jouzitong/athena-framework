@@ -73,8 +73,8 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
         // 更新表结构
         StringBuilder updateDdlSql = new StringBuilder();
         List<Class<?>> subClasses = getSubClasses(IEntity.class);
+        ITableMetaBuilder tableBuilder = new DefaultTableMetaBuilder();
         for (Class<?> clazz : subClasses) {
-            ITableMetaBuilder tableBuilder = new DefaultTableMetaBuilder();
             // TODO 应该获取自定义解析器, 从spring ioc 中获取
 //            tableBuilder.addParser(null);
             tableBuilder.clazz(clazz);
