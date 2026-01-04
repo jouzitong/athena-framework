@@ -1,6 +1,6 @@
 package org.athena.framework.data.jpa.repository;
 
-import org.athena.framework.data.jpa.domain.base.LogicalDeleteEntity;
+import org.athena.framework.data.jpa.domain.LogicalDeleteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 

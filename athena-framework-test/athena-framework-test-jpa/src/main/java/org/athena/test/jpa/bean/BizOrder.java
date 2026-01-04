@@ -4,7 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
-import org.athena.framework.data.jpa.domain.base.LogicalDeleteEntity;
+import org.athena.framework.data.jpa.domain.LogicalDeleteEntity;
 
 @Entity
 @Table(name = "biz_order")

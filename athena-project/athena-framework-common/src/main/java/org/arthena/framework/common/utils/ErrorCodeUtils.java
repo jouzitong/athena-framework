@@ -10,9 +10,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author zhouzhitong
- * @since 2025/6/9
- **/
+ * ErrorCodeUtils 类提供了一组工具方法来处理错误码相关的操作，包括获取错误信息、加载错误码文件等。
+ * 该类支持多语言环境下的错误码解析，并能够从自定义和默认的错误码文件中读取错误信息。
+ * 错误码文件格式为 .properties 文件。
+ */
 public class ErrorCodeUtils {
 
     public static final String CUSTOM = "CUSTOM_";

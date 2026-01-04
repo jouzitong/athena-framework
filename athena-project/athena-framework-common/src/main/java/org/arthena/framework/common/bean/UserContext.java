@@ -1,7 +1,8 @@
-package org.arthena.framework.common.context;
+package org.arthena.framework.common.bean;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.arthena.framework.common.context.SystemContext;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -44,6 +45,11 @@ public class UserContext implements Serializable {
      * 账户登陆时间
      */
     private LocalDateTime loginTime;
+
+    /**
+     * 扩展属性
+     */
+    private Object extendProp;
 
     public UserContext(String username) {
         this.username = username;

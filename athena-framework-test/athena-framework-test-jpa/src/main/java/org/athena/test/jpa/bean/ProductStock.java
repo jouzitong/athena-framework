@@ -3,7 +3,7 @@ package org.athena.test.jpa.bean;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Data;
-import org.athena.framework.data.jpa.domain.base.LogicalDeleteEntity;
+import org.athena.framework.data.jpa.domain.LogicalDeleteEntity;
 
 @Entity
 @Table(name = "product_stock")

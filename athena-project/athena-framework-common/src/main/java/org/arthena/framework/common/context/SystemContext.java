@@ -73,4 +73,9 @@ public class SystemContext {
         return isRunning;
     }
 
+
+    public static long currentTimeMillis(){
+        return System.currentTimeMillis();
+    }
+
 }
