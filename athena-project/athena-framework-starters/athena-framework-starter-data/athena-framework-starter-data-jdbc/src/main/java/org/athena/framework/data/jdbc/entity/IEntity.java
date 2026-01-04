@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
  * @author zhouzhitong
  * @since 2025/7/6
  **/
-public interface IEntity<ID extends Serializable> extends Serializable {
+public interface IEntity extends Serializable {
 
-    ID getId();
+    Long getId();
 
     LocalDateTime getCreateTime();
 
@@ -17,7 +17,7 @@ public interface IEntity<ID extends Serializable> extends Serializable {
 
     Long getCreatedBy();
 
-    Long getLastModifiedBy();
+    Long getUpdatedBy();
 
     Long getVersion();
 

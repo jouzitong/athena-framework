@@ -14,7 +14,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity<ID>, ID extends Serializable> {
+public interface IMapperService<Entity extends IEntity> {
 
     /**
      * 列表查询
@@ -60,7 +60,7 @@ public interface IMapperService<Entity extends IEntity<ID>, ID extends Serializa
      * @return 更新成功, 则返回DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity update(ID id, Entity dto);
+    Entity update(Long id, Entity dto);
 
     /**
      * 更新部分字段(不允许设置null)
@@ -70,7 +70,7 @@ public interface IMapperService<Entity extends IEntity<ID>, ID extends Serializa
      * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity edit(ID id, Entity dto);
+    Entity edit(Long id, Entity dto);
 
     /**
      * 根据ID查询
@@ -78,7 +78,7 @@ public interface IMapperService<Entity extends IEntity<ID>, ID extends Serializa
      * @param id 主键ID
      * @return DTO
      */
-    Entity get(ID id);
+    Entity get(Long id);
 
     /**
      * 根据 query 查询
@@ -107,7 +107,7 @@ public interface IMapperService<Entity extends IEntity<ID>, ID extends Serializa
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    default boolean remove(ID id) {
+    default boolean remove(Long id) {
         Entity dto = get(id);
         dto.setDeleted(true);
         return update(id, dto) != null;

@@ -28,13 +28,12 @@ import java.util.List;
  */
 public class BaseController
         // 操作实体
-        <Entity extends IEntity<ID>
+        <Entity extends IEntity
                 , DTO extends BaseDTO
-                , ID extends Serializable
                 // 分页参数
                 , Query extends BaseRequest
                 // 操作service
-                , Service extends IMapperService<Entity, DTO, ID>> {
+                , Service extends IMapperService<Entity, DTO>> {
 
     @Resource
     private Service service;
@@ -78,7 +77,7 @@ public class BaseController
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public DTO get(@PathVariable("id") Long id) {
-        return this.service().get((ID) id);
+        return this.service().get(id);
     }
 
     /**
@@ -103,7 +102,7 @@ public class BaseController
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public DTO update(@PathVariable("id") Long id, @RequestBody DTO dto) {
-        return this.service().update((ID) id, dto);
+        return this.service().update( id, dto);
     }
 
     /**
@@ -116,7 +115,7 @@ public class BaseController
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public DTO edit(@PathVariable("id") Long id, @RequestBody DTO dto) {
-        return this.service().edit((ID) id, dto);
+        return this.service().edit( id, dto);
     }
 
 
@@ -129,7 +128,7 @@ public class BaseController
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Boolean delete(@PathVariable("id") Long id) {
-        return this.service().remove((ID) id);
+        return this.service().remove( id);
     }
 
 }

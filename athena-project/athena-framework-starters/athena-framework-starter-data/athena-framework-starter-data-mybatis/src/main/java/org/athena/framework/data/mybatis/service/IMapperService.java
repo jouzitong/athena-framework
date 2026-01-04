@@ -17,7 +17,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID extends Serializable> {
+public interface IMapperService<Entity extends IEntity, DTO extends IDTO> {
 
     /**
      * 列表查询
@@ -63,7 +63,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @return 更新成功, 则返回DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    DTO update(ID id, DTO dto);
+    DTO update(Long id, DTO dto);
 
     /**
      * 更新部分字段
@@ -73,7 +73,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    DTO edit(ID id, DTO dto);
+    DTO edit(Long id, DTO dto);
 
     /**
      * 根据ID查询
@@ -81,7 +81,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @param id 主键ID
      * @return DTO
      */
-    DTO get(ID id);
+    DTO get(Long id);
 
     /**
      * 根据 query 查询
@@ -110,7 +110,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTO, ID ext
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    default boolean remove(ID id) {
+    default boolean remove(Long id) {
         DTO dto = get(id);
         dto.setDeleted(true);
         return update(id, dto) != null;

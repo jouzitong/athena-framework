@@ -32,7 +32,7 @@ public class BaseController
                 // 分页参数
                 , Query extends BaseRequest
                 // 操作service
-                , Service extends IMapperService<Entity, DTO, Long>> {
+                , Service extends IMapperService<Entity, DTO>> {
 
     @Autowired
     private Service service;

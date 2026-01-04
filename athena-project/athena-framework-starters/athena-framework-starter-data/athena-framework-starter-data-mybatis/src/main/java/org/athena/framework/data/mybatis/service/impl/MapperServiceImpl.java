@@ -28,7 +28,7 @@ public abstract class MapperServiceImpl<
         DTO extends BaseDTO,
         ID extends Serializable>
         extends ServiceImpl<Mapper, Entity>
-        implements IMapperService<Entity, DTO, ID>, IService<Entity> {
+        implements IMapperService<Entity, DTO>, IService<Entity> {
 
     @Override
     public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
@@ -73,7 +73,7 @@ public abstract class MapperServiceImpl<
     }
 
     @Override
-    public DTO update(ID id, DTO dto) {
+    public DTO update(Long id, DTO dto) {
         LOGGER.info("update request: {}", dto);
         Entity entity = getEntity(id);
         copyAllowNullProperties(dto, entity);
@@ -85,7 +85,7 @@ public abstract class MapperServiceImpl<
     }
 
     @Override
-    public DTO edit(ID id, DTO dto) {
+    public DTO edit(Long id, DTO dto) {
         LOGGER.info("edit request: {}", dto);
         Entity entity = getEntity(id);
         copyProperties(dto, entity);
@@ -97,7 +97,7 @@ public abstract class MapperServiceImpl<
     }
 
     @Override
-    public DTO get(ID id) {
+    public DTO get(Long id) {
         LOGGER.trace("get request: {}", id);
         Entity entity = getEntity(id);
         return toDTO(entity);
@@ -114,7 +114,7 @@ public abstract class MapperServiceImpl<
         return MybatisPlusWrapperUtils.simpleQuery(query);
     }
 
-    private Entity getEntity(ID id) {
+    private Entity getEntity(Long id) {
         return this.getById(id);
     }
 

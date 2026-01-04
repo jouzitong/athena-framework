@@ -19,15 +19,13 @@ public class AuditEntityListener {
 
     @PrePersist
     public void preInsert(AuditableEntity entity) {
-        entity.setCreatedAt(LocalDateTime.now());
+        entity.setCreateTime(LocalDateTime.now());
         entity.setCreatedBy(userContextService.getUserId());
-//        entity.setCreatedBy(SecurityContext.currentUser());
     }
 
     @PreUpdate
     public void preUpdate(AuditableEntity entity) {
-        entity.setUpdatedAt(LocalDateTime.now());
+        entity.setUpdateTime(LocalDateTime.now());
         entity.setUpdatedBy(userContextService.getUserId());
-//        entity.setUpdatedBy(SecurityContext.currentUser());
     }
 }

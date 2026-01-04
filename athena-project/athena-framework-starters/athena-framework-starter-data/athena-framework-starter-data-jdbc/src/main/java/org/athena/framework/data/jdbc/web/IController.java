@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * to the user interface.
  */
 public interface IController<
-        Entity extends IEntity<?>,
+        Entity extends IEntity,
         DTO extends IDTO<?>,
         Query extends BaseRequest> {
 

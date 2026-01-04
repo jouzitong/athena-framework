@@ -22,11 +22,10 @@ import java.util.List;
  **/
 @Slf4j
 public class MapperServiceV2Impl<
-        ID extends Serializable,
-        Entity extends IEntity<ID>,
+        Entity extends IEntity,
         Mapper extends CrudMapper<Entity>>
         extends ServiceImpl<Mapper, Entity>
-        implements IMapperServiceV2<Entity, ID>, IService<Entity> {
+        implements IMapperServiceV2<Entity>, IService<Entity> {
 
     @Override
     public <Query extends BaseRequest> List<Entity> queryAll(Query query) {
@@ -62,21 +61,21 @@ public class MapperServiceV2Impl<
     }
 
     @Override
-    public Entity update(ID id, Entity entity) {
+    public Entity update(Long id, Entity entity) {
         LOGGER.info("update request: {}", entity);
         boolean update = this.updateById(entity);
         return update ? entity : null;
     }
 
     @Override
-    public Entity edit(ID id, Entity entity) {
+    public Entity edit(Long id, Entity entity) {
         LOGGER.info("edit request: {}", entity);
         boolean update = this.updateById(entity);
         return update ? entity : null;
     }
 
     @Override
-    public Entity get(ID id) {
+    public Entity get(Long id) {
         return this.getById(id);
     }
 

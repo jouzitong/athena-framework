@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-public class BaseEntity implements IEntity<Long> {
+public class BaseEntity implements IEntity {
 
     @Serial
     private static final long serialVersionUID = 8328293151203544834L;
@@ -66,9 +66,9 @@ public class BaseEntity implements IEntity<Long> {
     /**
      * 修改者
      */
-    @Column(name = "last_modified_by", nullable = false, columnDefinition = "'修改者' default 0")
+    @Column(name = "updated_by", nullable = false, columnDefinition = "'修改者' default 0")
 //    @TableField( fill = FieldFill.INSERT_UPDATE)
-    protected Long lastModifiedBy = 0L;
+    protected Long updatedBy = 0L;
 
     /**
      * 版本
@@ -84,7 +84,7 @@ public class BaseEntity implements IEntity<Long> {
     @TableLogic
     protected Integer deleted = 0;
 
-//    public Long getAndIncrementVersion() {
+    //    public Long getAndIncrementVersion() {
 ////        return ++version;
 //        return -1L;
 //    }

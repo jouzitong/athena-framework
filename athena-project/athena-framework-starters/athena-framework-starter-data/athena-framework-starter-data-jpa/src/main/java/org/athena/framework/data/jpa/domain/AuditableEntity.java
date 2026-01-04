@@ -22,10 +22,10 @@ public abstract class AuditableEntity extends BaseEntity {
 
     @Getter
     @Setter
-    @Column(name = "create_at", nullable = false, updatable = false, columnDefinition = "DATETIME default current_timestamp comment '创建时间'")
+    @Column(name = "create_time", nullable = false, updatable = false, columnDefinition = "DATETIME default current_timestamp comment '创建时间'")
     @CreatedDate
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdAt;
+    private LocalDateTime createTime;
 
     @Getter
     @Setter
@@ -35,10 +35,10 @@ public abstract class AuditableEntity extends BaseEntity {
 
     @Getter
     @Setter
-    @Column(name = "update_at", nullable = false, columnDefinition = "DATETIME default current_timestamp comment '最后修改时间'")
+    @Column(name = "update_time", columnDefinition = "DATETIME default current_timestamp comment '最后修改时间'")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private LocalDateTime UpdateTime;
 
     @Getter
     @Setter

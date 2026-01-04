@@ -8,7 +8,7 @@ import org.athena.framework.data.mybatis.service.IMapperService;
  * @author zhouzhitong
  * @since 2023-12-11
  **/
-public interface PersonService extends IMapperService<Person, PersonDTO, Long> {
+public interface PersonService extends IMapperService<Person, PersonDTO> {
 
     @Override
     default PersonDTO newDTO() {
