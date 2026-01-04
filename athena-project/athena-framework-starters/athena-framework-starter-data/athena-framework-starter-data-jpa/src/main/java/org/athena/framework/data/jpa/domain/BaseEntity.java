@@ -14,6 +14,7 @@ import org.athena.framework.data.jdbc.entity.IEntity;
 public abstract class BaseEntity implements IEntity {
 
     @Getter
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, columnDefinition = "bigint comment '主键ID'")
