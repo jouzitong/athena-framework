@@ -1,4 +1,4 @@
-package org.athena.framework.data.mybatis.service;
+package org.athena.framework.data.jdbc.serivce;
 
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
@@ -14,8 +14,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-@Deprecated // 查看 jdbc 服务中 IMapperService 接口
-public interface IMapperServiceV2<Entity extends IEntity<ID>, ID extends Serializable> {
+public interface IMapperService<Entity extends IEntity<ID>, ID extends Serializable> {
 
     /**
      * 列表查询

@@ -2,6 +2,7 @@ package org.athena.framework.data.mybatis.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -79,9 +80,9 @@ public class BaseEntity implements IEntity<Long> {
     /**
      * 软删除 0-未删除，1-已删除
      */
-//    @Column(name = "deleted", nullable = false, columnDefinition = "'软删除 0-未删除，1-已删除' default 0")
-//    @TableLogic
-//    protected Integer deleted = 0;
+    @Column(name = "deleted", nullable = false, columnDefinition = "'软删除 0-未删除，1-已删除' default 0")
+    @TableLogic
+    protected Integer deleted = 0;
 
 //    public Long getAndIncrementVersion() {
 ////        return ++version;

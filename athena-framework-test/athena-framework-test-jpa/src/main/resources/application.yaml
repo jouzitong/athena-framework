@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/jpa_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 5
+      initial-size: 3
+  jpa:
+    open-in-view: true   # ❗必须关，防止事务泄漏
+    show-sql: true
+    hibernate:
+      ddl-auto: update   # ❗生产只能 validate / none
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        highlight_sql: true
+#        jdbc:
+#          time_zone: UTC
+#          batch_size: 100
+#          batch_versioned_data: true
+#        hbm2ddl:
+#          auto: validate
+#        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+#        implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+#        order_inserts: true
+#        order_updates: true
+#        # 二级缓存
+#        cache:
+#          use_second_level_cache: false
+#          use_query_cache: false
+#        # 统计 / 监控 / 慢 SQL
+#        generate_statistics: true
+#        session:
+#          events:
+#            log:
+#              LOG_QUERIES_SLOWER_THAN_MS: 200
+        # 内核治理模块的预留点
+#        session_factory:
+#          statement_inspector: com.xxx.core.support.SqlGovernanceInspector
