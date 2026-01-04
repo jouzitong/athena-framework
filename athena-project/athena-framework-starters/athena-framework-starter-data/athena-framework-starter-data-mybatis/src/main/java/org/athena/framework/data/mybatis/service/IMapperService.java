@@ -3,12 +3,11 @@ package org.athena.framework.data.mybatis.service;
 import org.arthena.framework.common.exception.TodoException;
 import org.arthena.framework.common.utils.BeanUtils;
 import org.athena.framework.data.jdbc.entity.IEntity;
-import org.athena.framework.data.jdbc.entity.dto.IDTO;
+import org.athena.framework.data.jdbc.entity.dto.IDTOV2;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity, DTO extends IDTO> {
+public interface IMapperService<Entity extends IEntity, DTO extends IDTOV2> {
 
     /**
      * 列表查询

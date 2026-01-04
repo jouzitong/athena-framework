@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.arthena.framework.common.base.ExtensibleProperties;
-import org.athena.framework.data.jdbc.entity.dto.IDTO;
+import org.athena.framework.data.jdbc.entity.dto.IDTOV2;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serial;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @ToString
-public class BaseDTO extends ExtensibleProperties implements IDTO<Long> {
+public class BaseDTO extends ExtensibleProperties implements IDTOV2<Long> {
 
     @Serial
     private static final long serialVersionUID = 6328681439535050530L;

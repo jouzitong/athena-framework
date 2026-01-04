@@ -1,6 +1,9 @@
 package org.athena.framework.data.jdbc.req;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.athena.framework.data.jdbc.type.QueryType;
 
 import javax.annotation.Nullable;
@@ -12,6 +15,9 @@ import java.io.Serializable;
  * @since 2023/5/21
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FiledQuery implements Serializable {
 
     @Serial

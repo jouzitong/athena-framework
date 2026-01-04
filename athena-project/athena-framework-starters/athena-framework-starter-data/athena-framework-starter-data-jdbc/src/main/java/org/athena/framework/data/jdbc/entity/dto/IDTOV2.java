@@ -7,9 +7,10 @@ import java.time.LocalDateTime;
  * @author zhouzhitong
  * @since 2025/7/6
  **/
-public interface IDTO {
+@Deprecated
+public interface IDTOV2<ID extends Serializable> {
 
-    Long getId();
+    ID getId();
 
     LocalDateTime getCreateTime();
 
@@ -17,15 +18,16 @@ public interface IDTO {
 
     Long getCreatedBy();
 
-    Long getUpdatedBy();
+    Long getLastModifiedBy();
 
     Long getVersion();
 
-    default void setDeleted(boolean deleted) {
+    default boolean isDeleted() {
+        return false;
     }
 
-    default Long getAndIncrementVersion() {
-        return 0L;
+    default void setDeleted(boolean deleted) {
+
     }
 
 

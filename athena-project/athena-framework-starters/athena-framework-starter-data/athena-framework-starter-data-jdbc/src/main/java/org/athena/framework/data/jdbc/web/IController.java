@@ -9,7 +9,9 @@ import org.athena.framework.web.annotation.web.ApiDeleteMapping;
 import org.athena.framework.web.annotation.web.ApiGetMapping;
 import org.athena.framework.web.annotation.web.ApiPostMapping;
 import org.athena.framework.web.annotation.web.ApiPutMapping;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * Interface defining the contract for a controller in the application.
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  */
 public interface IController<
         Entity extends IEntity,
-        DTO extends IDTO<?>,
+        DTO extends IDTO,
         Query extends BaseRequest> {
 
     /**
