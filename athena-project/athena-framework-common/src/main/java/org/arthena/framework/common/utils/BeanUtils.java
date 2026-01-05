@@ -17,10 +17,25 @@ import java.util.Set;
  */
 public class BeanUtils extends org.springframework.beans.BeanUtils {
 
+    /**
+     * 复制属性, 忽略源对象中值为null的字段
+     *
+     * @param source 源对象
+     * @param target 目标对象
+     * @throws BeansException 属性复制异常
+     */
     public static void copy(Object source, Object target) throws BeansException {
         copyProperties(source, target, getNullField(source));
     }
 
+    /**
+     * 复制源对象的属性到目标对象，用于更新操作。
+     * 该方法会复制源对象中所有字段（包括null值）到目标对象。
+     *
+     * @param source 源对象
+     * @param target 目标对象
+     * @throws BeansException 如果在复制属性过程中发生异常，则抛出此异常
+     */
     public static void copyForUpdate(Object source, Object target) throws BeansException {
         copyProperties(source, target, getFields(source));
     }

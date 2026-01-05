@@ -2,12 +2,11 @@ package org.athena.framework.data.jpa.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.utils.BeanUtils;
-import org.athena.framework.data.jdbc.entity.IEntity;
-import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageInfo;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.jpa.domain.BaseEntity;
 import org.athena.framework.data.jpa.repository.BaseRepository;
 import org.athena.framework.data.jpa.utils.JpaQueryEngineUtils;
 import org.springframework.data.domain.Page;
@@ -17,33 +16,29 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public abstract class BaseMapperService<Entity extends IEntity, DTO extends IDTO>
-        implements IMapperService<Entity, DTO> {
+public abstract class BaseMapperService<Entity extends BaseEntity>
+        implements IMapperService<Entity> {
 
     @Override
-    public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
-        LOGGER.trace("queryAll request: {}", query);
+    public <Query extends BaseRequest> List<Entity> queryAll(Query query) {
+        LOGGER.trace("[queryAll] request: {}", query);
         Specification<Entity> spec = JpaQueryEngineUtils.build(query);
         Pageable pageable = PageRequest.of(query.getPage(), query.getSize());
         Page<Entity> entities = repository().findAll(spec, pageable);
-        return entities.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        LOGGER.trace("[queryAll] response: {}", entities.getContent());
+        return entities.getContent();
     }
 
     @Override
-    public <Query extends BaseRequest> PageResultVO<DTO> page(Query query) {
+    public <Query extends BaseRequest> PageResultVO<Entity> page(Query query) {
         LOGGER.trace("page request: {}", query);
         Pageable pageable = PageRequest.of(query.getPage(), query.getSize());
         Specification<Entity> spec = JpaQueryEngineUtils.build(query);
         Page<Entity> page = repository().findAll(spec, pageable);
-        List<DTO> dtoList = page.getContent().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        List<Entity> dtoList = page.getContent();
         PageInfo pageInfo = new PageInfo(page.getTotalElements(), query.getSize(), query.getPage());
         return PageResultVO.ok(dtoList, pageInfo);
     }
@@ -56,70 +51,45 @@ public abstract class BaseMapperService<Entity extends IEntity, DTO extends IDTO
     }
 
     @Override
-    public DTO add(DTO dto) {
-        LOGGER.info("add data: {}", dto);
-        Entity entity = newEntity();
-        copyProperties(dto, entity);
+    public Entity add(Entity entity) {
+        LOGGER.info("add data: {}", entity);
         entity = repository().save(entity);
-        LOGGER.info("add data success: {}", entity);
-        return toDTO(entity);
+        LOGGER.debug("add data success: {}", entity);
+        return entity;
     }
 
     @Override
-    public DTO update(Long id, DTO dto) {
+    public Entity update(Long id, Entity dto) {
         LOGGER.info("update request: {}", dto);
         Entity entity = repository().findById(id).orElse(null);
         if (entity == null) {
             return null;
         }
-        copyAllowNullProperties(dto, entity);
-        entity = repository().save(entity);
-        LOGGER.info("update data success: {}", entity);
-        return toDTO(entity);
+        BeanUtils.copy(dto, entity);
+        entity = repository().save(dto);
+        LOGGER.debug("update data success: {}", entity);
+        return entity;
     }
 
     @Override
-    public DTO edit(Long id, DTO dto) {
+    public Entity edit(Long id, Entity dto) {
         LOGGER.info("edit request: {}", dto);
         Entity entity = repository().findById(id).orElse(null);
         if (entity == null) {
             return null;
         }
-        copyProperties(dto, entity);
+        BeanUtils.copyForUpdate(dto, entity);
         entity = repository().save(entity);
-        LOGGER.info("edit data success: {}", entity);
-        return toDTO(entity);
+        LOGGER.debug("edit data success: {}", entity);
+        return entity;
     }
 
     @Override
-    public DTO get(Long id) {
+    public Entity get(Long id) {
         LOGGER.trace("get request: {}", id);
-        Entity entity = repository().findById(id).orElse(null);
-        return toDTO(entity);
+        return repository().findById(id).orElse(null);
     }
 
     protected abstract BaseRepository<Entity, Long> repository();
-
-    /**
-     * DTO转Entity
-     *
-     * @param dto    DTO
-     * @param entity Entity
-     */
-    protected void copyProperties(DTO dto, Entity entity) {
-        BeanUtils.copy(dto, entity);
-//        entity.getAndIncrementVersion();
-    }
-
-    /**
-     * DTO转Entity
-     *
-     * @param dto    DTO
-     * @param entity Entity
-     */
-    protected void copyAllowNullProperties(DTO dto, Entity entity) {
-        BeanUtils.copyForUpdate(dto, entity);
-//        entity.getAndIncrementVersion();
-    }
 
 }

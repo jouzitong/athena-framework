@@ -1,6 +1,8 @@
 package org.athena.framework.data.jdbc.serivce;
 
+import org.arthena.framework.common.utils.BeanUtils;
 import org.athena.framework.data.jdbc.entity.IEntity;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +15,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity> {
+public interface IMapperServiceV2<Entity extends IEntity,DTO extends IDTO> {
 
     /**
      * 列表查询
@@ -22,7 +24,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param <Query> 查询条件类型
      * @return 查询结果
      */
-    <Query extends BaseRequest> List<Entity> queryAll(Query query);
+    <Query extends BaseRequest> List<DTO> queryAll(Query query);
 
     /**
      * 分页查询
@@ -31,7 +33,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param <Query> 查询条件类型
      * @return 分页结果
      */
-    <Query extends BaseRequest> PageResultVO<Entity> page(Query query);
+    <Query extends BaseRequest> PageResultVO<DTO> page(Query query);
 
     /**
      * 查询总数
@@ -46,11 +48,11 @@ public interface IMapperService<Entity extends IEntity> {
     /**
      * 新增
      *
-     * @param entity entity
-     * @return entity
+     * @param dto DTO
+     * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity add(Entity entity);
+    DTO add(DTO dto);
 
     /**
      * 根据ID 更新全部的字段（允许设置null）
@@ -59,7 +61,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return 更新成功, 则返回DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity update(Long id, Entity dto);
+    DTO update(Long id, DTO dto);
 
     /**
      * 更新部分字段(不允许设置null)
@@ -69,7 +71,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity edit(Long id, Entity dto);
+    DTO edit(Long id, DTO dto);
 
     /**
      * 根据ID查询
@@ -77,7 +79,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param id 主键ID
      * @return DTO
      */
-    Entity get(Long id);
+    DTO get(Long id);
 
     /**
      * 根据 query 查询
@@ -88,9 +90,9 @@ public interface IMapperService<Entity extends IEntity> {
      * @param <Query> 查询条件类型
      * @return 单个DTO
      */
-    default <Query extends BaseRequest> Entity get(Query query) {
+    default <Query extends BaseRequest> DTO get(Query query) {
         query.setSize(2);
-        List<Entity> dtos = queryAll(query);
+        List<DTO> dtos = queryAll(query);
         if (dtos.isEmpty()) {
             return null;
         }
@@ -108,10 +110,17 @@ public interface IMapperService<Entity extends IEntity> {
      */
     @Transactional(rollbackFor = Exception.class)
     default boolean remove(Long id) {
-        Entity dto = get(id);
+        DTO dto = get(id);
         dto.setDeleted(true);
         return update(id, dto) != null;
     }
+
+    /**
+     * 实例化DTO
+     *
+     * @return DTO对象
+     */
+    DTO newDTO();
 
     /**
      * 实例化Entity
@@ -119,5 +128,21 @@ public interface IMapperService<Entity extends IEntity> {
      * @return Entity对象
      */
     Entity newEntity();
+
+    /**
+     * Entity转DTO
+     *
+     * @param entity Entity
+     * @return DTO
+     */
+    default DTO toDTO(Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+        DTO dto = newDTO();
+        BeanUtils.copy(entity, dto);
+        return dto;
+    }
+
 
 }
