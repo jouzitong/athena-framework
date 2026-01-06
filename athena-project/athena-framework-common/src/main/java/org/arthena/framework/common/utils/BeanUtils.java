@@ -15,6 +15,7 @@ import java.util.Set;
  * @author zhouzhitong
  * @since 2022/12/30
  */
+@Deprecated
 public class BeanUtils extends org.springframework.beans.BeanUtils {
 
     /**

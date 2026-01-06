@@ -26,7 +26,7 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
     public <Query extends BaseRequest> List<Entity> queryAll(Query query) {
         LOGGER.trace("[queryAll] request: {}", query);
         Specification<Entity> spec = JpaQueryEngineUtils.build(query);
-        Pageable pageable = PageRequest.of(query.getPage(), query.getSize());
+        Pageable pageable = PageRequest.of(query.getPage() - 1, query.getSize());
         Page<Entity> entities = repository().findAll(spec, pageable);
         LOGGER.trace("[queryAll] response: {}", entities.getContent());
         return entities.getContent();
@@ -35,7 +35,7 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
     @Override
     public <Query extends BaseRequest> PageResultVO<Entity> page(Query query) {
         LOGGER.trace("page request: {}", query);
-        Pageable pageable = PageRequest.of(query.getPage(), query.getSize());
+        Pageable pageable = PageRequest.of(query.getPage() - 1, query.getSize());
         Specification<Entity> spec = JpaQueryEngineUtils.build(query);
         Page<Entity> page = repository().findAll(spec, pageable);
         List<Entity> dtoList = page.getContent();
@@ -48,6 +48,21 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
         LOGGER.trace("count request: {}", query);
         Specification<Entity> spec = JpaQueryEngineUtils.build(query);
         return repository().count(spec);
+    }
+
+
+    @Override
+    public int batchAdd(List<Entity> entities) {
+        LOGGER.info("batch add request: {}", entities);
+        Iterable<Entity> savedEntities = repository().saveAll(entities);
+        int count = 0;
+        for (Entity entity : savedEntities) {
+            if (entity != null) {
+                count++;
+            }
+        }
+        LOGGER.debug("batch add success, total added: {}", count);
+        return count;
     }
 
     @Override
@@ -69,6 +84,13 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
         entity = repository().save(dto);
         LOGGER.debug("update data success: {}", entity);
         return entity;
+    }
+
+    @Override
+    public boolean remove(Long id) {
+        LOGGER.info("delete id: {}", id);
+        repository().deleteById(id);
+        return true;
     }
 
     @Override

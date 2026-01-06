@@ -8,6 +8,7 @@ import org.athena.framework.data.jdbc.type.QueryType;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,12 +38,12 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
     /**
      * 页码
      */
-    protected Integer page;
+    protected Integer page = 1;
 
     /**
      * 每页几条数据
      */
-    protected Integer size;
+    protected Integer size = 10;
 
     /**
      * 排序列表
@@ -56,7 +57,7 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
      *
      * @see org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils MybatisWrapperUtils
      */
-    private List<FiledQuery> filedQueries;
+    private List<FiledQuery> filedQueries = new ArrayList<>();
 
     public boolean isPage() {
         return page != null && size != null;

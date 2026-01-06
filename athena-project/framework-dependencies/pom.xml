@@ -192,6 +192,14 @@
             </dependency>
 
             <!-- ######################## 基础组件 ########################### -->
+
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>1.5.5.Final</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>

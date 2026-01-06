@@ -2,6 +2,7 @@ package org.athena.framework.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.arthena.framework.common.constant.CodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
 
@@ -10,17 +11,18 @@ import org.arthena.framework.common.utils.ErrorCodeUtils;
  * @since 2025/7/6
  **/
 @Data
+@NoArgsConstructor
 public class R<D> implements IR<D> {
 
     /**
      * 状态码. 除了0 表示成功，其他值表示失败.
      */
-    private final int code;
+    private int code;
 
     /**
      * 如果 code = 0, data 数据才有效
      */
-    private final D data;
+    private D data;
 
     /**
      * 错误信息参数

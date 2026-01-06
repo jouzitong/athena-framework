@@ -1,5 +1,6 @@
 package org.athena.framework.data.jdbc.serivce;
 
+import org.arthena.framework.common.exception.TodoException;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
@@ -53,6 +54,26 @@ public interface IMapperService<Entity extends IEntity> {
     Entity add(Entity entity);
 
     /**
+     * 批量添加实体
+     *
+     * @param entities 待添加的实体列表
+     * @return 成功添加的实体数量
+     */
+    int batchAdd(List<Entity> entities);
+
+    /**
+     * 保存或更新实体。
+     * 如果实体ID存在，则执行更新操作；如果实体ID不存在，则执行插入操作。
+     *
+     * @param entity 要保存或更新的实体
+     * @return 返回影响的行数，对于新增通常是1，对于更新则取决于实际更新了多少条记录
+     * @throws TodoException 当该功能尚未实现时抛出此异常
+     */
+    default int saveOrUpdate(Entity entity){
+        throw new TodoException();
+    }
+
+    /**
      * 根据ID 更新全部的字段（允许设置null）
      *
      * @param dto DTO
@@ -60,6 +81,16 @@ public interface IMapperService<Entity extends IEntity> {
      */
     @Transactional(rollbackFor = Exception.class)
     Entity update(Long id, Entity dto);
+
+    /**
+     * 批量更新实体列表
+     *
+     * @param entities 待更新的实体列表
+     * @return 成功更新的实体数量
+     */
+    default int batchUpdate(List<Entity> entities){
+        throw new TodoException();
+    }
 
     /**
      * 更新部分字段(不允许设置null)

@@ -2,6 +2,7 @@ package org.athena.framework.data.jpa.utils;
 
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 public class JpaQueryEngineUtils {
 
     public static <T> Specification<T> build(BaseRequest req) {
@@ -52,6 +54,9 @@ public class JpaQueryEngineUtils {
                 try {
                     Object value = field.get(query);
                     String fieldName = field.getName();
+                    if (value == null) {
+                        continue;
+                    }
 //                    String fieldName = CamelCaseUtils.firstLowerCase(field.getName());
 
                     query.getFiledQueries().add(FiledQuery.builder()
@@ -60,7 +65,9 @@ public class JpaQueryEngineUtils {
                             .value(value)
                             .build());
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("", e);
+                } finally {
+                    field.setAccessible(false);
                 }
 
             }

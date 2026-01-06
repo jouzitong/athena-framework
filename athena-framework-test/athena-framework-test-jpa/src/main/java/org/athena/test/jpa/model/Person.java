@@ -15,6 +15,18 @@ import org.athena.test.jpa.type.Gender;
  **/
 @Data
 @Table(name = "person")
+//@Entity
+//@Table(name = Agv.TABLE,
+//        uniqueConstraints = {
+//                @UniqueConstraint(name = "uniq_agvId", columnNames = {"agv_id"})
+//        })
+//@org.hibernate.annotations.Table(appliesTo = Agv.TABLE, comment = "agv 表")
+//@EqualsAndHashCode(callSuper = false)
+//@Accessors
+//@Where(clause = "deleted=0")
+//@SQLDelete(sql = "update " + Agv.TABLE + " set deleted = 1 where id = ?")
+//@TypeDef(name = "json", typeClass = JsonStringType.class)
+//@Data
 public class Person {
 
     @Id
