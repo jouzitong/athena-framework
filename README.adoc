@@ -1,53 +1,170 @@
+= Athena Framework
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: coderay
 
-== 项目结构
+[abstract]
+== 概述
+Athena Framework 是一个面向 Java 应用体系的 *基础能力框架*，
+用于沉淀通用工程能力、统一技术规范，并为业务系统提供稳定、可演进的技术底座。
+
+== 1. 项目定位
+
+Athena Framework *不是业务系统*，也不是应用脚手架。
+
+它的定位是：
+
+[quote]
+____
+为业务系统提供基础能力与工程规范的框架层
+____
+
+在整体系统架构中，Athena Framework 位于：
+
+* 业务系统之下
+* 通用技术框架之上
+
+它关注的是 *工程一致性*、*长期演进能力* 以及 *团队协作效率*，
+而不是具体业务实现。
+
+== 2. 设计目标
+
+Athena Framework 旨在解决以下共性问题：
+
+* 多项目之间如何复用通用工程能力
+* 如何统一团队的技术规范与工程约定
+* 如何降低新项目的启动与维护成本
+* 如何保证系统在长期演进中的稳定性
+
+== 3. 核心理念
+
+=== 3.1 分层清晰，职责单一
+
+* 框架只负责 *通用能力*
+* 业务系统只负责 *业务逻辑*
+* 框架中不引入任何业务语义
 
 
-starters::
-* mybatis、mongo、es
-* web
-* nacos、seata
+=== 3.2 低侵入、可选用
+
+* 框架能力以 *可选* 的方式提供
+* 不强制业务系统遵循复杂的继承或配置
+* 支持渐进式引入与演进
+
+=== 3.3 约定优于配置
+
+* 提供清晰的工程约定
+* 降低配置与理解成本
+* 保留足够的扩展空间
+
+== 4. 使用方式概览
+
+Athena Framework 以 *依赖引入* 的方式被业务系统使用。
+
+对于业务开发者而言：
+
+* 不需要运行 Athena Framework
+* 不需要关心其内部实现
+* 只需要按约定使用其提供的能力
+
+详细使用方式将在后续文档中说明。
+
+== 5. 适用场景
+
+Athena Framework 适用于：
+
+* 多模块或多服务的业务系统
+* 需要长期维护与持续演进的应用
+* 希望统一工程规范的团队
+* 需要沉淀技术资产的组织
+
+== 6. 项目结构（抽象视角）
+
+[source,text]
+----
+athena-framework
+├── framework-core
+├── framework-dependencies
+├── framework-test
+└── pom.xml
+----
+
+说明：
+
+* `framework-core`：框架核心能力
+* `framework-dependencies`：框架依赖与版本约定
+* `framework-test`：框架能力验证
+* `pom.xml`：聚合与构建入口
+
+具体模块职责与实现细节不在本说明中展开。
+
+== 7. 文档结构规划
+
+推荐的文档结构如下：
+
+[source,text]
+----
+docs/
+├── overview.adoc              // 框架总体说明（本文件）
+├── getting-started.adoc       // 快速开始
+├── architecture.adoc          // 架构设计
+├── design-principles.adoc     // 设计理念与规范
+├── usage-guide.adoc           // 使用指南
+├── extension.adoc             // 扩展与定制
+├── best-practices.adoc        // 最佳实践
+├── upgrade.adoc               // 升级与兼容性
+└── faq.adoc                   // 常见问题
+----
 
 
-'''
+== 8. 快速开始
 
-athena-framework-common
+.如果你是第一次接触 Athena Framework，建议按以下顺序阅读文档：
+. 阅读《总体说明》
+. 查看《快速开始》
+. 根据项目需要引入并使用框架能力
 
-`jdk17`, `maven3.8.1`, `spring-boot 3.0.0`
+.在你的业务系统的 `pom.xml` 中引入以下依赖：
+[source, xml]
+----
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <artifactId>framework-dependencies</artifactId>
+            <groupId>org.athena</groupId>
+            <version>1.1.0</version> <!-- 选择最新的版本 -->
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+----
 
-centos7.9
+后面根据自己的需要引入具体模块。
 
-
-== 项目功能介绍
-
-=== common 模块
-
-.导入依赖
-[source,xml]
+.例如:
+[source, xml]
 ----
 <dependency>
     <groupId>org.athena</groupId>
     <artifactId>athena-framework-common</artifactId>
-    <version>${revision}</version>
 </dependency>
 ----
 
-==== 功能介绍
 
-* 主要是定义基础对象、工具类、异常类、常量类等
+== 9. 总结
 
-=== starts-web 模块
+Athena Framework 的目标不是做更多功能，
+而是：
 
-=== starts-mybatis 模块
+* 让业务系统更专注
+* 让工程结构更一致
+* 让技术演进更可控
 
-
-
-== Maven
-
-.修改版本号
-[source,shell]
-----
-mvn versions:set -DnewVersion=1.1.0 设置新版本号
-mvn versions:commit 确认版本号无误后提交
-mvn versions:revert 撤销
-----
-
+[NOTE]
+====
+如果在 README 中看到具体实现细节，
+说明这些内容应该被拆分到独立文档中，而不属于总体说明层。
+====
