@@ -111,7 +111,7 @@ public interface IMapperServiceV2<Entity extends IEntity,DTO extends IDTO> {
     @Transactional(rollbackFor = Exception.class)
     default boolean remove(Long id) {
         DTO dto = get(id);
-        dto.setDeleted(true);
+//        dto.setDeleted(true);
         return update(id, dto) != null;
     }
 

@@ -21,8 +21,8 @@ public interface IDTO {
 
     Long getVersion();
 
-    default void setDeleted(boolean deleted) {
-    }
+//    default void setDeleted(boolean deleted) {
+//    }
 
     default Long getAndIncrementVersion() {
         return 0L;
