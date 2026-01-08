@@ -65,7 +65,7 @@ public class Sort implements Serializable {
     }
 
     public boolean isAsc() {
-        return ASC.equals(sort);
+        return ASC.equalsIgnoreCase(sort);
     }
 
 }
