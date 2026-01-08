@@ -85,15 +85,16 @@ Athena Framework 适用于：
 [source,text]
 ----
 athena-framework
-├── framework-dependencies
+├── athena-project
+├       └── framework-dependencies
 ├── framework-test
 └── pom.xml
 ----
 
 说明：
 
-* `framework-core`：框架核心能力
-* `framework-dependencies`：框架依赖与版本约定
+* `athena-project`：框架核心能力
+** `framework-dependencies`：框架依赖与版本约定
 * `framework-test`：框架能力验证
 * `pom.xml`：聚合与构建入口
 
