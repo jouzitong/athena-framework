@@ -3,6 +3,7 @@ package org.athena.framework.data.jpa.utils;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
+import org.arthena.framework.common.exception.TodoException;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
@@ -25,10 +26,16 @@ public class JpaQueryEngineUtils {
                 Path<?> path = root.get(f.getFiledName());
                 switch (f.getType()) {
                     case EQ -> ps.add(cb.equal(path, f.getValue()));
-                    case LIKE -> ps.add(cb.like(path.as(String.class), "%" + f.getValue() + "%"));
+                    case NE -> ps.add(cb.notEqual(path, f.getValue()));
                     case GT -> ps.add(cb.greaterThan(path.as(Comparable.class), (Comparable) f.getValue()));
+                    case GE -> ps.add(cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable) f.getValue()));
+                    case LT -> ps.add(cb.lessThan(path.as(Comparable.class), (Comparable) f.getValue()));
+                    case LE -> ps.add(cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable) f.getValue()));
+                    case LIKE -> ps.add(cb.like(path.as(String.class), "%" + f.getValue() + "%"));
                     case IN -> ps.add(path.in((Collection<?>) f.getValue()));
                     case IS_NULL -> ps.add(cb.isNull(path));
+                    case IS_NOT_NULL -> ps.add(cb.isNotNull(path));
+                    default -> throw new TodoException();
                 }
             }
 
