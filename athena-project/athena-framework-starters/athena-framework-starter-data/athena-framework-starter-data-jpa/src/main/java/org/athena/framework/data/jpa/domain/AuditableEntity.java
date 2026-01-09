@@ -38,7 +38,7 @@ public abstract class AuditableEntity extends BaseEntity {
     @Column(name = "update_time", columnDefinition = "DATETIME default current_timestamp comment '最后修改时间'")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @LastModifiedDate
-    private LocalDateTime UpdateTime;
+    private LocalDateTime updateTime;
 
     @Getter
     @Setter

@@ -1,5 +1,6 @@
 package org.athena.framework.data.jpa.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ public abstract class AuditableDTO extends BaseDTO {
 
     @Getter
     @Setter
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     @Getter
@@ -17,7 +19,8 @@ public abstract class AuditableDTO extends BaseDTO {
 
     @Getter
     @Setter
-    private LocalDateTime UpdateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
 
     @Getter
     @Setter
