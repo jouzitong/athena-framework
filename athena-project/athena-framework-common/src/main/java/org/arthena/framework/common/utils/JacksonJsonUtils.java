@@ -70,6 +70,10 @@ public class JacksonJsonUtils {
         return readValue(content, valueType);
     }
 
+    public static <T> T toBean(String content, TypeReference<T> type) {
+        return readValue2(content, type);
+    }
+
     public static String toStr(Object value) {
         return writeValueAsString(value);
     }
@@ -78,6 +82,14 @@ public class JacksonJsonUtils {
     public static <T> T readValue(String content, Class<T> valueType) {
         if (null != content) {
             return JSON.readValue(content, valueType);
+        }
+        return null;
+    }
+
+    @SneakyThrows
+    public static <T> T readValue2(String content, TypeReference<T> type) {
+        if (null != content) {
+            return JSON.readValue(content, type);
         }
         return null;
     }

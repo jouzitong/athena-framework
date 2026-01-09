@@ -1,12 +1,15 @@
 package org.athena.framework.data.jdbc.web;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.arthena.framework.common.utils.BeanUtils;
+import org.arthena.framework.common.utils.JacksonJsonUtils;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 public abstract class BaseController<Entity extends IEntity,
@@ -51,15 +54,13 @@ public abstract class BaseController<Entity extends IEntity,
     }
 
     protected Entity toEntity(DTO dto) {
-        Entity entity = newEntity();
-        BeanUtils.copy(dto, entity);
-        return entity;
+        String content = JacksonJsonUtils.toStr(dto);
+        return JacksonJsonUtils.toBean(content, new TypeReference<>() {});
     }
 
     protected DTO toDTO(Entity entity) {
-        DTO dto = newDTO();
-        BeanUtils.copy(entity, dto);
-        return dto;
+        String content = JacksonJsonUtils.toStr(entity);
+        return JacksonJsonUtils.toBean(content, new TypeReference<>() {});
     }
 
     protected abstract Entity newEntity();
