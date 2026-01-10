@@ -8,6 +8,7 @@ import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -21,17 +22,17 @@ public abstract class BaseController<Entity extends IEntity,
     protected abstract Service service();
 
     @Override
-    public DTO add(DTO dto) {
+    public DTO add(@RequestBody DTO dto) {
         return toDTO(service().add(toEntity(dto)));
     }
 
     @Override
-    public DTO update(Long id, DTO dto) {
+    public DTO update(Long id, @RequestBody DTO dto) {
         return toDTO(service().update(id, toEntity(dto)));
     }
 
     @Override
-    public DTO edit(Long id, DTO dto) {
+    public DTO edit(Long id,@RequestBody DTO dto) {
         return toDTO(service().edit(id, toEntity(dto)));
     }
 

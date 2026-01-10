@@ -3,6 +3,7 @@ package org.arthena.framework.common.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,11 +11,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * json 工具类
@@ -23,12 +29,22 @@ import java.util.Map;
  * @version 1.0
  * @since 2022/5/21 1:40
  */
-@Component
+//@Component
+@Slf4j
 public class JacksonJsonUtils {
 
     public final static ObjectMapper JSON = new ObjectMapper();
 
     static {
+        initConfiguration(JSON);
+    }
+
+    /**
+     * 初始化配置 json 配置
+     *
+     * @param JSON JSON
+     */
+    public static void initConfiguration(ObjectMapper JSON) {
         // 允许 json 生成器自动补全未匹配的括号
         JSON.configure(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT, true);
         // 允许 json 生成器在写入完成后自动关闭写入的流
@@ -42,7 +58,7 @@ public class JacksonJsonUtils {
         // 允许 json number 类型的数存在前导 0 (like: 0001)
         // JSON.configure(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS, true);
         // 允许 json 存在 NaN, INF, -INF 作为 number 类型
-        JSON.configure(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS, true);
+        JSON.configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
         // 允许 json 存在形如 // 或 /**/ 的注释
         // JSON.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         // 序列化时, 禁止自动缩进 (格式化) 输出的 json (压缩输出)
@@ -66,8 +82,23 @@ public class JacksonJsonUtils {
         JSON.registerModule(new JavaTimeModule());
     }
 
+    public static <T> T readValue(Resource resource, Class<T> valueType) {
+        if (resource == null || !resource.isFile() || !resource.exists()) {
+            return null;
+        }
+        try {
+            return readValue(resource.getInputStream(), valueType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static <T> T toBean(String content, Class<T> valueType) {
         return readValue(content, valueType);
+    }
+
+    public static <T> T toBean(Object object, Class<T> valueType) {
+        return readValue(JacksonJsonUtils.toStr(object), valueType);
     }
 
     public static <T> T toBean(String content, TypeReference<T> type) {
@@ -166,6 +197,15 @@ public class JacksonJsonUtils {
         return null;
     }
 
+    public static <T> T readValue(InputStream is, Class<T> valueType) {
+        try {
+            return JSON.readValue(is, valueType);
+        } catch (Exception e) {
+            LOGGER.error("readValue error", e);
+        }
+        return null;
+    }
+
     public static String readStringField(String content, String field) {
         JsonNode jsonNode = readTree(content);
         if (null != jsonNode) {
@@ -186,6 +226,25 @@ public class JacksonJsonUtils {
             }
         }
         return 0;
+    }
+
+
+    public static Set<String> readValueToList(InputStream is) {
+        try {
+            return JSON.readValue(is, Set.class);
+        } catch (Exception e) {
+            LOGGER.error("readValueToList error", e);
+        }
+        return null;
+    }
+
+    public static <T> T clone(T obj) {
+        try {
+            return (T) JSON.readValue(toStr(obj), obj.getClass());
+        } catch (Exception e) {
+            LOGGER.error("clone error", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public static double readDoubleField(String content, String field) {

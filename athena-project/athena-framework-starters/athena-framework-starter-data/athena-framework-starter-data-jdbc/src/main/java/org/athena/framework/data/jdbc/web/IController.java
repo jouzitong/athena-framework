@@ -32,7 +32,7 @@ public interface IController<
      * @return the DTO representing the newly added entity, including any generated or updated fields such as ID
      */
     @ApiPostMapping
-    DTO add(DTO dto);
+    DTO add(@RequestBody DTO dto);
 
     /**
      * Updates an existing entity in the system based on the provided DTO and ID.
