@@ -48,7 +48,7 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
     /**
      * 排序列表
      */
-    private List<Sort> sorts;
+    private List<Sort> sorts = new ArrayList<>();
 
     /**
      * 字段查询列表
@@ -61,14 +61,6 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
 
     public boolean isPage() {
         return page != null && size != null;
-    }
-
-    public List<Sort> getSorts() {
-        return sorts != null ? sorts : Collections.emptyList();
-    }
-
-    public List<FiledQuery> getFiledQueries() {
-        return filedQueries != null ? filedQueries : Collections.emptyList();
     }
 
     /**
