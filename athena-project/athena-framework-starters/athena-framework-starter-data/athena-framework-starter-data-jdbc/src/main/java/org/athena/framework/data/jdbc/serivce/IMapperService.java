@@ -69,7 +69,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return 返回影响的行数，对于新增通常是1，对于更新则取决于实际更新了多少条记录
      * @throws TodoException 当该功能尚未实现时抛出此异常
      */
-    default int saveOrUpdate(Entity entity){
+    default int saveOrUpdate(Entity entity) {
         throw new TodoException();
     }
 
@@ -88,7 +88,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param entities 待更新的实体列表
      * @return 成功更新的实体数量
      */
-    default int batchUpdate(List<Entity> entities){
+    default int batchUpdate(List<Entity> entities) {
         throw new TodoException();
     }
 
