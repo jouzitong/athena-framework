@@ -112,6 +112,6 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
         return repository().findById(id).orElse(null);
     }
 
-    protected abstract BaseRepository<Entity, Long> repository();
+    protected abstract BaseRepository<Entity> repository();
 
 }

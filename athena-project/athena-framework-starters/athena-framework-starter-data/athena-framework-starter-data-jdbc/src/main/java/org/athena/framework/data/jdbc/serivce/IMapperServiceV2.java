@@ -15,7 +15,8 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperServiceV2<Entity extends IEntity,DTO extends IDTO> {
+@Deprecated
+public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
 
     /**
      * 列表查询

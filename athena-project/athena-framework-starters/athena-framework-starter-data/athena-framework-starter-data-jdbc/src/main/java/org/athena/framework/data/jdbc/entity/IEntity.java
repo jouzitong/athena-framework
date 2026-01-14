@@ -13,18 +13,4 @@ public interface IEntity extends Serializable {
 
     Long getId();
 
-    LocalDateTime getCreateTime();
-
-    LocalDateTime getUpdateTime();
-
-    Long getCreatedBy();
-
-    Long getUpdatedBy();
-
-    Long getVersion();
-
-//    default void setDeleted(boolean deleted) {
-//
-//    }
-
 }

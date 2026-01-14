@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface ProductStockRepository extends BaseRepository<ProductStock, Long> {
+public interface ProductStockRepository extends BaseRepository<ProductStock> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from ProductStock p where p.id = :id")
