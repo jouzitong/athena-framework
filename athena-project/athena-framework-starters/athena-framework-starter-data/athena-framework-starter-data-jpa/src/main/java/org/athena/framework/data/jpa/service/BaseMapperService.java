@@ -3,6 +3,7 @@ package org.athena.framework.data.jpa.service;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.utils.BeanUtils;
+import org.arthena.framework.common.utils.JacksonJsonUtils;
 import org.athena.framework.data.jdbc.context.CrudContext;
 import org.athena.framework.data.jdbc.executor.CrudInterceptorExecutor;
 import org.athena.framework.data.jdbc.req.BaseRequest;
@@ -121,7 +122,7 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
 
     @Override
     public Entity add(Entity entity) {
-        LOGGER.info("add data: {}", entity);
+        LOGGER.info("add data: {}", JacksonJsonUtils.toStr(entity));
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.INSERT)
                 .param(entity)
