@@ -1,5 +1,6 @@
 package org.athena.framework.data.jdbc.serivce;
 
+import org.arthena.framework.common.exception.NotSupportException;
 import org.arthena.framework.common.exception.TodoException;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
@@ -138,10 +139,16 @@ public interface IMapperService<Entity extends IEntity> {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    default boolean remove(Long id) {
-        Entity dto = get(id);
-//        dto.setDeleted(true);
-        return update(id, dto) != null;
+    boolean delete(Long id);
+
+    /**
+     * 执行物理删除操作，从数据库中永久移除指定ID的实体。
+     *
+     * @param id 要删除的实体的ID
+     * @return 如果删除成功，则返回true；否则返回false
+     */
+    default boolean physicalDelete(Long id) {
+        throw new NotSupportException();
     }
 
     /**

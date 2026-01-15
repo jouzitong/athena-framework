@@ -87,7 +87,7 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
     }
 
     @Override
-    public boolean remove(Long id) {
+    public boolean delete(Long id) {
         LOGGER.info("delete id: {}", id);
         repository().deleteById(id);
         return true;

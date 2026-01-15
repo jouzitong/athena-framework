@@ -41,4 +41,11 @@ public interface CodeConstant {
      * 请求出现异常而导致为捕获异常的失败
      */
     Integer TODO_ERROR = 99999;
+
+    /**
+     * 表示操作或请求不被支持的错误代码。
+     * 该错误码用于标识系统中当前不支持的功能或请求类型，帮助开发者和维护者快速定位问题。
+     * 错误码值为99980。
+     */
+    Integer NOT_SUPPORT_ERROR = 99980;
 }

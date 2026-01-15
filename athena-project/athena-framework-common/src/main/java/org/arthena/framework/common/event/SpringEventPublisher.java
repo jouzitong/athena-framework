@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  *
  * @author zhouzhitong
  */
-@Component("springEventPublisher")
+//@Component("springEventPublisher")
 @Slf4j
 public class SpringEventPublisher implements EventPublisher, ApplicationEventPublisherAware {
 
