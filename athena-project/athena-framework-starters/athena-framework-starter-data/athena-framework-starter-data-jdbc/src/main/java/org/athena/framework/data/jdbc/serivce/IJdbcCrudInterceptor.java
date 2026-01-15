@@ -27,7 +27,8 @@ public interface IJdbcCrudInterceptor extends Ordered {
      *
      * @param context 当前的CRUD操作上下文，包含了如操作类型、实体类型、原始参数等信息
      */
-    default void before(CrudContext context) {
+    default boolean before(CrudContext context) {
+        return true;
     }
 
     /**

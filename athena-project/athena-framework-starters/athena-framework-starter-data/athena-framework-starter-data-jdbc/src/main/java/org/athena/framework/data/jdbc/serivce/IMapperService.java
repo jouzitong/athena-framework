@@ -158,4 +158,8 @@ public interface IMapperService<Entity extends IEntity> {
      */
     Entity newEntity();
 
+    default Class<?> entityType() {
+        return null;
+    }
+
 }

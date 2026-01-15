@@ -27,8 +27,6 @@ public class CrudInterceptorChain implements CommandLineRunner {
     @Resource
     private final List<IJdbcCrudInterceptor> interceptors = new ArrayList<>();
 
-    @Resource
-    private DefaultJdbcProperties jdbcProperties;
 
     private final Map<Class<?>, List<IJdbcCrudInterceptor>> entityInterceptorsMap = new ConcurrentHashMap<>();
 
@@ -67,31 +65,26 @@ public class CrudInterceptorChain implements CommandLineRunner {
     }
 
     public boolean beforeCheck(CrudContext context) {
-        if (isEnabled()) {
-            return true;
-        }
         List<IJdbcCrudInterceptor> interceptors = entityInterceptorsMap.get(context.getEntityType());
         for (IJdbcCrudInterceptor interceptor : interceptors) {
-            interceptor.beforeCheck(context);
+            if (!interceptor.beforeCheck(context)) {
+                return false;
+            }
         }
         return true;
     }
 
     public boolean before(CrudContext context) {
-        if (isEnabled()) {
-            return true;
-        }
         List<IJdbcCrudInterceptor> interceptors = entityInterceptorsMap.get(context.getEntityType());
         for (IJdbcCrudInterceptor interceptor : interceptors) {
-            interceptor.before(context);
+            if (!interceptor.before(context)) {
+                return false;
+            }
         }
         return true;
     }
 
     public void after(CrudContext context) {
-        if (isEnabled()) {
-            return;
-        }
         List<IJdbcCrudInterceptor> interceptors = entityInterceptorsMap.get(context.getEntityType());
         for (IJdbcCrudInterceptor interceptor : interceptors) {
             interceptor.after(context);
@@ -99,17 +92,10 @@ public class CrudInterceptorChain implements CommandLineRunner {
     }
 
     public void onError(CrudContext context) {
-        if (isEnabled()) {
-            return;
-        }
         List<IJdbcCrudInterceptor> interceptors = entityInterceptorsMap.get(context.getEntityType());
         for (IJdbcCrudInterceptor interceptor : interceptors) {
             interceptor.onError(context);
         }
-    }
-
-    protected boolean isEnabled() {
-        return jdbcProperties.isEnableEvent();
     }
 
 }
