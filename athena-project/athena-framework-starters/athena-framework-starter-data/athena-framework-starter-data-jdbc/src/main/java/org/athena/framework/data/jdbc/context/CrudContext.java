@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.athena.framework.data.jdbc.type.DbOpType;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,9 +21,11 @@ import java.util.Map;
 @Builder
 public class CrudContext {
 
+    @NotNull
     private DbOpType dbOpType;
 
     /** 实体类型 */
+    @NotNull
     private Class<?> entityType;
 
     /** 原始参数 */
