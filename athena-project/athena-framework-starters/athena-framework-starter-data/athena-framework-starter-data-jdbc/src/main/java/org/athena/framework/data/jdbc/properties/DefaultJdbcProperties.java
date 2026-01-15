@@ -19,6 +19,12 @@ import java.util.List;
 public class DefaultJdbcProperties {
 
     /**
+     * 标识是否启用事件功能。
+     * 当设置为 true 时，表示启用事件；设置为 false 时，则禁用事件。
+     */
+    private boolean enableEvent;
+
+    /**
      * 是否开启创建表的ddl
      */
     private boolean enableCreateTableDdl = true;
