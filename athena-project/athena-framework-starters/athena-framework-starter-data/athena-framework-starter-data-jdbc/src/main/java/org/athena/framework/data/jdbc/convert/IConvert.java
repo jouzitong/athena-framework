@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.entity.convert;
+package org.athena.framework.data.jdbc.convert;
 
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;

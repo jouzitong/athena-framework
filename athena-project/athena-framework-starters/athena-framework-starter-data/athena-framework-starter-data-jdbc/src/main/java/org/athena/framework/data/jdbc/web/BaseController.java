@@ -1,5 +1,6 @@
 package org.athena.framework.data.jdbc.web;
 
+import org.athena.framework.data.jdbc.convert.IConvert;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
@@ -18,6 +19,10 @@ public abstract class BaseController<Entity extends IEntity,
 
     protected abstract Service service();
 
+    protected IConvert<Entity, DTO> convert() {
+        return null;
+    }
+
     @Override
     public DTO add(@RequestBody DTO dto) {
         return toDTO(service().add(toEntity(dto)));
@@ -29,7 +34,7 @@ public abstract class BaseController<Entity extends IEntity,
     }
 
     @Override
-    public DTO edit(Long id,@RequestBody DTO dto) {
+    public DTO edit(Long id, @RequestBody DTO dto) {
         return toDTO(service().edit(id, toEntity(dto)));
     }
 
@@ -57,6 +62,9 @@ public abstract class BaseController<Entity extends IEntity,
     }
 
     protected Entity toEntity(DTO dto) {
+        if (convert() != null) {
+            return convert().toEntity(dto);
+        }
         Entity entity = service().newEntity();
         BeanUtils.copyProperties(dto, entity);
         return entity;
@@ -66,6 +74,9 @@ public abstract class BaseController<Entity extends IEntity,
     }
 
     protected DTO toDTO(Entity entity) {
+        if (convert() != null) {
+            return convert().toDTO(entity);
+        }
         DTO dto = newDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
@@ -73,8 +84,6 @@ public abstract class BaseController<Entity extends IEntity,
 //        return JacksonJsonUtils.toBean(content, new TypeReference<>() {
 //        });
     }
-
-    protected abstract Entity newEntity();
 
     protected abstract DTO newDTO();
 
