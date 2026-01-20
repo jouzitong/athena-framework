@@ -27,6 +27,7 @@ public class R<D> implements IR<D> {
     /**
      * 错误信息参数
      */
+    @JsonIgnore
     private Object[] errorMsgArgs;
 
     protected R(D data) {
@@ -38,18 +39,6 @@ public class R<D> implements IR<D> {
         this.code = code;
         this.errorMsgArgs = errorMsgArgs;
         this.data = null;
-    }
-
-    public static R<Void> ok() {
-        return new R<Void>(CodeConstant.SUCCESS);
-    }
-
-    public static <D> R<D> ok(D data) {
-        return new R<D>(data);
-    }
-
-    public static R<Void> fail(int code, Object... errorMsgArgs) {
-        return new R<Void>(code, errorMsgArgs);
     }
 
     public String getMsg() {
@@ -69,6 +58,18 @@ public class R<D> implements IR<D> {
     @JsonIgnore
     public boolean isFail() {
         return !isOk();
+    }
+
+    public static R<Void> ok() {
+        return new R<Void>(CodeConstant.SUCCESS);
+    }
+
+    public static <D> R<D> ok(D data) {
+        return new R<D>(data);
+    }
+
+    public static R<Void> fail(int code, Object... errorMsgArgs) {
+        return new R<Void>(code, errorMsgArgs);
     }
 
 }
