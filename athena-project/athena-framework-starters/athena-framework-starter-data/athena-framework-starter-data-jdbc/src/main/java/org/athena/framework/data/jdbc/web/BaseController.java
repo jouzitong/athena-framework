@@ -6,7 +6,6 @@ import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -19,9 +18,7 @@ public abstract class BaseController<Entity extends IEntity,
 
     protected abstract Service service();
 
-    protected IConvert<Entity, DTO> convert() {
-        return null;
-    }
+    protected abstract IConvert<Entity, DTO> convert();
 
     @Override
     public DTO add(@RequestBody DTO dto) {
@@ -62,23 +59,11 @@ public abstract class BaseController<Entity extends IEntity,
     }
 
     protected Entity toEntity(DTO dto) {
-        if (convert() != null) {
-            return convert().toEntity(dto);
-        }
-        Entity entity = service().newEntity();
-        BeanUtils.copyProperties(dto, entity);
-        return entity;
+        return convert().toEntity(dto);
     }
 
     protected DTO toDTO(Entity entity) {
-        if (convert() != null) {
-            return convert().toDTO(entity);
-        }
-        DTO dto = newDTO();
-        BeanUtils.copyProperties(entity, dto);
-        return dto;
+        return convert().toDTO(entity);
     }
-
-    protected abstract DTO newDTO();
 
 }
