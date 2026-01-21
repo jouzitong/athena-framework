@@ -68,9 +68,6 @@ public abstract class BaseController<Entity extends IEntity,
         Entity entity = service().newEntity();
         BeanUtils.copyProperties(dto, entity);
         return entity;
-//        String content = JacksonJsonUtils.toStr(dto);
-//        return JacksonJsonUtils.toBean(content, new TypeReference<>() {
-//        });
     }
 
     protected DTO toDTO(Entity entity) {
@@ -80,9 +77,6 @@ public abstract class BaseController<Entity extends IEntity,
         DTO dto = newDTO();
         BeanUtils.copyProperties(entity, dto);
         return dto;
-//        String content = JacksonJsonUtils.toStr(entity);
-//        return JacksonJsonUtils.toBean(content, new TypeReference<>() {
-//        });
     }
 
     protected abstract DTO newDTO();

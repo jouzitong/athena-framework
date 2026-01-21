@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.athena.framework.data.jpa.listener.AuditEntityListener;
@@ -18,6 +20,8 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditEntityListener.class)
 @ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class AuditableEntity extends BaseEntity {
 
     @Getter

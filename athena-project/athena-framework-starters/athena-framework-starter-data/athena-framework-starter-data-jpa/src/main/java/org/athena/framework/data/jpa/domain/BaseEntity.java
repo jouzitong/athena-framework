@@ -6,11 +6,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.athena.framework.data.jdbc.entity.IEntity;
 
 @MappedSuperclass
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class BaseEntity implements IEntity {
 
     @Getter

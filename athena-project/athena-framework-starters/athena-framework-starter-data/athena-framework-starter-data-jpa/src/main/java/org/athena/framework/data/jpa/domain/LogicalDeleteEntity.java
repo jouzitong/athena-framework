@@ -1,6 +1,7 @@
 package org.athena.framework.data.jpa.domain;
 
 import jakarta.persistence.MappedSuperclass;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
@@ -8,6 +9,8 @@ import org.hibernate.annotations.SoftDeleteType;
 @MappedSuperclass
 @ToString(callSuper = true)
 @SoftDelete(strategy = SoftDeleteType.DELETED)
+@NoArgsConstructor
+//@AllArgsConstructor
 public abstract class LogicalDeleteEntity extends AuditableEntity {
 
 //    @Setter
