@@ -1,8 +1,5 @@
 package org.athena.framework.data.jdbc.entity.dto;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 /**
  * @author zhouzhitong
  * @since 2025/7/6
@@ -10,23 +7,5 @@ import java.time.LocalDateTime;
 public interface IDTO {
 
     Long getId();
-
-    LocalDateTime getCreateTime();
-
-    LocalDateTime getUpdateTime();
-
-    Long getCreatedBy();
-
-    Long getUpdatedBy();
-
-    Long getVersion();
-
-//    default void setDeleted(boolean deleted) {
-//    }
-
-    default Long getAndIncrementVersion() {
-        return 0L;
-    }
-
 
 }
