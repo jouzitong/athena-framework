@@ -1,0 +1,232 @@
+= Codex Task 生成规则（Task Generation Rules）
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+
+[perfre]
+== 总则
+
+- 生成任务必须严格遵守《Codex Task 定义规范（Task Definition Specification）》
+- 输出必须是完整可执行的 Task 文件结构，不得省略必要区块
+- 仅生成任务定义，不生成实现细节、代码或命令
+- Task 与 Sub Task 的目标必须是结果导向、可验证、可裁决
+- 任务编号必须全局唯一，禁止重复
+- 生成内容应便于执行与审查，保持结构化与可扫描性
+
+本文档描述 **生成规则（Generation Rules）**，用于指导如何从需求生成合格的 Task 文件，而非 Task 的模板或实例。
+
+== 生成输入与输出
+
+=== 输入要求
+
+- 需求说明、背景、约束、验收标准（如有）
+- 影响范围（模块、目录、服务）与排除项（如有）
+- 关键依赖与前置条件（如有）
+
+=== 输出要求
+
+必须输出完整 Task 文件，且包含以下结构块：
+
+[source,text]
+----
+Task File
+├─ Task Overview
+├─ Task Meta
+├─ Task Scope（任务范围）
+├─ Risks & Notes（风险与注意事项）
+├─ Task Completion Policy
+└─ Sub Task Blocks（1 个或多个）
+----
+
+== 生成原则
+
+=== 任务拆分原则
+
+- 以“可独立执行、可裁决”为最小拆分单位
+- 每个 Sub Task 只覆盖一个清晰可验证目标
+- 子任务之间的依赖要明确、可判定
+- 拆分必须匹配实际执行路径，不得为了形式拆分
+
+=== 目标与完成条件
+
+- Objective 只描述交付结果，不描述实现步骤
+- Completion Policy 必须可验证、可操作、可检查
+- 成功条件数量应保持精简（通常 1～3 条）
+- 失败条件必须具备清晰触发器或阻断原因
+
+=== 范围与风险
+
+- Scope 需明确“包含”与“排除”
+- Risks & Notes 仅记录关键风险、依赖不确定性与执行限制
+- 风险描述需包含影响范围与触发条件
+
+=== 可执行性与可追踪性
+
+- 任务拆分、依赖、状态必须能支撑执行与裁决
+- 需能通过日志、测试、评审或数据验证来确认完成
+- 文档结构需与 Task Definition Specification 完全一致
+
+== 结构块生成规则
+
+=== Task Overview
+
+必须包含：
+
+- 任务拆分方式
+- 任务之间的依赖关系
+- 任务组完成与失败判定规则
+
+可选补充：
+
+- 背景与动机
+- 输入与前置
+- 关键约束
+- Flow 选择
+- 验收方式
+
+规范要求：
+
+- 聚焦“为什么做”和“做成什么样”
+- 避免实现步骤
+- 与 Task Meta / Completion Policy 互补，不重复
+
+=== Task Meta
+
+必须包含字段：
+
+- task.id
+- task.name
+- task.type
+- task.version
+- task.status
+- task.objective
+
+规范要求：
+
+- task.id 全局唯一
+- task.name 使用一句话概括目标
+- task.objective 1～3 句话，结果导向，不含实现方式
+
+=== Task Scope
+
+必须包含字段：
+
+- task.scope.modules
+- task.scope.excludes（如无可写“无”或留空块）
+
+规范要求：
+
+- 模块建议用路径或服务名
+- 排除项需清晰可判定
+
+=== Risks & Notes
+
+必须包含：
+
+- 关键风险或执行注意事项列表
+
+规范要求：
+
+- 风险要具体、可验证、可追踪
+- 不能替代 Objective 或 Completion Policy
+
+=== Task Completion Policy
+
+必须包含字段：
+
+- task.completion.success
+- task.completion.failure
+
+规范要求：
+
+- 完成条件必须可验证
+- 失败条件需具备明确触发器
+
+=== Sub Task Blocks
+
+每个 Sub Task 必须包含以下结构块：
+
+[source,text]
+----
+Sub Task Blocks
+├─ Sub Task Overview
+├─ Sub Task Meta
+├─ Sub Task Completion Policy
+├─ Risks & Notes（风险与注意事项）
+└─ Execute Report(执行报告)
+----
+
+== Sub Task 生成规则
+
+=== Sub Task Overview
+
+可选包含：
+
+- 子任务背景
+- 输入与依赖
+- 影响范围
+- 执行策略提示
+- 验收方式
+
+规范要求：
+
+- 提供执行提示，不写实现步骤
+- 与 Sub Task Objective 一致
+
+=== Sub Task Meta
+
+必须包含字段：
+
+- sub_task.id
+- sub_task.name
+- sub_task.type
+- sub_task.status
+- sub_task.objective
+- sub_task.depends_on（如无可写“无”或留空块）
+
+规范要求：
+
+- sub_task.id 在 Task 内唯一
+- sub_task.name 动宾结构、简洁明确
+- sub_task.objective 1～3 句话，结果导向
+
+=== Sub Task Completion Policy
+
+必须包含字段：
+
+- sub_task.completion.success
+- sub_task.completion.failure
+
+规范要求：
+
+- 成功条件可验证且与 objective 对齐
+- 失败条件具备明确触发器
+
+=== Execute Report
+
+必须包含：
+
+- 执行摘要
+- 关键变更
+- 验证与证据
+- 问题与结论
+
+规范要求：
+
+- 以结果与证据为主
+- 不粘贴大量日志
+
+== 常见错误与避免方式
+
+- Objective 中包含“实现方式”或“具体改动路径”
+- Completion Policy 使用不可验证措辞（如“基本完成”）
+- Sub Task 依赖未列出或不一致
+- Scope 未定义排除项导致范围扩张
+- 任务拆分过细或过粗，影响执行与裁决
+
+== 参考与约束
+
+- 任务定义必须遵循《Codex Task 定义规范（Task Definition Specification）》
+- Flow 仅作用于 Sub Task，不直接作用于 Task
+- 仅 READY 的 Task/Sub Task 才能被执行

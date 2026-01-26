@@ -1,0 +1,177 @@
+= Codex 任务生成流程：简单任务
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+
+[perfer]
+== 流程说明
+
+本流程用于生成“简单任务”的任务定义，
+仅包含必要的实现与验证子任务，不要求文档类子任务。
+输出为符合《Codex Task 定义规范》的 Task 文件。
+
+== 流程基本信息（Flow Identity）
+
+.flow.identity
+[cols="1,3"]
+|===
+|属性 |值
+
+
+|flow.id（流程ID）
+|TASK_GEN_SIMPLE
+
+|flow.name（流程名称）
+|简单任务生成流程
+
+|flow.version（流程版本）
+|1.0
+
+|flow.owner（流程负责人）
+|平台研发团队
+
+|flow.description（流程说明）
+|为小范围改动生成最小可执行任务定义
+|===
+
+== 进入条件（Entry Conditions）
+
+.entry.conditions
+* 需求目标明确且范围小
+* 不要求编写需求/设计文档
+* 影响范围可快速确认
+
+.entry.on_fail
+[source,text]
+----
+STOP_AND_REPORT
+----
+
+== 任务生成步骤（Generation Steps）
+
+=== Step 1：目标与范围澄清（Analyze）
+
+.step.1
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|ANALYZE
+
+|step.type
+|analyze
+
+|step.goal
+|明确目标、范围与验收方式
+
+|step.output
+|目标说明 + 验收标准清单
+|===
+
+---
+
+=== Step 2：Task Meta 与 Scope 生成（Meta & Scope）
+
+.step.2
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|META_SCOPE
+
+|step.type
+|generate
+
+|step.goal
+|生成任务身份、目标与范围
+
+|step.output
+|Task Meta + Task Objective + Task Scope
+|===
+
+---
+
+=== Step 3：子任务拆分（Sub Tasks）
+
+.step.3
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SUB_TASKS
+
+|step.type
+|generate
+
+|step.goal
+|生成最小子任务集合
+
+|step.output
+|Sub Task Blocks
+|===
+
+推荐子任务集合：
+- 实现与修改（FUNC）
+- 测试与验证（TEST，若需要）
+
+---
+
+=== Step 4：完成条件与风险（Policy & Risks）
+
+.step.4
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|POLICY_RISKS
+
+|step.type
+|generate
+
+|step.goal
+|补全完成条件与风险说明
+
+|step.output
+|Task Completion Policy + Risks & Notes
+|===
+
+---
+
+=== Step 5：规范校验（Validate）
+
+.step.5
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|VALIDATE
+
+|step.type
+|validate
+
+|step.goal
+|校验与规范一致性
+
+|step.output
+|校验结果 + 修正项（如有）
+|===
+
+== 退出条件（Exit Criteria）
+
+.exit.conditions
+* Task 文件结构完整
+* 子任务最小集合明确
+* Objective 与 Completion Policy 可验证
+
+== 流程强约束（Mandatory Rules）
+
+.flow.rules
+* 不生成文档类子任务
+* 不输出实现细节或代码
+* 仅包含必要的实现与验证子任务

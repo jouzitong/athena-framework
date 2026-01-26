@@ -1,0 +1,300 @@
+= 路由 & 菜单设计规范
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: highlight.js
+
+== 1. 设计目标
+
+本规范用于约束 Vue2 项目中「路由」与「顶部菜单 / 侧边栏菜单」的设计方式，目标包括：
+
+* 路由结构长期稳定、可扩展
+* 菜单与路由解耦，避免重复维护
+* 支持多模块系统（顶部 + 侧边）
+* 支持权限、动态路由等后续扩展
+* 避免“为菜单而设计路由”的反模式
+
+== 2. 核心设计原则（必须遵守）
+
+=== 2.1 路由是系统能力声明
+
+* 路由描述「页面能力」
+* 菜单只是路由的一种 **可视化映射**
+* 不允许为菜单单独设计路由结构
+
+[IMPORTANT]
+====
+整个系统 **只有一份路由定义**，作为唯一真相（Single Source of Truth）
+====
+
+=== 2.2 菜单不得反向驱动路由
+
+禁止以下行为：
+
+* 在菜单中硬编码 path
+* 顶部菜单 / 侧边栏各维护一套路由
+* 菜单结构与页面结构不一致
+
+正确做法：
+
+* 菜单从路由 `meta` 派生
+* 菜单逻辑永远是“读取路由”
+
+== 3. 项目目录规范
+
+[source]
+----
+src/
+├── router/
+│   ├── index.js          // Router 实例创建
+│   ├── routes.js         // 路由声明（核心）
+│   └── permission.js     // 权限 / 动态路由（可选）
+│
+├── layout/
+│   ├── MainLayout.vue    // 顶部 + 侧边栏
+│   ├── TopMenu.vue
+│   └── SideMenu.vue
+│
+├── views/                // 页面组件
+│   ├── dashboard/
+│   ├── task/
+│   └── system/
+----
+
+== 4. 路由设计规范
+
+=== 4.1 路由分层结构
+
+[source,js]
+----
+{
+  path: '/',
+  component: MainLayout,
+  children: [
+    ModuleRoute
+  ]
+}
+----
+
+说明：
+
+* 根路由只负责 Layout
+* 所有业务页面必须在 children 中
+* 不允许页面直接挂在根 path 下
+
+=== 4.2 模块级路由（一级模块）
+
+[source,js]
+----
+{
+  path: 'task',
+  name: 'Task',
+  redirect: '/task/list',
+  meta: {
+    title: '任务',
+    top: 'task'
+  },
+  children: []
+}
+----
+
+约束：
+
+* 一级模块必须定义 `meta.top`
+* 不直接渲染页面，仅作为模块容器
+* 允许 redirect 到默认子页面
+
+=== 4.3 页面级路由（最终可访问页面）
+
+[source,js]
+----
+{
+  path: 'list',
+  name: 'TaskList',
+  component: () => import('@/views/task/list.vue'),
+  meta: {
+    title: '任务列表',
+    side: 'task'
+  }
+}
+----
+
+约束：
+
+* 只有页面级路由才允许配置 component
+* 必须定义 `meta.title`
+* 是否显示在菜单中由 meta 控制
+
+== 5. meta 字段协议（重点）
+
+meta 是一份 **协议**，禁止随意扩展含义。
+
+=== 5.1 标准 meta 定义
+
+[source,ts]
+----
+meta: {
+  title: string        // 菜单显示名称
+  top?: string         // 顶部菜单模块标识
+  side?: string        // 侧边栏分组标识
+  icon?: string        // 菜单图标
+  hidden?: boolean     // 是否在菜单中隐藏
+  permission?: string // 权限标识
+}
+----
+
+=== 5.2 top 字段规范
+
+* 表示「系统模块域」
+* 用于顶部菜单分组
+* 必须是稳定字符串（不可随意变更）
+
+示例：
+
+[source]
+----
+top: 'task'
+top: 'system'
+top: 'workbench'
+----
+
+=== 5.3 side 字段规范
+
+* 表示侧边栏逻辑分组
+* 用于同一模块内的菜单聚合
+* 不等同于 path
+
+== 6. 顶部菜单设计规范
+
+=== 6.1 职责定义
+
+顶部菜单只负责：
+
+* 模块切换
+* 不负责具体页面跳转逻辑
+
+=== 6.2 顶部菜单来源
+
+[source,js]
+----
+routes
+  → filter(meta.top)
+  → uniq(top)
+  → render
+----
+
+禁止：
+
+* 手写顶部菜单配置
+* 在组件内维护菜单数据
+
+=== 6.3 顶部菜单点击行为
+
+[source]
+----
+点击顶部菜单
+→ 切换当前 top 域
+→ 跳转该模块的默认页面
+----
+
+== 7. 侧边栏设计规范
+
+=== 7.1 职责定义
+
+侧边栏负责：
+
+* 展示当前模块（top）下的页面入口
+* 映射路由结构
+
+=== 7.2 侧边栏数据来源
+
+[source,js]
+----
+routes
+  → filter(meta.top === currentTop)
+  → children
+  → filter(!hidden)
+----
+
+=== 7.3 禁止行为（非常重要）
+
+* 禁止写死菜单 path
+* 禁止菜单与路由解耦维护
+* 禁止在菜单组件中出现业务判断
+
+== 8. 权限与隐藏策略
+
+=== 8.1 菜单隐藏
+
+[source,js]
+----
+meta: {
+  hidden: true
+}
+----
+
+用途：
+
+* 详情页
+* 编辑页
+* 非直达页面
+
+=== 8.2 权限控制（推荐）
+
+[source,js]
+----
+meta: {
+  permission: 'task:list'
+}
+----
+
+说明：
+
+* 路由层负责权限
+* 菜单层只做展示过滤
+
+== 9. 常见反模式（禁止）
+
+=== 9.1 为菜单设计路由
+
+❌ 错误：
+
+* 菜单一改，路由全改
+* 页面无法复用
+
+=== 9.2 顶部 / 侧边双路由体系
+
+❌ 后果：
+
+* 权限重复
+* 维护成本指数上升
+
+=== 9.3 meta 字段语义混乱
+
+❌ 错误：
+
+[source]
+----
+meta: {
+  type: 'menu',
+  position: 'left'
+}
+----
+
+== 10. 推荐演进方向（非强制）
+
+* 动态路由（后端下发）
+* 菜单缓存（keep-alive）
+* 多 layout 支持
+* 微前端模块拆分
+
+== 11. 结语
+
+本规范的核心目标只有一句话：
+
+[quote]
+____
+路由稳定，菜单自然稳定；
+路由混乱，系统必然崩坏。
+____

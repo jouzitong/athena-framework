@@ -1,0 +1,175 @@
+= Vue 主题样式规范
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: highlight.js
+
+== 1. 设计目标
+
+本规范用于约束 Vue 项目的主题样式定义与使用方式，确保：
+
+* 主题变量稳定、可复用
+* 页面与组件样式一致
+* 支持后续多主题扩展
+* 现有样式可追溯、可维护
+
+== 2. 适用范围
+
+* 适用于 `tradingview-vue/src/assets/style` 目录下的所有样式文件。
+* 主题变量统一在 `themes/` 中维护，禁止在业务样式中硬编码核心色值。
+
+== 3. 样式目录结构约定
+
+[source]
+----
+tradingview-vue/src/assets/style/
+├── themes/
+│   └── theme-default.scss   // 主题变量（唯一来源）
+├── element-variables.scss   // Element UI 主题变量
+├── main.scss                // 全局入口样式
+├── index/                   // 页面级样式
+├── commons/                 // 通用组件样式
+└── ...
+----
+
+== 4. 主题变量规范（必须遵守）
+
+=== 4.1 主题变量唯一来源
+
+* 主题变量必须集中定义在 `themes/theme-default.scss`。
+* 业务样式中禁止重复声明与主题相关的核心色值。
+* 变量命名必须语义化，保持稳定，不得随意改名。
+
+=== 4.2 主题变量清单与默认值
+
+[cols="2,2,3",options="header"]
+|===
+| 变量名 | 默认值 | 语义说明
+
+| `$app-bg-color`
+| `#001529`
+| 应用整体背景
+
+| `$nav-bg-color`
+| `#001529`
+| 顶部导航背景
+
+| `$sidebar-bg-color`
+| `#424446`
+| 侧边栏背景
+
+| `$main-bg-color`
+| `#2e4154`
+| 主内容背景
+
+| `$text-color`
+| `#fff`
+| 主文本颜色
+
+| `$font-size`
+| `14px`
+| 基础字号
+
+| `$border-color`
+| `#dcdfe6`
+| 默认边框色
+
+| `$component-spacing`
+| `10px`
+| 组件间距基准
+
+| `$list-bg-color`
+| `#2e4154`
+| 列表背景色
+
+| `$list-header-bg-color`
+| `#2e4154`
+| 列表头背景色
+
+| `$list-header-text-size`
+| `$font-size + 2px`
+| 列表头字号
+
+| `$list-item-bg-color`
+| `#424446`
+| 列表项背景色
+
+| `$list-item-text-size`
+| `$font-size`
+| 列表项字号
+
+| `$list-item-bg-active-color`
+| `#6c7177`
+| 列表项激活背景
+|===
+
+=== 4.3 变量使用映射（现状）
+
+* `main.scss`/`index/index.scss` 使用 `$nav-bg-color`、`$sidebar-bg-color`、`$main-bg-color`。
+* 列表类样式使用 `$list-*` 变量作为主题色基础。
+* `element-variables.scss` 定义 Element UI 主题变量（如 `$--color-primary`）。
+
+== 5. 排版规范
+
+=== 5.1 基础字号
+
+* 默认字号为 `$font-size`（当前 14px）。
+* 标题字号允许在页面样式中适度放大，但必须基于 `px` 整数值，且保持视觉层级一致。
+
+=== 5.2 字体颜色
+
+* 默认文本色统一使用 `$text-color`。
+* 需要强调或弱化的文本，优先使用主题扩展变量（如后续新增的 `text-muted`），避免临时硬编码。
+
+== 6. 基础样式约定
+
+=== 6.1 间距
+
+* 组件间距基准使用 `$component-spacing`（当前 10px）。
+* 页面级间距可按 2 倍或 1.5 倍系数扩展，保持比例一致。
+
+=== 6.2 圆角
+
+* 通用圆角建议使用 `4px/6px/8px` 之一，优先保持统一。
+* 若需要新增圆角变量，应在主题文件中补充并统一命名。
+
+=== 6.3 阴影
+
+* 默认阴影遵循现有样式（如 `topHeader.scss`、`index/index.scss`）。
+* 避免在业务样式中定义过多不同强度的阴影值。
+
+=== 6.4 边框
+
+* 边框色默认使用 `$border-color`。
+* 边框宽度保持 `1px` 为主，必要时可在组件内调整。
+
+=== 6.5 分层（z-index）
+
+* 当前未定义统一的 `z-index` 规范。
+* 如需新增分层规则，必须在本规范中补充统一分层表。
+
+== 7. 主题扩展与切换约定
+
+=== 7.1 多主题扩展
+
+* 新增主题文件必须放在 `themes/` 目录，且变量名保持与 `theme-default.scss` 一致。
+* 主题切换逻辑仅允许替换主题变量文件引用，不允许在业务样式中做条件分支。
+
+=== 7.2 Element UI 主题联动
+
+* Element UI 主题变量集中在 `element-variables.scss`，与主主题保持色彩一致。
+* 当调整主主题时，需同步评估 `$--color-primary` 与文本色配置。
+
+== 8. 禁止事项
+
+* 禁止在业务样式中硬编码核心主题色（背景、主文本、主色等）。
+* 禁止随意新增不具语义的变量名（如 `$color1`、`$bg2`）。
+* 禁止在 `themes/` 以外的位置定义主题变量。
+
+== 9. 参考文件
+
+* `tradingview-vue/src/assets/style/themes/theme-default.scss`
+* `tradingview-vue/src/assets/style/main.scss`
+* `tradingview-vue/src/assets/style/index/index.scss`
+* `tradingview-vue/src/assets/style/element-variables.scss`

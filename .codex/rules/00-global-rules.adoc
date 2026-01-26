@@ -1,0 +1,15 @@
+= Codex DSL Specification
+:toc: left
+:toclevels: 1
+:sectnums:
+:icons: font
+:source-highlighter: coderay
+:version: 1.0
+
+== 执行规则说明
+
+- Codex 不得修改 DSL 结构，只能修改指定 Block
+- 代码风格遵循 existing project。但是如果你有更好的建议, 可以在执行计划中提出待优化点。
+- `spec/` 目录下定义了很多规范性的内容, 请严格遵守. 如果有异议，请提出待优化点。
+
+

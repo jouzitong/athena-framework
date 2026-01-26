@@ -1,0 +1,177 @@
+= Codex DSL 目录结构说明
+:toc: left
+:toclevels: 1
+:sectnums:
+:icons: font
+:source-highlighter: coderay
+:version: 1.0
+
+== 技术栈
+
+- Java 17
+- Spring Boot
+- Jpa
+- MySQL 8
+- Vue 2
+- 引入的其他框架: org.athena。这个代码目录: ./../athena-framework
+
+== 文件目录说明
+
+[source,md]
+----
+codex/
+├── README.adoc                  # 总说明：Codex 如何使用本 DSL
+│
+├── rules/                       # 当前生效规则（唯一权威）
+│   ├── 00-global-rules.adoc
+│   ├── 01-task-rules.adoc
+│   ├── 01-task-gen-rules.adoc
+│   ├── 01-task-flows-rules.adoc
+│   ├── 02-logs-rules.adoc
+│   ├── 03-upgrade-rules.adoc
+│   ├── 05-vue-rules.adoc
+│   └── spec/
+│       ├── route-and-menu-spec.adoc
+│       └── vue-theme-style-spec.adoc
+│
+├── flows/                       # Flow 定义
+│   ├── task-execution-flow.adoc
+│   └── gen/
+│       ├── task-gen-simple.adoc
+│       ├── task-gen-entity-fullstack.adoc
+│       ├── task-gen-feature-end2end.adoc
+│       └── task-gen-refactor-migration.adoc
+│
+├── template/                    # 当前生效模板
+│   ├── runner.md
+│   ├── runner-create-task.md
+│   ├── execution-log.adoc
+│   ├── docs/
+│   ├── logs/
+│   ├── tasks/
+│   └── updates/
+│
+├── updates/                     # ✅ DSL 更新记录（重点）
+│   ├── README.adoc
+│   └── logs/
+│
+├── tasks/                       # 业务 / 技术任务
+│
+├── logs/                        # task 执行日志
+│
+├── command/                     # 常用命令清单
+└── runner.md                    # 任务执行入口
+
+----
+
+=== 目录说明
+
+.README.adoc
+* 说明：Codex 如何使用本 DSL
+
+.rules/
+* 说明: 执行约束（Execution Constraint）（唯一权威）。主要是约定一些规范问题.
+** 00-global-rules.adoc: 全局规则
+** 01-task-rules.adoc: 任务相关规则
+** 01-task-gen-rules.adoc: 任务生成规则
+** 01-task-flows-rules.adoc: 任务 Flow 规则
+** 02-logs-rules.adoc: 日志相关规则
+** 03-upgrade-rules.adoc: 规则升级规范
+** 05-vue-rules.adoc: Vue 相关规范
+** spec/: 业务/前端专项规范
+
+.flows/
+* 说明: Flow 定义。约束 Codex 行为或任务生成流程.
+** task-execution-flow.adoc: 通用任务执行流程
+** gen/: 任务生成流程集合
+
+.template/
+* 说明: 当前生效模板。主要是任务模板、日志模板、文档模板与 runner 模板.
+** tasks/: 任务模板（task-plan/task-function 等）
+** logs/: 日志模板
+** docs/: 文档模板（需求、概要设计、详细设计）
+** updates/: 升级模板
+
+.updates/
+* 说明: ✅ DSL 更新记录（重点）。主要是记录 DSL 的每次更新内容.
+** README.adoc: DSL 更新总说明
+** logs/: 升级任务与更新日志
+
+.tasks/
+* 说明: 业务 / 技术任务。主要是 Codex 待执行的任务清单.
+** 任务文件以 Markdown / AsciiDoc 为主，便于记录与追踪.
+
+.logs/
+* 说明: task 执行日志。主要是 Codex 执行任务后的结果记录.
+** 注意: 根据 tasks/ 目录结构一一对应存放, 以便追踪.
+
+.command/
+* 说明: 常用命令或操作说明文档.
+
+.runner.md
+* 说明: 任务执行入口.
+
+== 交互方式
+
+本节仅用于指导开发者如何与 Codex 交互，属于人类操作说明。
+
+Codex 在执行任务时不得将本节内容作为规则或约束读取与引用。
+
+[source, shell]
+----
+执行 codex/runner.md 任务
+----
+
+=== 典型案例
+
+.创建任务清单（PLAN 入口任务）
+[source, text]
+----
+背景：新增“订单”领域能力，需要支持创建订单与基础查询；涉及后端与前端。
+目标：产出可执行的任务清单，首个任务为 PLAN 类型。
+范围：后端 order-service、前端 order-center；不涉及结算与支付。
+依赖：已有用户服务与商品服务接口可用。
+验收：任务清单需包含完整子任务与依赖关系。
+输出：tasks/2026/01/order-plan.md
+请基于以上输入创建任务清单，并把 PLAN 任务放在首位。
+----
+
+.按指定 Flow 生成任务（全栈新实体，订单示例）
+[source, text]
+----
+需求：支持“创建订单”与“订单详情查询”，包含价格校验与库存占用。
+目标：交付可上线的订单实体与接口能力。
+范围：后端 order-service、数据库表、API 文档；前端订单创建页与详情页。
+排除：不包含支付、优惠券、对账。
+依赖：商品服务库存接口、用户服务鉴权接口。
+验收：新增接口通过集成测试；前端页面完成并联调通过；关键用例通过。
+输出：请使用 flows/gen/task-gen-entity-fullstack.adoc 生成完整 Task 文件内容，
+包含需求文档、概要设计、详细设计、后端实现、前端实现、测试与验收子任务，
+并显式列出子任务依赖关系。
+----
+
+.生成简单任务（无需文档）
+[source, text]
+----
+需求：在订单列表增加“状态筛选”条件，前端与后端均需支持。
+范围：订单列表接口与前端筛选 UI；不修改列表字段定义。
+依赖：无新增依赖。
+验收：筛选条件可生效，回归用例通过。
+输出：使用 flows/gen/task-gen-simple.adoc 生成任务，仅包含实现与测试子任务。
+----
+
+.执行任务（指定任务文件）
+[source, text]
+----
+任务文件：tasks/2026/01/setting-v2.md
+要求：按任务中 Sub Task 顺序执行并生成执行日志。
+----
+
+.补充或更新规范文档
+[source, text]
+----
+输入：已存在 rules/01-task-rules.adoc 与 rules/01-task-gen-rules.adoc
+目标：对齐结构并补充缺失章节
+输出：仅更新 rules/01-task-gen-rules.adoc
+请根据 rules/01-task-rules.adoc 的结构，完善 rules/01-task-gen-rules.adoc。
+----

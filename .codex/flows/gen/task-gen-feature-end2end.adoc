@@ -1,0 +1,225 @@
+= Codex 任务生成流程：功能端到端交付
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+
+[perfer]
+== 流程说明
+
+本流程用于生成“既有系统功能增强/新增”的端到端任务定义，
+覆盖需求澄清、方案设计、后端改造、前端改造、测试与验收。
+输出为符合《Codex Task 定义规范》的 Task 文件。
+
+== 流程基本信息（Flow Identity）
+
+.flow.identity
+[cols="1,3"]
+|===
+|属性 |值
+
+
+|flow.id（流程ID）
+|TASK_GEN_FEATURE_END2END
+
+|flow.name（流程名称）
+|功能端到端任务生成流程
+
+|flow.version（流程版本）
+|1.0
+
+|flow.owner（流程负责人）
+|平台研发团队
+
+|flow.description（流程说明）
+|为功能增强场景生成任务与子任务拆分
+|===
+
+== 进入条件（Entry Conditions）
+
+.entry.conditions
+* 已提供功能目标与验收标准
+* 已确认影响范围或关键模块
+* 已确认必要依赖或约束
+
+.entry.on_fail
+[source,text]
+----
+STOP_AND_REPORT
+----
+
+== 任务生成步骤（Generation Steps）
+
+=== Step 1：功能目标解析（Analyze）
+
+.step.1
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|ANALYZE
+
+|step.type
+|analyze
+
+|step.goal
+|明确功能目标、输入输出与验收方式
+
+|step.output
+|功能目标说明 + 验收标准清单
+|===
+
+---
+
+=== Step 2：范围与依赖定义（Scope）
+
+.step.2
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SCOPE
+
+|step.type
+|plan
+
+|step.goal
+|明确模块范围与排除项
+
+|step.output
+|Task Scope 草案
+|===
+
+---
+
+=== Step 3：任务拆分（Split）
+
+.step.3
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SPLIT
+
+|step.type
+|plan
+
+|step.goal
+|拆分为可独立交付的子任务
+
+|step.output
+|子任务拆分清单与依赖
+|===
+
+推荐子任务集合：
+- 需求澄清与文档补充（DOCS）
+- 方案评审与概要设计（DOCS）
+- 后端实现与接口改造（FUNC）
+- 前端实现与交互调整（FUNC）
+- 测试用例与回归（TEST）
+- 文档/变更说明更新（DOCS）
+
+---
+
+=== Step 4：Task Overview 与 Meta 生成（Overview & Meta）
+
+.step.4
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|OV_META
+
+|step.type
+|generate
+
+|step.goal
+|生成 Task Overview 与 Task Meta
+
+|step.output
+|Task Overview + Task Meta + Task Objective
+|===
+
+---
+
+=== Step 5：Sub Task Blocks 生成（Sub Tasks）
+
+.step.5
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SUB_TASKS
+
+|step.type
+|generate
+
+|step.goal
+|生成子任务块与完成条件
+
+|step.output
+|Sub Task Blocks
+|===
+
+---
+
+=== Step 6：完成条件与风险（Policy & Risks）
+
+.step.6
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|POLICY_RISKS
+
+|step.type
+|generate
+
+|step.goal
+|补全完成条件与风险说明
+
+|step.output
+|Task Completion Policy + Risks & Notes
+|===
+
+---
+
+=== Step 7：规范校验（Validate）
+
+.step.7
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|VALIDATE
+
+|step.type
+|validate
+
+|step.goal
+|校验与规范一致性
+
+|step.output
+|校验结果 + 修正项（如有）
+|===
+
+== 退出条件（Exit Criteria）
+
+.exit.conditions
+* Task 文件结构完整
+* 子任务依赖明确
+* 目标与完成条件可验证
+
+== 流程强约束（Mandatory Rules）
+
+.flow.rules
+* 不输出实现细节或代码
+* 子任务必须覆盖前后端与测试链路（若范围包含）
+* 任务拆分必须与验收标准对齐

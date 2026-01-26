@@ -1,0 +1,225 @@
+= Codex 任务生成流程：重构与迁移交付
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+
+[perfer]
+== 流程说明
+
+本流程用于生成“重构/迁移类”任务定义，
+强调范围约束、回滚策略与验证路径。
+输出为符合《Codex Task 定义规范》的 Task 文件。
+
+== 流程基本信息（Flow Identity）
+
+.flow.identity
+[cols="1,3"]
+|===
+|属性 |值
+
+
+|flow.id（流程ID）
+|TASK_GEN_REFACTOR_MIGRATION
+
+|flow.name（流程名称）
+|重构与迁移任务生成流程
+
+|flow.version（流程版本）
+|1.0
+
+|flow.owner（流程负责人）
+|平台研发团队
+
+|flow.description（流程说明）
+|为重构/迁移场景生成可裁决的任务定义
+|===
+
+== 进入条件（Entry Conditions）
+
+.entry.conditions
+* 已提供重构/迁移目标与收益说明
+* 已识别影响范围与风险点
+* 已明确回滚或止损策略（可在 Risks & Notes 中体现）
+
+.entry.on_fail
+[source,text]
+----
+STOP_AND_REPORT
+----
+
+== 任务生成步骤（Generation Steps）
+
+=== Step 1：目标与约束澄清（Analyze）
+
+.step.1
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|ANALYZE
+
+|step.type
+|analyze
+
+|step.goal
+|明确重构/迁移目标、约束与成功信号
+
+|step.output
+|目标说明 + 约束清单 + 风险初稿
+|===
+
+---
+
+=== Step 2：范围与排除项定义（Scope）
+
+.step.2
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SCOPE
+
+|step.type
+|plan
+
+|step.goal
+|明确涉及与不涉及的模块
+
+|step.output
+|Task Scope 草案
+|===
+
+---
+
+=== Step 3：拆分与依赖（Split）
+
+.step.3
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SPLIT
+
+|step.type
+|plan
+
+|step.goal
+|拆分为可验证的子任务
+
+|step.output
+|子任务拆分与依赖
+|===
+
+推荐子任务集合：
+- 现状评估与基线记录（DOCS）
+- 迁移/重构方案设计（DOCS）
+- 核心实现与替换（REFACTOR 或 FUNC）
+- 回滚与降级策略（DOCS）
+- 测试与回归验证（TEST）
+- 文档与发布说明（DOCS）
+
+---
+
+=== Step 4：Task Overview 与 Meta 生成（Overview & Meta）
+
+.step.4
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|OV_META
+
+|step.type
+|generate
+
+|step.goal
+|生成 Task Overview 与 Task Meta
+
+|step.output
+|Task Overview + Task Meta + Task Objective
+|===
+
+---
+
+=== Step 5：Completion Policy 与 Risks（Policy & Risks）
+
+.step.5
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|POLICY_RISKS
+
+|step.type
+|generate
+
+|step.goal
+|补全完成条件、失败条件与风险
+
+|step.output
+|Task Completion Policy + Risks & Notes
+|===
+
+---
+
+=== Step 6：Sub Task Blocks 生成（Sub Tasks）
+
+.step.6
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|SUB_TASKS
+
+|step.type
+|generate
+
+|step.goal
+|生成子任务块、目标与完成条件
+
+|step.output
+|Sub Task Blocks
+|===
+
+---
+
+=== Step 7：规范校验（Validate）
+
+.step.7
+[cols="1,3"]
+|===
+|属性 |说明
+
+|step.id
+|VALIDATE
+
+|step.type
+|validate
+
+|step.goal
+|校验与规范一致性
+
+|step.output
+|校验结果 + 修正项（如有）
+|===
+
+== 退出条件（Exit Criteria）
+
+.exit.conditions
+* 任务目标与边界明确
+* 回滚/降级策略已体现
+* 任务完成条件可验证
+
+== 流程强约束（Mandatory Rules）
+
+.flow.rules
+* 不输出实现步骤或代码
+* 回滚或止损策略必须显式记录
+* Scope 的排除项必须明确
