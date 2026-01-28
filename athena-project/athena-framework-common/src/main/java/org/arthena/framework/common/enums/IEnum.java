@@ -1,5 +1,6 @@
 package org.arthena.framework.common.enums;
 
+import org.arthena.framework.common.annotation.EnumValue;
 import org.arthena.framework.common.annotation.GlobalEnum;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public interface IEnum extends Serializable {
      *
      * @return code
      */
+    @EnumValue
     int getCode();
 
     /**
