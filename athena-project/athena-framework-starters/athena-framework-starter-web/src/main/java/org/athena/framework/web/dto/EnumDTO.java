@@ -38,4 +38,14 @@ public class EnumDTO {
     @Deprecated
     private IEnum val;
 
+    // 主要是应对前端，常用的名称说明
+
+    public Object getValue(){
+        return code;
+    }
+
+    public String getLabel(){
+        return name;
+    }
+
 }
