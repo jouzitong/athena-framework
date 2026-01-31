@@ -35,6 +35,7 @@ public class EnumDTO {
      * 具体枚举对象
      */
     @JsonIgnore
+    @Deprecated
     private IEnum val;
 
 }

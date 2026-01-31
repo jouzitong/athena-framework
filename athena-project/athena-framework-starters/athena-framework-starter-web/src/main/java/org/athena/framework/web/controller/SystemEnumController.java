@@ -1,5 +1,6 @@
 package org.athena.framework.web.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.annotation.GlobalEnum;
@@ -30,6 +31,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/common/v1/system/enums")
+@Slf4j
 public class SystemEnumController {
 
     @Autowired
@@ -74,14 +76,14 @@ public class SystemEnumController {
                 map.putAll(enums);
             }
         }
-
         this.map = map;
-
+        LOGGER.info("build system enum: {}", map);
         return R.ok(map);
     }
 
     @PostMapping("/clearCache")
     public IR<Boolean> clearCache() {
+        LOGGER.info("clear system enum cache");
         this.map = null;
         return R.ok(true);
     }
