@@ -1,4 +1,4 @@
-package org.athena.framework.data.jdbc.utils;
+package org.arthena.framework.common.utils;
 
 /**
  * @author zhouzhitong
@@ -13,6 +13,14 @@ public class CamelCaseUtils {
     public static String toCamelCase(String input) {
         return convert(input, false);
     }
+
+    public static String lowerFirst(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+    }
+
 
     /**
      * 转换为大驼峰（PascalCase）

@@ -21,6 +21,7 @@ public interface IEnum extends Serializable {
      * @return code
      */
     @EnumValue
+//    @JsonValue
     int getCode();
 
     /**

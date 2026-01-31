@@ -8,7 +8,7 @@ import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
 import org.athena.framework.data.jdbc.type.QueryType;
-import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
+import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;

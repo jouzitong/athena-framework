@@ -19,14 +19,14 @@ public class PackageUtil {
      * @param abstractClass 抽象类
      * @return 子类所在列表
      */
-    public static List<Class<?>> getSubClasses(Class<?> abstractClass, List<String> packageNames) {
-        List<Class<?>> subClasses = new ArrayList<>();
+    public static <T> List<Class<T>> getSubClasses(Class<T> abstractClass, List<String> packageNames) {
+        List<Class<T>> subClasses = new ArrayList<>();
         for (String packageName : packageNames) {
             List<Class<?>> classes = PackageUtil.getClasses(packageName);
             // 遍历每个类，找到继承自抽象类的子类
             for (Class<?> clazz : classes) {
                 if (abstractClass.isAssignableFrom(clazz) && !abstractClass.equals(clazz)) {
-                    subClasses.add(clazz);
+                    subClasses.add((Class<T>) clazz);
                 }
             }
         }

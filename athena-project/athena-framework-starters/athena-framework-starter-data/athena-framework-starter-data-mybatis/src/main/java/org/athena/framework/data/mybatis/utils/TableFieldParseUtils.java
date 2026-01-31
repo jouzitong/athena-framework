@@ -5,7 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import org.apache.commons.lang3.StringUtils;
-import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
+import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 
 import java.lang.reflect.Field;

@@ -45,7 +45,7 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
     // ================= 自定义变量 =================
     protected Statement statement;
 
-    protected List<Class<?>> subClasses;
+    protected List<Class<IEntity>> subClasses;
 
     @Override
     public void run(String... args) throws Exception {
@@ -72,7 +72,7 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
 
         // 更新表结构
         StringBuilder updateDdlSql = new StringBuilder();
-        List<Class<?>> subClasses = getSubClasses(IEntity.class);
+        List<Class<IEntity>> subClasses = getSubClasses(IEntity.class);
         ITableMetaBuilder tableBuilder = new DefaultTableMetaBuilder();
         for (Class<?> clazz : subClasses) {
             // TODO 应该获取自定义解析器, 从spring ioc 中获取
@@ -156,7 +156,7 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
         }
     }
 
-    protected List<Class<?>> getSubClasses(Class<?> clazz) {
+    protected <T> List<Class<T>> getSubClasses(Class<T> clazz) {
         return PackageUtil.getSubClasses(clazz, jdbcProperties.getBaseEntityPackages());
     }
 

@@ -8,7 +8,7 @@ import org.arthena.framework.common.utils.FileUtils;
 import org.arthena.framework.common.utils.PackageUtil;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.properties.DefaultJdbcProperties;
-import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
+import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.athena.framework.data.mybatis.utils.JdbcUtils;
 import org.athena.framework.data.mybatis.create.bean.ClassTableInfo;
 import org.athena.framework.data.mybatis.create.bean.DbTableColumn;
@@ -74,7 +74,7 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
         StringBuilder updateDdlSql = new StringBuilder();
 
 
-        List<Class<?>> subClasses = getSubClasses(IEntity.class);
+        List<Class<IEntity>> subClasses = getSubClasses(IEntity.class);
         for (Class<?> clazz : subClasses) {
             ClassTableInfo classTableInfo = JdbcUtils.buildClassTableInfo(clazz);
             String tableName = JdbcUtils.getTableName(classTableInfo, jdbcProperties.getIgnorePrefix(), jdbcProperties.getIgnoreSubfix());
@@ -275,7 +275,7 @@ public abstract class BaseDdlCreateService implements IDdlCreateService, Command
      */
     protected abstract Map<String, DbTableColumn> getDbTableColumns(String tableName, Statement statement);
 
-    protected List<Class<?>> getSubClasses(Class<?> clazz) {
+    protected <T> List<Class<T>> getSubClasses(Class<T> clazz) {
         return PackageUtil.getSubClasses(clazz, jdbcProperties.getBaseEntityPackages());
     }
 

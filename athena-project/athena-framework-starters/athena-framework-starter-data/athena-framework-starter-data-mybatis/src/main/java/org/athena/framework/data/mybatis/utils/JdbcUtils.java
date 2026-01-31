@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.exception.TodoException;
 import org.athena.framework.data.jdbc.type.DbType;
-import org.athena.framework.data.jdbc.utils.CamelCaseUtils;
+import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.athena.framework.data.mybatis.create.bean.ClassTableInfo;
 
 import javax.annotation.Nullable;

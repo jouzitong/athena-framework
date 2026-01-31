@@ -39,7 +39,7 @@ public class DefaultEntityMetadataRegistry implements IEntityMetadataRegistry, C
                 tableBuilder.addParser(parser);
             }
         }
-        List<Class<?>> subClasses = getSubClasses(IEntity.class);
+        List<Class<IEntity>> subClasses = getSubClasses(IEntity.class);
         for (Class<?> clazz : subClasses) {
             register(clazz);
         }
@@ -58,7 +58,7 @@ public class DefaultEntityMetadataRegistry implements IEntityMetadataRegistry, C
         return ENTITY_TABLE_MAP.get(entityClass);
     }
 
-    protected List<Class<?>> getSubClasses(Class<?> clazz) {
+    protected <T> List<Class<T>> getSubClasses(Class<T> clazz) {
         return PackageUtil.getSubClasses(clazz, jdbcProperties.getBaseEntityPackages());
     }
 }
