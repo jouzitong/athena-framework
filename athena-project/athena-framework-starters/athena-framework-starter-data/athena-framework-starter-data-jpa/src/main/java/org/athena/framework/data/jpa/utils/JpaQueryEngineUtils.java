@@ -8,6 +8,7 @@ import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
 import org.athena.framework.data.jdbc.type.QueryType;
+import org.athena.framework.data.jpa.annotation.IgnoredQuery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Field;
@@ -57,6 +58,10 @@ public class JpaQueryEngineUtils {
                 if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
                     continue;
                 }
+                if (field.getAnnotation(IgnoredQuery.class) != null) {
+                    continue;
+                }
+
                 field.setAccessible(true);
                 try {
                     Object value = field.get(query);
