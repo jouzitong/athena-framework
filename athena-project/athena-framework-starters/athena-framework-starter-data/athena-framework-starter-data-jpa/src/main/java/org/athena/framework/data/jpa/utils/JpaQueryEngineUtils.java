@@ -24,16 +24,21 @@ public class JpaQueryEngineUtils {
         return (root, query, cb) -> {
             List<Predicate> ps = new ArrayList<>();
             for (FiledQuery f : req.getFiledQueries()) {
+                String filedName = f.getFiledName();
+                Object value = f.getValue();
+                if (req.needConvert(filedName)) {
+                    value = req.convert(filedName, value);
+                }
                 Path<?> path = root.get(f.getFiledName());
                 switch (f.getType()) {
-                    case EQ -> ps.add(cb.equal(path, f.getValue()));
-                    case NE -> ps.add(cb.notEqual(path, f.getValue()));
-                    case GT -> ps.add(cb.greaterThan(path.as(Comparable.class), (Comparable) f.getValue()));
-                    case GE -> ps.add(cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable) f.getValue()));
-                    case LT -> ps.add(cb.lessThan(path.as(Comparable.class), (Comparable) f.getValue()));
-                    case LE -> ps.add(cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable) f.getValue()));
-                    case LIKE -> ps.add(cb.like(path.as(String.class), "%" + f.getValue() + "%"));
-                    case IN -> ps.add(path.in((Collection<?>) f.getValue()));
+                    case EQ -> ps.add(cb.equal(path, value));
+                    case NE -> ps.add(cb.notEqual(path, value));
+                    case GT -> ps.add(cb.greaterThan(path.as(Comparable.class), (Comparable) value));
+                    case GE -> ps.add(cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable) value));
+                    case LT -> ps.add(cb.lessThan(path.as(Comparable.class), (Comparable) value));
+                    case LE -> ps.add(cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable) value));
+                    case LIKE -> ps.add(cb.like(path.as(String.class), "%" + value + "%"));
+                    case IN -> ps.add(path.in((Collection<?>) value));
                     case IS_NULL -> ps.add(cb.isNull(path));
                     case IS_NOT_NULL -> ps.add(cb.isNotNull(path));
                     default -> throw new TodoException();

@@ -9,7 +9,6 @@ import org.athena.framework.data.jdbc.type.QueryType;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -105,6 +104,14 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
 
     public Integer page() {
         return page;
+    }
+
+    public boolean needConvert(String field) {
+        return false;
+    }
+
+    public Object convert(String field, Object val) {
+        return val;
     }
 
 }
