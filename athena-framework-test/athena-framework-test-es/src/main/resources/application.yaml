@@ -1,4 +1,8 @@
-spring:
-  elasticsearch:
-    uris: http://192.168.31.169:9200
-#    password: <PASSWORD>
+athena:
+  websocket:
+    endpoint: /ws/v1
+    maxConnections: 50000
+    maxMessageBytes: 1048576
+    idleTimeoutMs: 60000
+    heartbeatIntervalMs: 20000
+    resumeTtlMs: 300000
