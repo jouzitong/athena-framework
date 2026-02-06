@@ -22,6 +22,7 @@ public class OutboundQueue {
             queue.addLast(payload);
             return true;
         }
+        // 队列满时按策略处理
         if (strategy == BackpressureStrategy.DROP_OLD) {
             queue.pollFirst();
             queue.addLast(payload);

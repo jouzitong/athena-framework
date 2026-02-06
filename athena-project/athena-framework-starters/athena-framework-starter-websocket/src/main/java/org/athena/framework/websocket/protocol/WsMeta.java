@@ -1,11 +1,29 @@
 package org.athena.framework.websocket.protocol;
 
+/**
+ * 通用元信息
+ */
 public class WsMeta {
 
+    /**
+     * 追踪 ID
+     */
     private String traceId;
+    /**
+     * 客户端稳定标识
+     */
     private String clientId;
+    /**
+     * 会话恢复 ID
+     */
     private String resumeId;
+    /**
+     * 压缩方式
+     */
     private String compress;
+    /**
+     * 优先级
+     */
     private Integer priority;
 
     public String getTraceId() {

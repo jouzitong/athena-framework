@@ -4,15 +4,42 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 连接会话对象
+ */
 public class WsSession {
 
+    /**
+     * 连接 ID
+     */
     private final String connId;
+    /**
+     * 用户 ID
+     */
     private final String userId;
+    /**
+     * 鉴权声明
+     */
     private final Map<String, Object> claims;
+    /**
+     * 客户端稳定标识
+     */
     private String clientId;
+    /**
+     * 会话恢复 ID
+     */
     private String resumeId;
+    /**
+     * 连接创建时间
+     */
     private final long createdAt;
+    /**
+     * 最近活跃时间
+     */
     private final AtomicLong lastSeenAt = new AtomicLong();
+    /**
+     * 出站队列积压大小
+     */
     private volatile int outboundQueueSize;
 
     public WsSession(String connId, String userId, Map<String, Object> claims,

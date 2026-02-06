@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 内存会话管理器（单机使用）
+ */
 public class InMemorySessionManager implements SessionManager {
 
     private final Map<String, WsSession> sessions = new ConcurrentHashMap<>();

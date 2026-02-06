@@ -31,6 +31,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
+        // 解析鉴权 Token，失败直接拒绝握手
         String token = extractToken(request.getHeaders(), request.getURI().toString());
         TokenInfo tokenInfo = tokenService.parse(token);
         if (tokenInfo == null) {
@@ -38,6 +39,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         }
+        // 将鉴权结果写入连接属性，供后续创建会话使用
         attributes.put(ATTR_USER_ID, tokenInfo.getUserId());
         attributes.put(ATTR_CLAIMS, tokenInfo.getClaims());
         MultiValueMap<String, String> params = UriComponentsBuilder.fromUri(request.getURI()).build().getQueryParams();
@@ -58,6 +60,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
     }
 
     private String extractToken(HttpHeaders headers, String uri) {
+        // 优先 Header Bearer 方式，其次从 Query 参数读取
         String auth = headers.getFirst(HttpHeaders.AUTHORIZATION);
         if (auth != null && auth.startsWith("Bearer ")) {
             return auth.substring("Bearer ".length());

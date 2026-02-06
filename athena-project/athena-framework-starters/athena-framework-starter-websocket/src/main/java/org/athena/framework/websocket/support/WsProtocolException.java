@@ -1,5 +1,8 @@
 package org.athena.framework.websocket.support;
 
+/**
+ * 协议校验异常，携带错误码
+ */
 public class WsProtocolException extends RuntimeException {
 
     private final WsErrorCode code;

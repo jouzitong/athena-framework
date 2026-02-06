@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+/**
+ * WebSocket 端点注册器
+ */
 public class WsWebSocketConfigurer implements WebSocketConfigurer {
 
     private final WebSocketProperties properties;
@@ -23,6 +26,7 @@ public class WsWebSocketConfigurer implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        // 注册 WebSocket 端点与拦截器
         registry.addHandler(gatewayHandler, properties.getEndpoint())
             .addInterceptors(handshakeInterceptor)
             .setAllowedOrigins("*");

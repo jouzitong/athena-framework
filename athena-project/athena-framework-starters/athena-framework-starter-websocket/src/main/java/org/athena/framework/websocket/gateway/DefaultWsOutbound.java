@@ -9,6 +9,9 @@ import org.athena.framework.websocket.session.WsSession;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+/**
+ * 默认出站发送器
+ */
 public class DefaultWsOutbound implements WsOutbound {
 
     private final ObjectMapper objectMapper;
@@ -37,9 +40,9 @@ public class DefaultWsOutbound implements WsOutbound {
             wsSession.sendMessage(new TextMessage(payload));
             metrics.onOutboundMessage(message.getType());
         } catch (JsonProcessingException e) {
-            // swallow serialization errors for now
+            // 序列化失败，当前实现不抛出，避免影响主流程
         } catch (IOException e) {
-            // swallow transport errors for now
+            // 发送失败，当前实现不抛出，避免影响主流程
         }
     }
 }

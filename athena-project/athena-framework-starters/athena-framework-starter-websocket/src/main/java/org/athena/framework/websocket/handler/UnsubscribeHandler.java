@@ -8,6 +8,9 @@ import org.athena.framework.websocket.protocol.WsMessageFactory;
 import org.athena.framework.websocket.session.WsSession;
 import org.athena.framework.websocket.subscription.SubscriptionManager;
 
+/**
+ * 取消订阅处理器
+ */
 public class UnsubscribeHandler implements WsHandler {
 
     private final SubscriptionManager subscriptionManager;
@@ -29,7 +32,9 @@ public class UnsubscribeHandler implements WsHandler {
 
     @Override
     public void handle(WsSession session, WsMessage message) {
+        // 解除订阅关系
         subscriptionManager.unsubscribe(session.getConnId(), message.getTopic());
+        // 取消订阅回包
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "OK");
         payload.put("subscribed", false);

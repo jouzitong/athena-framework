@@ -11,6 +11,7 @@ public class OutboundQueueFactory {
     }
 
     public OutboundQueue create() {
+        // 每个连接创建独立的出站队列
         return new OutboundQueue(strategy, maxSize);
     }
 }

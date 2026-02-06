@@ -3,6 +3,9 @@ package org.athena.framework.websocket.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 标准消息构造器
+ */
 public class WsMessageFactory {
 
     public WsMessage pong(WsMessage ping) {
@@ -41,6 +44,7 @@ public class WsMessageFactory {
     }
 
     private String defaultVersion(WsMessage request) {
+        // 请求为空时采用默认版本，避免 NPE
         if (request == null || request.getVersion() == null) {
             return "1.0";
         }

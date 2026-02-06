@@ -14,6 +14,7 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
         if (connId == null || topic == null) {
             return;
         }
+        // 双向索引，便于按 topic 或连接快速清理
         topicToConns.computeIfAbsent(topic, key -> ConcurrentHashMap.newKeySet()).add(connId);
         connToTopics.computeIfAbsent(connId, key -> ConcurrentHashMap.newKeySet()).add(topic);
     }
@@ -42,6 +43,7 @@ public class InMemorySubscriptionManager implements SubscriptionManager {
         if (topics == null) {
             return;
         }
+        // 连接断开时，清理所有 topic 的反向引用
         for (String topic : topics) {
             Set<String> conns = topicToConns.get(topic);
             if (conns != null) {

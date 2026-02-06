@@ -1,10 +1,6 @@
 package org.athena.framework.websocket.gateway;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import org.athena.framework.websocket.metrics.WsMetrics;
 import org.athena.framework.websocket.protocol.MessageValidator;
 import org.athena.framework.websocket.protocol.WsMessage;
@@ -21,6 +17,11 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class WsGatewayHandler extends TextWebSocketHandler {
 
@@ -59,6 +60,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
+        // 建立连接：生成 connId，创建业务会话，并保存到管理器
         String connId = UUID.randomUUID().toString();
         String userId = (String) session.getAttributes().get(WsHandshakeInterceptor.ATTR_USER_ID);
         @SuppressWarnings("unchecked")
@@ -75,6 +77,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
         connectionRegistry.add(connId, session);
         session.getAttributes().put("ws.connId", connId);
         metrics.onConnectionOpen();
+        // 连接成功后返回 HELLO（携带 resumeId / clientId）
         sendHello(wsSession);
     }
 
@@ -87,17 +90,23 @@ public class WsGatewayHandler extends TextWebSocketHandler {
         wsSession.touch(System.currentTimeMillis());
         WsMessage parsed = null;
         try {
+            // 1) JSON 反序列化
             parsed = objectMapper.readValue(message.getPayload(), WsMessage.class);
+            // 2) 读取 meta 中的 clientId / resumeId（可由客户端主动更新）
             applyMeta(wsSession, parsed.getMeta());
+            // 3) 协议校验
             validator.validate(parsed);
             metrics.onInboundMessage(parsed.getType());
+            // 4) 路由分发
             router.route(wsSession, parsed);
         } catch (WsProtocolException ex) {
+            // 协议类错误统一回 ERROR
             WsMessage error = messageFactory.errorResponse(parsed,
                 ex.getCode() == null ? "INTERNAL_ERROR" : ex.getCode().name(),
                 ex.getMessage(), false);
             outbound.send(wsSession, error);
         } catch (IOException ex) {
+            // JSON 解析失败
             WsMessage error = messageFactory.errorResponse(new WsMessage(),
                 "BAD_SCHEMA", "invalid json", false);
             outbound.send(wsSession, error);
@@ -108,6 +117,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         WsSession wsSession = findSession(session);
         if (wsSession != null) {
+            // 断线时保存快照，用于 5 分钟内恢复订阅
             saveSnapshot(wsSession);
             sessionManager.removeSession(wsSession.getConnId());
             subscriptionManager.removeConnection(wsSession.getConnId());
@@ -119,6 +129,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
         try {
+            // 发生底层 IO 错误时主动关闭连接
             session.close(CloseStatus.SERVER_ERROR);
         } catch (IOException ignored) {
         }
@@ -136,6 +147,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
         if (meta == null) {
             return;
         }
+        // 客户端可在运行中更新 clientId / resumeId
         if (meta.getClientId() != null && !meta.getClientId().trim().isEmpty()) {
             session.setClientId(meta.getClientId());
         }
@@ -160,6 +172,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
     }
 
     private void saveSnapshot(WsSession session) {
+        // 保存当前订阅集合与用户信息，用于异常断线恢复
         SessionSnapshot snapshot = new SessionSnapshot(
             session.getResumeId(),
             session.getUserId(),

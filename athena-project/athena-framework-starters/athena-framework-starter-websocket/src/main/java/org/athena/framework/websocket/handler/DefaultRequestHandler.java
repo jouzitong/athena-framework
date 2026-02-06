@@ -13,6 +13,9 @@ import org.athena.framework.websocket.support.ResumeStore;
 import org.athena.framework.websocket.support.SessionSnapshot;
 import org.athena.framework.websocket.support.WsErrorCode;
 
+/**
+ * 默认 REQUEST 处理器，内置 RESUME 动作
+ */
 public class DefaultRequestHandler implements WsHandler {
 
     private final List<WsActionHandler> actionHandlers;
@@ -44,16 +47,19 @@ public class DefaultRequestHandler implements WsHandler {
     @Override
     public void handle(WsSession session, WsMessage message) {
         String action = extractAction(message.getPayload());
+        // 内置动作：RESUME
         if ("RESUME".equals(action)) {
             handleResume(session, message);
             return;
         }
+        // 自定义动作通过 WsActionHandler 扩展
         for (WsActionHandler handler : actionHandlers) {
             if (handler.supports(action)) {
                 handler.handle(session, message);
                 return;
             }
         }
+        // 未匹配到动作，返回错误响应
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "ERROR");
         payload.put("code", "UNKNOWN_ACTION");
@@ -76,6 +82,7 @@ public class DefaultRequestHandler implements WsHandler {
             outbound.send(session, error);
             return;
         }
+        // 强绑定 userId，避免 resumeId 被他人使用
         if (!snapshot.getUserId().equals(session.getUserId())) {
             WsMessage error = messageFactory.errorResponse(message, WsErrorCode.RESUME_FORBIDDEN.name(),
                 "resumeId does not match user", false);
@@ -89,6 +96,7 @@ public class DefaultRequestHandler implements WsHandler {
             outbound.send(session, error);
             return;
         }
+        // 恢复订阅集合
         Set<String> topics = snapshot.getTopics();
         for (String topic : topics) {
             subscriptionManager.subscribe(session.getConnId(), topic);

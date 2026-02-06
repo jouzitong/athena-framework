@@ -11,6 +11,9 @@ import org.athena.framework.websocket.session.WsSession;
 import org.athena.framework.websocket.support.WsErrorCode;
 import org.athena.framework.websocket.support.WsProtocolException;
 
+/**
+ * 默认路由实现：鉴权 + 类型分发
+ */
 public class DefaultWsRouter implements WsRouter {
 
     private final List<WsHandler> handlers;
@@ -30,17 +33,20 @@ public class DefaultWsRouter implements WsRouter {
         }
         TokenInfo tokenInfo = new TokenInfo(session.getUserId(), session.getClaims());
         String type = message.getType();
+        // 订阅类请求先进行 ACL 校验
         if ("SUBSCRIBE".equals(type) || "UNSUBSCRIBE".equals(type)) {
             if (!aclService.canSubscribe(tokenInfo, message.getTopic())) {
                 throw new WsProtocolException(WsErrorCode.NO_PERMISSION, "no permission to subscribe");
             }
         }
+        // 请求类动作做 ACL 校验
         if ("REQUEST".equals(type)) {
             String action = extractAction(message.getPayload());
             if (!aclService.canRequest(tokenInfo, action)) {
                 throw new WsProtocolException(WsErrorCode.NO_PERMISSION, "no permission to request");
             }
         }
+        // 根据消息类型找到处理器
         WsHandler handler = findHandler(type);
         if (handler == null) {
             throw new WsProtocolException(WsErrorCode.BAD_SCHEMA, "unsupported type: " + type);
@@ -48,6 +54,7 @@ public class DefaultWsRouter implements WsRouter {
         try {
             handler.handle(session, message);
         } catch (RuntimeException ex) {
+            // 统一统计路由层异常
             metrics.onRouterError(type);
             throw ex;
         }

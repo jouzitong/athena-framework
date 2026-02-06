@@ -7,6 +7,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import org.athena.framework.websocket.protocol.WsMessage;
 
+/**
+ * 本地内存消息总线
+ */
 public class LocalMessageBus implements MessageBus {
 
     private final Map<String, List<Consumer<WsMessage>>> subscribers = new ConcurrentHashMap<>();
@@ -17,6 +20,7 @@ public class LocalMessageBus implements MessageBus {
         if (consumers == null) {
             return;
         }
+        // 本地发布：直接回调本地消费者
         for (Consumer<WsMessage> consumer : consumers) {
             consumer.accept(message);
         }

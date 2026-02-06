@@ -5,6 +5,9 @@ import org.athena.framework.websocket.protocol.WsMessage;
 import org.athena.framework.websocket.protocol.WsMessageFactory;
 import org.athena.framework.websocket.session.WsSession;
 
+/**
+ * 心跳处理器
+ */
 public class PingHandler implements WsHandler {
 
     private final WsMessageFactory messageFactory;
@@ -22,6 +25,7 @@ public class PingHandler implements WsHandler {
 
     @Override
     public void handle(WsSession session, WsMessage message) {
+        // 心跳响应
         WsMessage pong = messageFactory.pong(message);
         outbound.send(session, pong);
     }

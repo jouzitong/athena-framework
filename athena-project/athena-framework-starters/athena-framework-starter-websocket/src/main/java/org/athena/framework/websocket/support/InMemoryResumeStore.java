@@ -30,6 +30,7 @@ public class InMemoryResumeStore implements ResumeStore {
             return null;
         }
         long now = System.currentTimeMillis();
+        // 过期直接淘汰
         if (now - snapshot.getLastSeenAt() > ttlMs) {
             store.remove(resumeId);
             return null;

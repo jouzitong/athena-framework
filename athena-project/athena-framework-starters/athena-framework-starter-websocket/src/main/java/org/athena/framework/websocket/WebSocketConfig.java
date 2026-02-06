@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- *
+ * Starter 入口配置，导入自动装配
  * @author zhouzhitong
  * @since 2026/2/6
  */

@@ -47,12 +47,18 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @EnableConfigurationProperties(WebSocketProperties.class)
 public class WebSocketAutoConfiguration {
 
+    /**
+     * 指标埋点接口，默认空实现，业务可覆盖
+     */
     @Bean
     @ConditionalOnMissingBean
     public WsMetrics wsMetrics() {
         return new NoopWsMetrics();
     }
 
+    /**
+     * 消息总线默认本地实现，业务可替换为 Redis/Kafka
+     */
     @Bean
     @ConditionalOnMissingBean
     public MessageBus messageBus() {
@@ -65,6 +71,9 @@ public class WebSocketAutoConfiguration {
         return new InMemorySubscriptionManager();
     }
 
+    /**
+     * 会话管理默认内存实现
+     */
     @Bean
     @ConditionalOnMissingBean
     public SessionManager sessionManager() {
@@ -115,6 +124,9 @@ public class WebSocketAutoConfiguration {
         return new WsMessageFactory();
     }
 
+    /**
+     * 出站队列工厂，用于背压策略
+     */
     @Bean
     @ConditionalOnMissingBean
     public OutboundQueueFactory outboundQueueFactory(WebSocketProperties properties) {

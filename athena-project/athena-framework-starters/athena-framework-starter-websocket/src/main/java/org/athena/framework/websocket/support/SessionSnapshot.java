@@ -4,12 +4,30 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 会话快照（用于断线恢复）
+ */
 public class SessionSnapshot {
 
+    /**
+     * 会话恢复 ID
+     */
     private final String resumeId;
+    /**
+     * 用户 ID
+     */
     private final String userId;
+    /**
+     * 订阅集合
+     */
     private final Set<String> topics;
+    /**
+     * 最后活跃时间
+     */
     private final long lastSeenAt;
+    /**
+     * 客户端标识
+     */
     private final String clientId;
 
     public SessionSnapshot(String resumeId, String userId, Set<String> topics, long lastSeenAt, String clientId) {

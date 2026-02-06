@@ -3,12 +3,16 @@ package org.athena.framework.websocket.protocol;
 import org.athena.framework.websocket.support.WsErrorCode;
 import org.athena.framework.websocket.support.WsProtocolException;
 
+/**
+ * 协议消息校验器
+ */
 public class MessageValidator {
 
     public void validate(WsMessage message) {
         if (message == null) {
             throw new WsProtocolException(WsErrorCode.BAD_SCHEMA, "message is null");
         }
+        // 基础字段校验
         if (isBlank(message.getVersion())) {
             throw new WsProtocolException(WsErrorCode.BAD_SCHEMA, "version is required");
         }
@@ -19,6 +23,7 @@ public class MessageValidator {
             throw new WsProtocolException(WsErrorCode.BAD_SCHEMA, "timestamp is required");
         }
         String type = message.getType();
+        // 按类型校验 requestId 与 topic
         if (requiresRequestId(type) && isBlank(message.getRequestId())) {
             throw new WsProtocolException(WsErrorCode.BAD_SCHEMA, "requestId is required");
         }
@@ -28,20 +33,20 @@ public class MessageValidator {
     }
 
     private boolean requiresRequestId(String type) {
-        return "SUBSCRIBE".equals(type)
-            || "UNSUBSCRIBE".equals(type)
-            || "REQUEST".equals(type)
-            || "RESPONSE".equals(type)
-            || "ERROR".equals(type);
+        return WsMessageType.SUBSCRIBE.equals(type)
+            || WsMessageType.UNSUBSCRIBE.equals(type)
+            || WsMessageType.REQUEST.equals(type)
+            || WsMessageType.RESPONSE.equals(type)
+            || WsMessageType.ERROR.equals(type);
     }
 
     private boolean requiresTopic(String type) {
-        return "SUBSCRIBE".equals(type)
-            || "UNSUBSCRIBE".equals(type)
-            || "REQUEST".equals(type)
-            || "RESPONSE".equals(type)
-            || "EVENT".equals(type)
-            || "ERROR".equals(type);
+        return WsMessageType.SUBSCRIBE.equals(type)
+            || WsMessageType.UNSUBSCRIBE.equals(type)
+            || WsMessageType.REQUEST.equals(type)
+            || WsMessageType.RESPONSE.equals(type)
+            || WsMessageType.EVENT.equals(type)
+            || WsMessageType.ERROR.equals(type);
     }
 
     private boolean isBlank(String value) {

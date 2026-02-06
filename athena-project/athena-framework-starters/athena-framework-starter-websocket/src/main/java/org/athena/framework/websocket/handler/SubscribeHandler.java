@@ -8,6 +8,9 @@ import org.athena.framework.websocket.protocol.WsMessageFactory;
 import org.athena.framework.websocket.session.WsSession;
 import org.athena.framework.websocket.subscription.SubscriptionManager;
 
+/**
+ * 订阅处理器
+ */
 public class SubscribeHandler implements WsHandler {
 
     private final SubscriptionManager subscriptionManager;
@@ -29,7 +32,9 @@ public class SubscribeHandler implements WsHandler {
 
     @Override
     public void handle(WsSession session, WsMessage message) {
+        // 保存订阅关系
         subscriptionManager.subscribe(session.getConnId(), message.getTopic());
+        // 订阅成功回包
         Map<String, Object> payload = new HashMap<>();
         payload.put("status", "OK");
         payload.put("subscribed", true);
