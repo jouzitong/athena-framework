@@ -5,7 +5,9 @@ import java.util.List;
 import org.athena.framework.websocket.backpressure.BackpressureStrategy;
 import org.athena.framework.websocket.backpressure.OutboundQueueFactory;
 import org.athena.framework.websocket.bus.LocalMessageBus;
+import org.athena.framework.websocket.bus.LocalTopicDispatcher;
 import org.athena.framework.websocket.bus.MessageBus;
+import org.athena.framework.websocket.bus.TopicDispatcher;
 import org.athena.framework.websocket.gateway.ConnectionRegistry;
 import org.athena.framework.websocket.gateway.DefaultWsOutbound;
 import org.athena.framework.websocket.gateway.InMemoryConnectionRegistry;
@@ -63,6 +65,18 @@ public class WebSocketAutoConfiguration {
     @ConditionalOnMissingBean
     public MessageBus messageBus() {
         return new LocalMessageBus();
+    }
+
+    /**
+     * 主题分发器，负责把消息总线的消息推送到本地连接
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TopicDispatcher topicDispatcher(MessageBus messageBus,
+                                           SubscriptionManager subscriptionManager,
+                                           SessionManager sessionManager,
+                                           WsOutbound outbound) {
+        return new LocalTopicDispatcher(messageBus, subscriptionManager, sessionManager, outbound);
     }
 
     @Bean
@@ -144,8 +158,9 @@ public class WebSocketAutoConfiguration {
     @ConditionalOnMissingBean
     public SubscribeHandler subscribeHandler(SubscriptionManager subscriptionManager,
                                              WsMessageFactory messageFactory,
-                                             WsOutbound outbound) {
-        return new SubscribeHandler(subscriptionManager, messageFactory, outbound);
+                                             WsOutbound outbound,
+                                             TopicDispatcher topicDispatcher) {
+        return new SubscribeHandler(subscriptionManager, messageFactory, outbound, topicDispatcher);
     }
 
     @Bean
