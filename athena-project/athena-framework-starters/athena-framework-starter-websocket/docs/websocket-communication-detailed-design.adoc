@@ -1,0 +1,399 @@
+= WebSocket 通信详细设计文档（基于 Maven 项目结构）
+:doctype: book
+:toc: left
+:toclevels: 4
+:sectnums:
+:sectnumlevels: 5
+:icons: font
+:source-highlighter: rouge
+:rouge-style: github
+:chapter-label:
+:revdate: 2026-02-06
+:revremark: 基于 websocket-communication-architecture.adoc 的工程化落地设计
+
+== 1. 文档目的
+本文在《WebSocket 通信通用架构设计报告》的基础上，结合当前 Maven 项目结构与 Spring Boot Starter 形态，给出可落地的详细设计。目标是让读者在不阅读源码的情况下，理解整体模块划分、核心对象、协议流转、扩展点与实现策略。
+
+== 2. 项目结构与定位
+
+=== 2.1 当前 Maven 模块
+`athena-framework-starter-websocket` 为 Spring Boot Starter 形态的基础设施模块，用于在业务应用中快速启用 WebSocket 通信通用架构。
+
+当前结构：
+
+[source]
+----
+athena-framework-starter-websocket
+├── pom.xml
+├── src/main/java/org/athena/framework/websocket/WebSocketConfig.java
+└── src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+----
+
+=== 2.2 现有自动装配入口
+`src/main/java/org/athena/framework/websocket/WebSocketConfig.java` 作为 AutoConfiguration 入口，
+通过 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 自动加载。
+
+== 3. 设计原则（落地约束）
+
+* 分层清晰：Gateway / Router / Handler / Subscription / Session / Bus 六层结构保持分离。
+* 单机优先：默认本地内存实现，无外部依赖。
+* 可演进：消息总线、ACL、鉴权、背压策略均接口化可替换。
+* 低耦合：Starter 只负责注入基础组件，不强绑定业务实现。
+
+== 4. 详细模块划分（建议新增包结构）
+
+建议在 `org.athena.framework.websocket` 下扩展如下包：
+
+[source]
+----
+org.athena.framework.websocket
+├── config               // 自动装配与配置属性
+├── gateway              // WebSocket 接入层
+├── router               // 消息路由与权限
+├── handler              // 业务处理器接口与默认实现
+├── session              // Session 管理
+├── subscription         // 订阅关系管理
+├── bus                  // Message Bus 抽象与实现
+├── protocol             // 协议对象、序列化、校验
+├── backpressure         // 背压与慢连接治理
+├── metrics              // 指标埋点
+└── support              // 工具类、错误码、异常
+----
+
+== 5. 配置层设计
+
+=== 5.1 配置类
+`WebSocketConfig` 负责基础组件的 Bean 注册与 ComponentScan。建议拆分为：
+
+* `WebSocketAutoConfiguration`
+* `WebSocketProperties`
+
+=== 5.2 配置属性设计（application.yml）
+
+[source,yaml]
+----
+athena:
+  websocket:
+    endpoint: /ws/v1
+    maxConnections: 50000
+    maxMessageBytes: 1048576
+    maxFrameBytes: 1048576
+    inboundMsgRateLimitPerConn: 50
+    handshakeRateLimit: 100
+    idleTimeoutMs: 60000
+    heartbeatIntervalMs: 20000
+    maxOutboundQueuePerConn: 1000
+    slowConnDisconnectThreshold: 5000
+    topicThrottleDefaultMs: 200
+    backpressureStrategy: DROP_OLD
+----
+
+`WebSocketProperties` 绑定这些参数，并供 Gateway/Backpressure 使用。
+
+== 6. 协议层设计
+
+=== 6.1 协议对象
+建议新增：
+
+* `WsMessage`
+* `WsMeta`
+
+[source,java]
+----
+public class WsMessage {
+  private String version;
+  private String type;
+  private String requestId;
+  private String topic;
+  private Object payload;
+  private long timestamp;
+  private WsMeta meta;
+}
+----
+
+`WsMeta` 建议字段：
+
+* `traceId`：链路追踪
+* `clientId`：客户端稳定标识（可选，客户端生成或服务端下发）
+* `resumeId`：会话恢复 ID（可选，客户端生成或服务端下发）
+* `compress`：压缩策略
+* `priority`：优先级
+
+=== 6.2 校验
+`protocol/MessageValidator`：
+
+* 校验必填字段 `version/type/timestamp`
+* 订阅/请求检查 `topic`、`requestId`
+* 失败抛出 `WsProtocolException`
+
+=== 6.3 Meta 承载规则（固定）
+统一约定：`clientId` 与 `resumeId` 只允许出现在 `meta` 内，避免污染业务 `payload`。
+
+* 首条客户端消息可携带 `meta.clientId` / `meta.resumeId`
+* 服务端在 `HELLO` 中回写 `meta.clientId` / `meta.resumeId`
+
+== 7. Gateway 设计
+
+=== 7.1 WebSocket 端点
+基于 `spring-boot-starter-websocket`：
+
+* 注册 `WebSocketHandler`（如 `WsGatewayHandler`）
+* 通过 `WebSocketConfigurer` 或 `WebSocketHandlerRegistry` 绑定到 `/ws/v1`
+
+=== 7.2 流程
+1. 握手鉴权：解析 Token，生成 `WsSession`
+2. 收消息：JSON -> `WsMessage`
+3. 协议校验：缺失字段直接 ERROR 或 Close
+4. 发送到 Router
+
+=== 7.3 会话对象
+`session/WsSession` 最小字段：
+
+* connId
+* userId
+* claims
+* createdAt
+* lastSeenAt
+* outboundQueueSize
+
+== 8. Router 设计
+
+=== 8.1 路由职责
+
+* type -> Handler 映射
+* topic 权限校验
+* 异常捕获与 ERROR 统一返回
+
+=== 8.2 Router 核心接口
+
+[source,java]
+----
+public interface WsRouter {
+  void route(WsSession session, WsMessage msg);
+}
+----
+
+默认实现 `DefaultWsRouter`：
+
+* 维护 `Map<String, WsHandler>`
+* 根据 `msg.type` 分发
+* 调用 `AclService` 判断权限
+
+== 9. Handler 设计
+
+=== 9.1 Handler 分类
+* `PingHandler`
+* `SubscribeHandler`
+* `UnsubscribeHandler`
+* `RequestHandler`
+
+=== 9.2 订阅处理流程
+`SubscribeHandler`：
+
+1. 校验 topic 是否存在
+2. 调用 `SubscriptionMgr.subscribe(connId, topic)`
+3. 返回 RESPONSE
+
+=== 9.3 Request 处理流程
+`RequestHandler` 支持 action 分发：
+
+* `LIST_SUBSCRIPTIONS`
+* `SERVER_CAPABILITIES`
+
+业务方可通过扩展接口注入自己的 action handler。
+
+== 10. Subscription 管理
+
+=== 10.1 数据结构
+
+* `topic -> Set<connId>`
+* `connId -> Set<topic>`
+
+=== 10.2 接口
+
+[source,java]
+----
+public interface SubscriptionManager {
+  void subscribe(String connId, String topic);
+  void unsubscribe(String connId, String topic);
+  void removeConnection(String connId);
+  Set<String> getTopicsByConn(String connId);
+  Set<String> getConnsByTopic(String topic);
+}
+----
+
+=== 10.3 单机实现
+`InMemorySubscriptionManager` 使用 `ConcurrentHashMap` + `ConcurrentHashSet`。
+
+== 11. Message Bus 设计
+
+=== 11.1 接口
+
+[source,java]
+----
+public interface MessageBus {
+  void publish(String topic, WsMessage msg);
+  void subscribe(String topic, Consumer<WsMessage> consumer);
+}
+----
+
+=== 11.2 本地实现
+`LocalMessageBus`：发布时直接调用本地消费者。
+
+=== 11.3 集群扩展
+替换为 `RedisMessageBus` 或 `KafkaMessageBus`，但接口保持一致。
+
+== 12. 背压设计
+
+=== 12.1 策略枚举
+`BackpressureStrategy`：
+
+* DROP_OLD
+* DROP_NEW
+* DISCONNECT_SLOW
+* THROTTLE
+
+=== 12.2 实现位置
+背压逻辑挂在 `WsSession` 出站队列。
+
+* 每个连接维护 `OutboundQueue`
+* 当队列超限时应用策略
+
+== 13. 安全设计
+
+=== 13.1 鉴权
+* Token 解析服务 `TokenService`
+* 注入 userId / claims
+
+=== 13.2 授权
+`AclService`：
+
+* canSubscribe(user, topic)
+* canPublish(user, topic)
+* canRequest(user, action)
+
+=== 13.3 异常断开恢复（Resume）
+目标：在异常断开后 5 分钟内恢复“订阅状态”，并可选补发未送达消息。
+
+关键点：
+
+* 引入 `resumeId`（会话恢复 ID），强绑定 `userId/claims`
+* 兼容“客户端提供 resumeId”与“服务端生成 resumeId”
+* 恢复窗口：`resumeTtlMs = 300000`
+
+==== 13.3.1 识别与下发
+服务端在 `HELLO` 中返回 `resumeId` 和 `clientId`（可选，由客户端提供或服务端生成）。\n
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "HELLO",
+  "payload": {
+    "resumeId": "r-9f0c...",
+    "clientId": "c-abcdef", 
+    "resumeTtlMs": 300000
+  },
+  "timestamp": 1700000000000
+}
+----
+
+规则：
+
+* 客户端在握手或首条消息中携带 `clientId`/`resumeId`（放在 `meta` 或 `payload`）。
+* 如果客户端提供 `resumeId`，服务端优先使用，但必须校验格式与长度，并与 `userId` 绑定。
+* 如果客户端未提供 `resumeId`，服务端生成并下发。
+* 即便客户端不使用 `resumeId`，服务端仍通过 `connId + userId` 识别当前连接，并在日志/指标中关联 `clientId`。
+
+==== 13.3.2 恢复请求
+客户端异常断开后重连，发送 `REQUEST`：\n
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "REQUEST",
+  "requestId": "new-uuid",
+  "topic": "system",
+  "payload": {
+    "action": "RESUME",
+    "resumeId": "r-9f0c..."
+  },
+  "timestamp": 1700000000000
+}
+----
+
+==== 13.3.3 服务端恢复逻辑
+恢复步骤：
+
+1. 校验 Token 与 `resumeId` 绑定的 `userId/claims` 一致（强绑定）。
+2. 校验 `resumeId` 未过期（`now - lastSeenAt <= resumeTtlMs`）。
+3. 恢复订阅集合：`SubscriptionManager.subscribe(connId, topic)`。
+4. 可选补发未送达消息（需 ACK/缓存机制支持）。
+
+恢复失败则返回 `ERROR`（如 `RESUME_EXPIRED` / `RESUME_NOT_FOUND` / `RESUME_FORBIDDEN`）。
+
+==== 13.3.4 缓存结构（单机）
+建议缓存结构：
+
+* `resumeId -> SessionSnapshot`
+* `SessionSnapshot` 包含：`userId`、`claims`、`topics`、`lastSeenAt`、`clientId`
+* 过期清理：定时任务或访问时惰性清理
+
+== 14. 可观测性
+
+=== 14.1 指标
+在 Gateway/Router/Handler/Bus 层分别埋点。
+
+=== 14.2 日志
+统一结构化字段：
+
+* connId
+* userId
+* requestId
+* topic
+* type
+
+== 15. 端到端流程示例
+
+=== 15.1 订阅流程
+1. Client -> SUBSCRIBE
+2. Gateway 解码
+3. Router 校验 + 分发
+4. SubscribeHandler 添加订阅
+5. RESPONSE 返回
+6. EVENT 推送
+
+=== 15.2 请求响应
+1. Client -> REQUEST
+2. Router -> RequestHandler
+3. Response 返回
+
+== 16. 扩展点与二次开发建议
+
+* 自定义 `WsHandler` 注册
+* 替换 `AclService` 实现
+* 替换 `MessageBus` 实现
+* 新增 `WsMessage` 编解码（如 Protobuf）
+
+== 17. 与现有项目的集成路径
+
+1. `WebSocketConfig` 中注册默认 Bean（Gateway/Router/Subscription/Bus/Handler）
+2. 应用侧可通过 `@Bean` 覆盖接口实现
+3. Starter 仅提供基础能力，业务逻辑下沉到业务模块
+
+== 18. 交付物清单（建议）
+
+* `WebSocketAutoConfiguration` 自动装配入口
+* `WebSocketProperties` 配置绑定
+* `WsGatewayHandler`（WebSocket 接入层）
+* `DefaultWsRouter`
+* `WsHandler` 及标准实现
+* `SubscriptionManager` & `InMemorySubscriptionManager`
+* `MessageBus` & `LocalMessageBus`
+* `WsMessage` / `MessageValidator`
+* `Backpressure` 实现
+
+---
+
+该详细设计文档可作为代码实现与评审基线，并可在未来扩展为集群模式。

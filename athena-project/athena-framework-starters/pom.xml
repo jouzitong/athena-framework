@@ -20,6 +20,7 @@
         <module>athena-framework-starters-ai</module>
         <module>athena-framework-starter-es</module>
         <module>athena-framework-starter-data</module>
+        <module>athena-framework-starter-websocket</module>
     </modules>
 
     <dependencies>

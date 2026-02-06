@@ -1,0 +1,365 @@
+= WebSocket 通信机制案例参考文档（开发者使用指南）
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+:sectnumlevels: 4
+:icons: font
+:source-highlighter: rouge
+:rouge-style: github
+:chapter-label:
+:revdate: 2026-02-06
+:revremark: 面向业务开发者的落地参考
+
+== 1. 目标读者与场景
+本文面向业务应用开发者，基于通用 WebSocket 通信机制，提供从入口定位到扩展实现的完整参考。
+
+覆盖场景：
+
+* 基础推送：订阅行情、取消订阅
+* 请求响应：查询服务能力/订阅列表
+* 异常断开恢复：恢复订阅 + 可选补发（ACK）
+
+== 2. 程序入口与运行时链路
+
+=== 2.1 入口在哪里
+
+Starter 自动装配入口：
+
+* `src/main/java/org/athena/framework/websocket/WebSocketConfig.java`
+* `src/main/java/org/athena/framework/websocket/config/WebSocketAutoConfiguration.java`
+
+WebSocket 端点注册：
+
+* `src/main/java/org/athena/framework/websocket/config/WsWebSocketConfigurer.java`
+* 默认端点：`/ws/v1`
+
+=== 2.2 运行时链路（从连接到业务处理）
+
+* Client 连接到 `/ws/v1`
+* `WsHandshakeInterceptor` 完成鉴权与初始属性注入
+* `WsGatewayHandler` 创建 `WsSession` 并返回 `HELLO`
+* 收到消息后：`WsGatewayHandler` 解码 -> `MessageValidator` 校验 -> `WsRouter` 分发
+* `WsRouter` 查找 `WsHandler` -> 执行业务处理 -> `WsOutbound` 回包
+* 断线时：保存 `SessionSnapshot` -> 清理订阅 -> 记录指标
+
+== 3. 整体设计总览（快速理解）
+
+组件划分：
+
+* Gateway：接入与编解码、会话创建、错误回包
+* Router：类型分发、ACL 校验、统一异常处理
+* Handler：业务入口（订阅、请求、ping）
+* Subscription：订阅关系管理
+* Session：连接会话管理
+* Resume：断线恢复快照
+* Bus：消息总线（Local/Redis/Kafka）
+
+== 4. 快速接入（业务侧）
+
+=== 4.1 引入依赖
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.athena</groupId>
+  <artifactId>athena-framework-starter-websocket</artifactId>
+</dependency>
+----
+
+=== 4.2 配置（application.yml）
+
+[source,yaml]
+----
+athena:
+  websocket:
+    endpoint: /ws/v1
+    maxConnections: 50000
+    maxMessageBytes: 1048576
+    idleTimeoutMs: 60000
+    heartbeatIntervalMs: 20000
+    resumeTtlMs: 300000
+----
+
+=== 4.3 覆盖鉴权与 ACL（示例）
+
+[source,java]
+----
+@Configuration
+public class WsSecurityConfig {
+
+  @Bean
+  public TokenService tokenService() {
+    return token -> new TokenInfo("u-1001", Map.of("role", "trader"));
+  }
+
+  @Bean
+  public AclService aclService() {
+    return new AclService() {
+      public boolean canSubscribe(TokenInfo user, String topic) { return topic.startsWith("market."); }
+      public boolean canPublish(TokenInfo user, String topic) { return false; }
+      public boolean canRequest(TokenInfo user, String action) { return true; }
+    };
+  }
+}
+----
+
+== 5. 协议要点（开发者需遵守）
+
+* `version/type/timestamp` 必填
+* `requestId` 用于请求响应关联
+* `topic` 用于订阅与事件
+* `meta.clientId / meta.resumeId` 固定在 `meta` 中
+
+示例：
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "SUBSCRIBE",
+  "requestId": "uuid",
+  "topic": "market.btc.usdt",
+  "payload": {"mode":"snapshot+delta"},
+  "timestamp": 1700000000000,
+  "meta": {"clientId":"c-123"}
+}
+----
+
+== 6. 场景一：订阅 + 推送
+
+=== 4.1 SUBSCRIBE
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "SUBSCRIBE",
+  "requestId": "sub-1",
+  "topic": "market.btc.usdt",
+  "payload": {"mode":"snapshot+delta","throttleMs":200},
+  "timestamp": 1700000000000
+}
+----
+
+=== 4.2 RESPONSE
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "RESPONSE",
+  "requestId": "sub-1",
+  "topic": "market.btc.usdt",
+  "payload": {"status":"OK","subscribed":true},
+  "timestamp": 1700000000001
+}
+----
+
+=== 4.3 EVENT 推送
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "EVENT",
+  "topic": "market.btc.usdt",
+  "payload": {"ts":1700000000100,"price":"43210.12"},
+  "timestamp": 1700000000100
+}
+----
+
+== 7. 场景二：请求响应
+
+=== 5.1 请求订阅列表
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "REQUEST",
+  "requestId": "req-1",
+  "topic": "system",
+  "payload": {"action":"LIST_SUBSCRIPTIONS","params":{}},
+  "timestamp": 1700000000200
+}
+----
+
+=== 5.2 响应
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "RESPONSE",
+  "requestId": "req-1",
+  "topic": "system",
+  "payload": {"status":"OK","data":["market.btc.usdt"]},
+  "timestamp": 1700000000201
+}
+----
+
+== 8. 场景三：异常断开恢复（订阅 + ACK 可选）
+
+=== 6.1 初次连接服务端返回 HELLO
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "HELLO",
+  "payload": {"serverTime":1700000000000,"resumeTtlMs":300000},
+  "timestamp": 1700000000000,
+  "meta": {"clientId":"c-123","resumeId":"r-9f0c"}
+}
+----
+
+=== 6.2 异常断开后重连
+
+客户端携带相同身份 Token，并发送 RESUME：
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "REQUEST",
+  "requestId": "resume-1",
+  "topic": "system",
+  "payload": {"action":"RESUME","resumeId":"r-9f0c"},
+  "timestamp": 1700000000300
+}
+----
+
+=== 6.3 服务端恢复订阅
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "RESPONSE",
+  "requestId": "resume-1",
+  "topic": "system",
+  "payload": {"status":"OK","restoredTopics":["market.btc.usdt"]},
+  "timestamp": 1700000000301
+}
+----
+
+=== 6.4 可选 ACK 与补发
+
+若业务要求尽量到达，可开启 ACK：
+
+服务端推送 EVENT（携带 eventId）：
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "EVENT",
+  "topic": "task.progress.1001",
+  "payload": {"eventId":"e-1","progress":80},
+  "timestamp": 1700000000400
+}
+----
+
+客户端 ACK：
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "ACK",
+  "requestId": "ack-1",
+  "topic": "task.progress.1001",
+  "payload": {"eventId":"e-1"},
+  "timestamp": 1700000000401
+}
+----
+
+断线后恢复时，服务端可补发未 ACK 的事件。
+
+== 9. 扩展点（业务侧常见做法）
+
+* 自定义 `WsActionHandler` 实现业务 action
+* 自定义 `WsHandler` 扩展新类型（如 `ACK`）
+* 替换 `MessageBus` 为 Redis/Kafka
+* 覆盖 `TokenService` / `AclService` 做安全控制
+* 覆盖 `ResumeStore` / `SubscriptionManager` 适配集群共享存储
+* 覆盖 `WsMetrics` 进行指标埋点
+
+== 10. 订阅业务实现指南（重点）
+
+=== 10.1 订阅业务放在哪里
+
+订阅逻辑入口是 `SubscribeHandler`，它只负责维护订阅关系与回包。\n
+真正的“业务推送”应该在业务模块中实现，例如行情服务、任务进度服务。
+
+建议做法：
+
+* 业务模块负责生成 EVENT 消息
+* 通过 `MessageBus.publish(topic, message)` 发布
+* Starter 负责分发到本机订阅连接
+
+=== 10.2 业务推送示例（伪代码）
+
+[source,java]
+----
+@Service
+public class MarketPushService {
+
+  private final MessageBus messageBus;
+
+  public MarketPushService(MessageBus messageBus) {
+    this.messageBus = messageBus;
+  }
+
+  public void pushPrice(String symbol, String price) {
+    WsMessage msg = new WsMessage();
+    msg.setVersion("1.0");
+    msg.setType("EVENT");
+    msg.setTopic("market." + symbol);
+    msg.setTimestamp(System.currentTimeMillis());
+    msg.setPayload(Map.of("price", price));
+    messageBus.publish(msg.getTopic(), msg);
+  }
+}
+----
+
+=== 10.3 注意事项
+
+* EVENT 应尽量小，避免大 payload
+* 高频推送建议配合 `throttleMs`
+* 慢连接治理与背压策略要提前设置
+* 订阅 topic 建议约定清晰的命名规则
+
+== 11. 自定义扩展示例（Action）
+
+=== 11.1 定义 Action Handler
+
+[source,java]
+----
+@Component
+public class ServerCapabilitiesAction implements WsActionHandler {
+  public boolean supports(String action) { return "SERVER_CAPABILITIES".equals(action); }
+  public void handle(WsSession session, WsMessage msg) {
+    // 业务处理并回包
+  }
+}
+----
+
+=== 11.2 注意事项
+
+* action 必须配合 ACL 校验
+* Request/Response 必须带 requestId
+* 业务异常应转为 ERROR 返回
+
+== 12. 常见问题
+
+* Q: 客户端不使用 resumeId 能否恢复？
+  A: 不行，恢复依赖 resumeId。客户端可选择不恢复，但服务端仍会分配并在 HELLO 中返回。
+
+* Q: 是否能跨实例恢复？
+  A: 需要将 `ResumeStore` 与 `SubscriptionManager` 替换为共享存储实现。
+
+----
+
+本文为参考实现，业务可根据场景裁剪。

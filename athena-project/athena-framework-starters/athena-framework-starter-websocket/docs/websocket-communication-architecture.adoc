@@ -1,0 +1,771 @@
+= WebSocket 通信通用架构设计报告
+:doctype: book
+:toc: left
+:toclevels: 4
+:sectnums:
+:sectnumlevels: 5
+:icons: font
+:source-highlighter: rouge
+:rouge-style: github
+:chapter-label:
+:revdate: 2026-02-06
+:revremark: 单机优先、可平滑演进到集群
+
+== 1. 背景与目标
+
+=== 1.1 背景
+在量化交易/实时系统中，常见需要通过 WebSocket 提供以下能力：
+
+* 行情与指标实时推送（高频、可容忍少量丢包，强调低延迟）
+* 任务状态/进度通知（中频、希望可靠、需要可追踪 requestId）
+* 告警/通知（低频、强调到达率与权限）
+* 实时交互（双向请求响应，强调安全与幂等）
+
+如果将 WebSocket 逻辑直接写在单一 Handler 中，后续会出现协议难以演进、权限难以统一、扩容困难、可观测性缺失等问题。
+本报告提出一套“通信基础设施化”的通用架构，做到 **单机即可落地**，并可通过替换 Message Bus 实现 **平滑演进到多实例集群**。
+
+=== 1.2 设计目标（Goals）
+[cols="1,3"]
+|===
+|目标 |说明
+
+|通用性
+|同一套协议与代码框架支持推送、订阅、请求响应、广播/单播等模式。
+
+|可演进
+|单机部署时无外部依赖；扩容到集群时，仅引入 Message Bus（如 Redis Pub/Sub 或 Kafka）实现即可。
+
+|可观测
+|内置连接数、吞吐、延迟、失败率、队列积压等关键指标，以及结构化日志与追踪字段。
+
+|安全
+|支持握手鉴权、Topic 级权限控制、限流、敏感字段保护、审计记录。
+
+|稳定
+|支持心跳、断线重连提示、背压与慢连接治理、资源上限与降级策略。
+|===
+
+=== 1.3 非目标（Non-Goals）
+* 本报告不追求“Exactly-Once”级别的全链路消息语义（这通常需要端到端持久化、幂等、重放与去重系统，复杂度高）。
+* 不规定具体中间件选型（Redis/Kafka/RocketMQ 均可），仅规定接口与语义。
+* 不覆盖 UI/前端实现细节，但提供协议与客户端建议。
+
+== 2. 术语与概念
+
+[cols="1,3"]
+|===
+|术语 |说明
+|WS Gateway
+|WebSocket 接入层，负责连接、鉴权、心跳、编解码与基础限流。
+|Router
+|消息路由层，负责 type/topic 分发、权限校验、映射到业务 Handler。
+|Handler
+|业务处理器，实现订阅、取消订阅、请求响应、推送事件等业务逻辑。
+|Topic
+|订阅通道，例如 `market.btc.usdt`、`task.progress.<taskId>`。
+|Session
+|一条客户端连接对应的会话对象，保存 `connId/userId/claims` 等最小状态。
+|Message Bus
+|跨实例广播/解耦的消息总线：单机可为 Local 实现，集群可为 Redis/Kafka。
+|Backpressure
+|背压与流控，处理“客户端消费慢、服务端推送快”的矛盾。
+|Correlation
+|请求响应关联，使用 `requestId` 进行匹配与追踪。
+|===
+
+== 3. 总体架构
+
+=== 3.1 单机形态
+单机模式下不需要外部中间件：
+
+[source]
+----
+Client  <== WebSocket ==>  WS Gateway  -->  Router  -->  Business Handlers
+                                ^                 |
+                                |                 v
+                             SessionMgr      SubscriptionMgr
+----
+
+特点：
+
+* 连接/订阅状态均在单进程内存中维护
+* 推送与分发完全本地完成
+* 适合快速落地、低成本运维
+
+=== 3.2 可扩展形态（多实例）
+扩容时，仅引入 Message Bus：
+
+[source]
+----
+业务系统/事件源 --> Message Bus --> WS 节点A -> 本地连接
+                            \--> WS 节点B -> 本地连接
+                            \--> WS 节点C -> 本地连接
+----
+
+关键点：
+
+* WS 节点保持“尽量无状态”——会话仅本地有效
+* 订阅变化可选择同步到 Bus/Redis（可选）
+* 广播/分发通过 Bus 完成，节点只向本地连接写入
+
+== 4. 通信协议规范（强制）
+
+=== 4.1 基本原则
+* 所有消息均为 JSON（可选支持二进制/Protobuf，需版本升级）
+* 必须携带 `version`、`type`、`timestamp`
+* 如为请求/响应语义，必须携带 `requestId`
+* 如与订阅通道相关，必须携带 `topic`
+* `payload` 为业务载荷，结构由业务自定义，但需可被 JSON 序列化
+
+=== 4.2 通用消息结构
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "SUBSCRIBE",
+  "requestId": "a3b6f9b1-0a77-4b3a-9f77-7b9a8b8c1d4a",
+  "topic": "market.btc.usdt",
+  "payload": {},
+  "timestamp": 1700000000000,
+  "meta": {
+    "traceId": "optional",
+    "clientId": "optional",
+    "compress": "none|gzip",
+    "priority": 0
+  }
+}
+----
+
+字段定义：
+
+[cols="1,1,3,1"]
+|===
+|字段 |类型 |说明 |必填
+
+|version
+|string
+|协议版本，便于灰度与兼容
+|Y
+
+|type
+|string
+|消息类型，见 <<4.3>>
+|Y
+
+|requestId
+|string
+|请求/响应关联 ID。对 `EVENT` 可选
+|Conditional
+
+|topic
+|string
+|订阅通道或事件通道
+|Conditional
+
+|payload
+|object
+|业务数据
+|Y（允许 `{}`）
+
+|timestamp
+|number
+|毫秒时间戳（客户端发送与服务端回包均应填写）
+|Y
+
+|meta
+|object
+|可扩展元信息（追踪、压缩、优先级等）
+|N
+|===
+
+=== 4.3 消息类型（type）定义
+
+[cols="1,3,1"]
+|===
+|type |语义 |方向
+
+|PING
+|应用层心跳（可替代 WS ping frame，便于统一指标）
+|C->S
+
+|PONG
+|心跳响应
+|S->C
+
+|SUBSCRIBE
+|订阅某 topic
+|C->S
+
+|UNSUBSCRIBE
+|取消订阅
+|C->S
+
+|REQUEST
+|请求响应式调用（业务自定义 action）
+|C->S
+
+|RESPONSE
+|对 REQUEST 的响应
+|S->C
+
+|EVENT
+|推送事件（行情、进度、通知等）
+|S->C
+
+|ACK
+|客户端确认收到（可选，可靠性场景启用）
+|C->S
+
+|ERROR
+|错误响应（携带 requestId/错误码/原因）
+|S->C
+
+|HELLO
+|连接建立后的欢迎/能力协商（可选）
+|S->C
+|===
+
+== 5. WS Gateway 详细设计（接入层）
+
+=== 5.1 职责边界
+Gateway 只负责：
+
+* 连接生命周期管理：建立/关闭、超时、心跳
+* 握手鉴权：Token 解析、userId/claims 注入 Session
+* 协议编解码：JSON 解析、schema 初步校验（字段必填/类型）
+* 基础限流：连接数、消息速率、最大帧/最大消息大小
+* 向 Router 投递“已解析的 WsMessage”
+
+严禁在 Gateway 内：
+
+* 写业务逻辑
+* 写 topic 权限策略（由 Router/ACL 完成）
+* 做跨实例广播（由 Message Bus 完成）
+
+=== 5.2 接入端点与握手参数
+
+==== 5.2.1 Endpoint
+* WebSocket URL：`wss://{host}/ws/v1`
+* 兼容 HTTP Upgrade：`GET /ws/v1`
+
+==== 5.2.2 鉴权方式（推荐）
+优先采用 Header：
+
+* `Authorization: Bearer <JWT|OpaqueToken>`
+
+备选方案（不推荐，但可兼容某些浏览器限制）：
+
+* Query：`/ws/v1?token=<token>`
+
+==== 5.2.3 握手返回（HTTP Upgrade 阶段）
+* 成功：`101 Switching Protocols`
+* 失败（示例）：
+  * `401 Unauthorized`：token 缺失/无效
+  * `403 Forbidden`：账户禁用/无权使用 WS
+  * `429 Too Many Requests`：连接频率限制触发
+  * `400 Bad Request`：参数非法（如版本不支持）
+
+=== 5.3 连接状态机
+
+[source]
+----
+CONNECTING -> AUTHENTICATING -> OPEN -> CLOSING -> CLOSED
+                     |
+                     v
+                  REJECTED
+----
+
+关键规则：
+
+* AUTH 必须在 OPEN 前完成（握手阶段完成最好）
+* OPEN 后定期更新 lastSeen（心跳/任意消息）
+* 超时无心跳：服务端主动关闭（Close Code 4000+ 自定义）
+
+=== 5.4 自定义 Close Code 约定
+遵循 RFC 6455，同时增加应用层关闭码（建议 4000~4999）：
+
+[cols="1,3"]
+|===
+|Close Code |说明
+|4000 |应用层正常关闭（业务要求）
+|4001 |鉴权失败/过期
+|4002 |权限不足（topic/action）
+|4003 |消息格式非法（schema）
+|4004 |消息过大/帧过大
+|4005 |限流/流控触发
+|4006 |服务端过载/降级拒绝
+|4007 |客户端过慢（慢连接治理）
+|===
+
+=== 5.5 限制与参数（可配置项）
+建议全部可在配置中心/环境变量中覆盖。
+
+[cols="1,1,3,1"]
+|===
+|参数 |默认 |说明 |建议范围
+
+|maxConnections
+|50_000
+|单实例最大连接数（按机器能力调整）
+|1k~200k
+
+|maxMessageBytes
+|1_048_576
+|单条消息最大字节数（1MB）
+|64KB~2MB
+
+|maxFrameBytes
+|1_048_576
+|单帧最大字节数
+|64KB~2MB
+
+|inboundMsgRateLimitPerConn
+|50/s
+|单连接入站消息速率限制
+|10/s~200/s
+
+|handshakeRateLimit
+|100/s
+|握手速率限制（IP+User）
+|10/s~500/s
+
+|idleTimeoutMs
+|60_000
+|空闲超时（无 PING/PONG/消息）
+|15s~5m
+
+|heartbeatIntervalMs
+|20_000
+|服务端主动发送 HELLO/PING 的间隔（可选）
+|5s~60s
+|===
+
+=== 5.6 Gateway 输出到 Router 的对象
+
+[source,json]
+----
+{
+  "connId": "c-7f2a...",
+  "userId": "u-123",
+  "claims": {"role": "trader"},
+  "remoteIp": "203.0.113.10",
+  "message": { ... WsMessage ... }
+}
+----
+
+注意：Gateway 应当保证 Router 能获得 `connId/userId/claims`，避免后续重复解析 Token。
+
+== 6. Router 详细设计（路由与权限）
+
+=== 6.1 职责
+Router 负责：
+
+* `type` -> Handler 映射
+* `topic` 的 ACL 权限校验（订阅/取消订阅/推送访问）
+* schema 深度校验（业务侧可选）
+* 统一错误处理（返回 ERROR）
+* 对接 SubscriptionMgr（维护 topic->connections）
+
+=== 6.2 处理流程
+
+[source]
+----
+(1) Validate: version/type/timestamp
+(2) AuthZ: verify action/topic permission
+(3) Dispatch: handler.handle(session, msg)
+(4) Catch: map exception -> ERROR + metrics
+----
+
+=== 6.3 ACL 权限模型（建议）
+以 `userId + claims` 为输入，提供如下函数：
+
+[source]
+----
+canSubscribe(user, topic) -> boolean
+canPublish(user, topic)   -> boolean   // 业务请求可能产生 EVENT
+canRequest(user, action)  -> boolean
+----
+
+实现方式：
+
+* 简单版本：基于前缀匹配
+  * `market.*` 允许所有已登录用户
+  * `task.progress.<taskId>` 仅任务创建者可订阅
+* 复杂版本：RBAC/ABAC（角色/属性/策略）
+
+== 7. Business Handlers 设计
+
+=== 7.1 Handler 接口
+
+[source,java]
+----
+interface WsHandler {
+  boolean supports(String type);
+  void handle(WsSession session, WsMessage msg);
+}
+----
+
+建议将 Handler 再细分：
+
+* SubscribeHandler
+* UnsubscribeHandler
+* RequestHandler（按 action 再分派）
+* PingHandler
+
+=== 7.2 SUBSCRIBE / UNSUBSCRIBE 规范
+
+==== 7.2.1 SUBSCRIBE 请求
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "SUBSCRIBE",
+  "requestId": "uuid",
+  "topic": "market.btc.usdt",
+  "payload": {
+    "mode": "snapshot+delta",
+    "throttleMs": 200
+  },
+  "timestamp": 1700000000000
+}
+----
+
+payload 建议字段：
+
+[cols="1,3,1"]
+|===
+|字段 |说明 |可选
+|mode |订阅模式：`snapshot`/`delta`/`snapshot+delta` |Y
+|throttleMs |下行节流（对该订阅生效） |Y
+|filters |服务端可选过滤条件（如深度档位、字段白名单） |Y
+|===
+
+==== 7.2.2 SUBSCRIBE 响应（RESPONSE）
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "RESPONSE",
+  "requestId": "uuid",
+  "topic": "market.btc.usdt",
+  "payload": {
+    "status": "OK",
+    "subscribed": true
+  },
+  "timestamp": 1700000000100
+}
+----
+
+==== 7.2.3 UNSUBSCRIBE 请求/响应
+同上，`type=UNSUBSCRIBE`，payload 可为空。
+
+=== 7.3 REQUEST / RESPONSE 规范
+
+==== 7.3.1 REQUEST
+用于“需要服务端立即计算并返回”的场景，例如：
+
+* 请求最新快照
+* 查询服务器能力
+* 订阅列表查询
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "REQUEST",
+  "requestId": "uuid",
+  "topic": "system",
+  "payload": {
+    "action": "LIST_SUBSCRIPTIONS",
+    "params": {}
+  },
+  "timestamp": 1700000000000
+}
+----
+
+==== 7.3.2 RESPONSE
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "RESPONSE",
+  "requestId": "uuid",
+  "topic": "system",
+  "payload": {
+    "status": "OK",
+    "data": ["market.btc.usdt", "task.progress.1001"]
+  },
+  "timestamp": 1700000000123
+}
+----
+
+=== 7.4 EVENT 推送规范
+推送消息建议保持稳定、字段尽量少、避免超大 JSON。
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "EVENT",
+  "topic": "market.btc.usdt",
+  "payload": {
+    "ts": 1700000000123,
+    "price": "43210.12",
+    "vol": "0.42"
+  },
+  "timestamp": 1700000000123
+}
+----
+
+=== 7.5 ERROR 规范
+
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "ERROR",
+  "requestId": "uuid",
+  "topic": "market.btc.usdt",
+  "payload": {
+    "code": "NO_PERMISSION",
+    "message": "no access to topic",
+    "retryable": false,
+    "details": {"requiredRole": "vip"}
+  },
+  "timestamp": 1700000000123
+}
+----
+
+错误码建议（示例）：
+
+[cols="1,3"]
+|===
+|code |说明
+|BAD_SCHEMA |字段缺失/类型错误/JSON 解析失败
+|UNSUPPORTED_VERSION |协议版本不支持
+|NO_PERMISSION |无权限订阅/请求
+|RATE_LIMITED |触发限流
+|TOPIC_NOT_FOUND |topic 不存在或不可用
+|INTERNAL_ERROR |服务端异常
+|BUSY |服务端过载/降级
+|===
+
+== 8. Session 与订阅管理
+
+=== 8.1 Session 最小状态
+每个连接建议只保存最小信息：
+
+[cols="1,3"]
+|===
+|字段 |说明
+|connId |连接唯一标识（UUID/雪花）
+|userId |鉴权后的用户标识
+|claims |JWT claims/角色/租户信息
+|createdAt |连接建立时间
+|lastSeenAt |最后一次心跳/消息时间
+|outboundQueueSize |下行队列积压（背压指标）
+|subscriptions |该连接的 topic 集合（可选缓存）
+|===
+
+=== 8.2 SubscriptionMgr 数据结构（单机）
+推荐两张表（内存）：
+
+* `topic -> Set<connId>`
+* `connId -> Set<topic>`（便于断连快速清理）
+
+并提供原子操作：
+
+* `subscribe(connId, topic)`
+* `unsubscribe(connId, topic)`
+* `removeConnection(connId)`（连接关闭时清理）
+
+== 9. 背压与慢连接治理（必须设计）
+
+=== 9.1 问题说明
+当服务端推送速度 > 客户端消费速度，下行缓冲会增长，最终导致：
+
+* 内存膨胀（OOM）
+* 延迟越来越大（消息堆积）
+* 整体吞吐下降（写 socket 阻塞）
+
+=== 9.2 策略（至少选一种）
+[cols="1,3"]
+|===
+|策略 |说明
+|DROP_OLD
+|队列满时丢弃最旧消息，保留最新（适合行情）
+|DROP_NEW
+|队列满时丢弃最新消息（适合必须按序处理）
+|DISCONNECT_SLOW
+|队列积压超过阈值直接断开慢连接（保护系统）
+|THROTTLE
+|对每个订阅设置最小间隔（throttleMs）
+|===
+
+建议默认：
+
+* 行情类 topic：`DROP_OLD + THROTTLE`
+* 任务/通知类：`DISCONNECT_SLOW` 或降级为低频
+
+=== 9.3 配置项（建议）
+* `maxOutboundQueuePerConn`：默认 1000
+* `slowConnDisconnectThreshold`：默认 5000（或时间阈值）
+* `topicThrottleDefaultMs`：默认 200ms（可按 topic 覆盖）
+
+== 10. 可靠性设计（可选增强）
+
+=== 10.1 适用场景
+* 任务进度/通知希望“尽量到达”
+* 关键业务响应需要可追踪与可重试
+
+=== 10.2 可选机制
+* ACK：客户端收到 EVENT 后回 ACK（包含 eventId）
+* 重发：服务端缓存最近 N 条 event（或最近 T 秒），ACK 超时重发
+* 去重：客户端基于 eventId 去重
+
+注意：此机制会显著增加状态与复杂度，行情推送通常不需要。
+
+== 11. 安全设计
+
+=== 11.1 鉴权
+* 建议 JWT 或 Opaque Token + introspection
+* 握手失败直接拒绝 Upgrade
+* Token 过期策略：
+  * 简化：过期后断开（Close 4001），客户端重连刷新 token
+  * 复杂：支持 “REFRESH” action 进行在线更新（增加安全面）
+
+=== 11.2 授权（ACL）
+* SUBSCRIBE/REQUEST 前必须校验权限
+* 细粒度到 topic 或 action
+* 记录审计：订阅/取消订阅/关键 REQUEST
+
+=== 11.3 防护
+* 入站消息大小限制
+* 入站消息速率限制
+* IP 黑名单/灰度策略
+* 敏感信息：日志脱敏（token、隐私字段）
+
+== 12. 可观测性（指标/日志/追踪）
+
+=== 12.1 指标（Metrics）
+最少应提供：
+
+[cols="1,3"]
+|===
+|指标 |说明
+|ws_connections_active |当前活跃连接数
+|ws_handshake_total / failed |握手成功/失败计数
+|ws_inbound_msgs_total / rate |入站消息数量/速率
+|ws_outbound_msgs_total / rate |出站消息数量/速率
+|ws_router_latency_ms |路由处理延迟
+|ws_handler_latency_ms{type,topic} |业务处理延迟
+|ws_outbound_queue_size{connId?} |下行队列积压（可采样）
+|ws_dropped_msgs_total{reason} |丢弃数量（背压/限流）
+|ws_close_total{code} |断开统计
+|===
+
+=== 12.2 日志（Logging）
+* 结构化日志（JSON）
+* 必带字段：`connId,userId,requestId,topic,type,traceId`
+* 错误日志中记录 `code` 与 `retryable`
+
+=== 12.3 Trace
+* 若系统已有链路追踪（OpenTelemetry），可在 meta 中携带 `traceId`
+* Router/Handler 作为 span，便于定位慢点
+
+== 13. 部署与演进路径
+
+=== 13.1 单机部署
+* 只部署一个 WS 服务进程
+* SubscriptionMgr / SessionMgr 为内存实现
+* Message Bus 使用 Local 实现（直接调用本地分发）
+
+=== 13.2 多实例部署（演进）
+* 将 Message Bus 切换为 Redis Pub/Sub 或 Kafka
+* 业务事件统一 publish 到 Bus
+* 每个 WS 节点订阅 Bus，并分发到本地连接
+
+可选增强：
+
+* 订阅信息同步（topic->node）以减少无效广播（优化项，非必须）
+
+== 14. 兼容性与版本管理
+
+=== 14.1 version 策略
+* `version` 字段用于协议演进
+* 建议至少支持 `1.0` 与 `1.1` 并行一段时间
+* Router 进行版本路由或 schema 兼容
+
+=== 14.2 向后兼容原则
+* 新增字段：允许（客户端忽略未知字段）
+* 删除字段：不允许直接删除，需版本升级与灰度
+* 改字段类型：必须版本升级
+
+== 15. 测试方案（建议）
+
+=== 15.1 单元测试
+* Router：type 分发、权限拒绝、错误映射
+* SubscriptionMgr：并发订阅/取消、断连清理
+* Backpressure：队列满策略（DROP_OLD/DISCONNECT）
+
+=== 15.2 集成测试
+* 鉴权成功/失败
+* 大量连接压测（连接数/消息速率）
+* 慢客户端模拟（读写延迟）
+
+=== 15.3 压测指标
+* 最大稳定连接数
+* 平均/99p 延迟
+* 丢弃率
+* CPU/内存曲线
+* GC 次数与停顿
+
+== 16. 附录：典型交互示例
+
+=== 16.1 建连后能力协商（HELLO）
+[source,json]
+----
+{
+  "version": "1.0",
+  "type": "HELLO",
+  "payload": {
+    "serverTime": 1700000000000,
+    "heartbeatIntervalMs": 20000,
+    "maxMessageBytes": 1048576,
+    "features": ["SUBSCRIBE", "REQUEST", "THROTTLE"]
+  },
+  "timestamp": 1700000000000
+}
+----
+
+=== 16.2 心跳
+Client -> Server
+[source,json]
+----
+{"version":"1.0","type":"PING","payload":{},"timestamp":1700000001000}
+----
+Server -> Client
+[source,json]
+----
+{"version":"1.0","type":"PONG","payload":{},"timestamp":1700000001001}
+----
+
+=== 16.3 订阅行情
+* SUBSCRIBE 请求 -> RESPONSE OK
+* 服务端持续推 EVENT（按 throttleMs 控制）
+
+== 17. 实现建议（工程落地要点）
+
+* Gateway/Router/Handler 三层清晰分离（单机也如此）
+* Message Bus 采用接口隔离：Local 与 Redis/Kafka 可插拔
+* 订阅关系双向索引：topic->conn 与 conn->topic
+* 慢连接治理必须做，避免线上 OOM
+* 指标与日志第一天就加，否则不好运维
+
+---
+本文件为通用设计基线，可在项目中继续补充：
+* topic 命名规范
+* 业务 action 列表
+* ACL 规则与角色定义
+* 集群下的订阅同步优化策略
