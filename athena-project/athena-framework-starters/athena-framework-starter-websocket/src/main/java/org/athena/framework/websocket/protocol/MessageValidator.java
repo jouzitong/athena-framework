@@ -1,5 +1,6 @@
 package org.athena.framework.websocket.protocol;
 
+import org.athena.framework.websocket.protocol.WsMessageType;
 import org.athena.framework.websocket.support.WsErrorCode;
 import org.athena.framework.websocket.support.WsProtocolException;
 

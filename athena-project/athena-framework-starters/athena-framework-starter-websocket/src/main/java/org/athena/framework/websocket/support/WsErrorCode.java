@@ -40,5 +40,9 @@ public enum WsErrorCode {
     /**
      * 恢复 ID 与用户不匹配
      */
-    RESUME_FORBIDDEN
+    RESUME_FORBIDDEN,
+    /**
+     * 未知动作
+     */
+    UNKNOWN_ACTION
 }

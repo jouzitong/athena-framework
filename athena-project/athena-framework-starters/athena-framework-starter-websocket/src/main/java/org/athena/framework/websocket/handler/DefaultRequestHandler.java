@@ -7,6 +7,10 @@ import java.util.Set;
 import org.athena.framework.websocket.gateway.WsOutbound;
 import org.athena.framework.websocket.protocol.WsMessage;
 import org.athena.framework.websocket.protocol.WsMessageFactory;
+import org.athena.framework.websocket.protocol.WsActionType;
+import org.athena.framework.websocket.protocol.WsMessageType;
+import org.athena.framework.websocket.protocol.WsPayloadKey;
+import org.athena.framework.websocket.protocol.WsPayloadStatus;
 import org.athena.framework.websocket.session.WsSession;
 import org.athena.framework.websocket.subscription.SubscriptionManager;
 import org.athena.framework.websocket.support.ResumeStore;
@@ -16,39 +20,30 @@ import org.athena.framework.websocket.support.WsErrorCode;
 /**
  * 默认 REQUEST 处理器，内置 RESUME 动作
  */
-public class DefaultRequestHandler implements WsHandler {
+public class DefaultRequestHandler extends AbstractWsHandler {
 
     private final List<WsActionHandler> actionHandlers;
     private final SubscriptionManager subscriptionManager;
     private final ResumeStore resumeStore;
-    private final WsMessageFactory messageFactory;
     private final long resumeTtlMs;
-    private final WsOutbound outbound;
-
     public DefaultRequestHandler(List<WsActionHandler> actionHandlers,
                                  SubscriptionManager subscriptionManager,
                                  ResumeStore resumeStore,
                                  WsMessageFactory messageFactory,
                                  long resumeTtlMs,
                                  WsOutbound outbound) {
+        super(WsMessageType.REQUEST, messageFactory, outbound);
         this.actionHandlers = actionHandlers;
         this.subscriptionManager = subscriptionManager;
         this.resumeStore = resumeStore;
-        this.messageFactory = messageFactory;
         this.resumeTtlMs = resumeTtlMs;
-        this.outbound = outbound;
-    }
-
-    @Override
-    public boolean supports(String type) {
-        return "REQUEST".equals(type);
     }
 
     @Override
     public void handle(WsSession session, WsMessage message) {
         String action = extractAction(message.getPayload());
         // 内置动作：RESUME
-        if ("RESUME".equals(action)) {
+        if (WsActionType.RESUME.equals(action)) {
             handleResume(session, message);
             return;
         }
@@ -61,39 +56,30 @@ public class DefaultRequestHandler implements WsHandler {
         }
         // 未匹配到动作，返回错误响应
         Map<String, Object> payload = new HashMap<>();
-        payload.put("status", "ERROR");
-        payload.put("code", "UNKNOWN_ACTION");
-        WsMessage response = messageFactory.okResponse(message, payload);
-        outbound.send(session, response);
+        payload.put(WsPayloadKey.STATUS, WsPayloadStatus.ERROR);
+        payload.put(WsPayloadKey.CODE, WsErrorCode.UNKNOWN_ACTION.name());
+        sendOk(session, message, payload);
     }
 
     private void handleResume(WsSession session, WsMessage message) {
         String resumeId = extractResumeId(message.getPayload());
         if (resumeId == null || resumeId.trim().isEmpty()) {
-            WsMessage error = messageFactory.errorResponse(message, WsErrorCode.RESUME_NOT_FOUND.name(),
-                "resumeId is required", false);
-            outbound.send(session, error);
+            sendError(session, message, WsErrorCode.RESUME_NOT_FOUND.name(), "resumeId is required");
             return;
         }
         SessionSnapshot snapshot = resumeStore.get(resumeId);
         if (snapshot == null) {
-            WsMessage error = messageFactory.errorResponse(message, WsErrorCode.RESUME_EXPIRED.name(),
-                "resumeId expired or not found", false);
-            outbound.send(session, error);
+            sendError(session, message, WsErrorCode.RESUME_EXPIRED.name(), "resumeId expired or not found");
             return;
         }
         // 强绑定 userId，避免 resumeId 被他人使用
         if (!snapshot.getUserId().equals(session.getUserId())) {
-            WsMessage error = messageFactory.errorResponse(message, WsErrorCode.RESUME_FORBIDDEN.name(),
-                "resumeId does not match user", false);
-            outbound.send(session, error);
+            sendError(session, message, WsErrorCode.RESUME_FORBIDDEN.name(), "resumeId does not match user");
             return;
         }
         long now = System.currentTimeMillis();
         if (now - snapshot.getLastSeenAt() > resumeTtlMs) {
-            WsMessage error = messageFactory.errorResponse(message, WsErrorCode.RESUME_EXPIRED.name(),
-                "resumeId expired", false);
-            outbound.send(session, error);
+            sendError(session, message, WsErrorCode.RESUME_EXPIRED.name(), "resumeId expired");
             return;
         }
         // 恢复订阅集合
@@ -102,15 +88,14 @@ public class DefaultRequestHandler implements WsHandler {
             subscriptionManager.subscribe(session.getConnId(), topic);
         }
         Map<String, Object> payload = new HashMap<>();
-        payload.put("status", "OK");
-        payload.put("restoredTopics", topics);
-        WsMessage response = messageFactory.okResponse(message, payload);
-        outbound.send(session, response);
+        payload.put(WsPayloadKey.STATUS, WsPayloadStatus.OK);
+        payload.put(WsPayloadKey.RESTORED_TOPICS, topics);
+        sendOk(session, message, payload);
     }
 
     private String extractAction(Object payload) {
         if (payload instanceof Map) {
-            Object action = ((Map<?, ?>) payload).get("action");
+            Object action = ((Map<?, ?>) payload).get(WsPayloadKey.ACTION);
             if (action != null) {
                 return String.valueOf(action);
             }
@@ -120,7 +105,7 @@ public class DefaultRequestHandler implements WsHandler {
 
     private String extractResumeId(Object payload) {
         if (payload instanceof Map) {
-            Object resumeId = ((Map<?, ?>) payload).get("resumeId");
+            Object resumeId = ((Map<?, ?>) payload).get(WsPayloadKey.RESUME_ID);
             if (resumeId != null) {
                 return String.valueOf(resumeId);
             }

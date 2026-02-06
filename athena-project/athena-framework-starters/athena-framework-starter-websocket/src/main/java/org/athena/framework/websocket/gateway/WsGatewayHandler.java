@@ -5,6 +5,7 @@ import org.athena.framework.websocket.metrics.WsMetrics;
 import org.athena.framework.websocket.protocol.MessageValidator;
 import org.athena.framework.websocket.protocol.WsMessage;
 import org.athena.framework.websocket.protocol.WsMessageFactory;
+import org.athena.framework.websocket.protocol.WsMessageType;
 import org.athena.framework.websocket.protocol.WsMeta;
 import org.athena.framework.websocket.router.WsRouter;
 import org.athena.framework.websocket.session.SessionManager;
@@ -159,7 +160,7 @@ public class WsGatewayHandler extends TextWebSocketHandler {
     private void sendHello(WsSession session) {
         WsMessage hello = new WsMessage();
         hello.setVersion("1.0");
-        hello.setType("HELLO");
+        hello.setType(WsMessageType.HELLO);
         hello.setTimestamp(System.currentTimeMillis());
         Map<String, Object> payload = new HashMap<>();
         payload.put("serverTime", System.currentTimeMillis());

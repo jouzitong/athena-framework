@@ -2,6 +2,7 @@ package org.athena.framework.websocket.gateway;
 
 import java.util.Map;
 import org.athena.framework.websocket.metrics.WsMetrics;
+import org.athena.framework.websocket.protocol.WsQueryParam;
 import org.athena.framework.websocket.security.TokenInfo;
 import org.athena.framework.websocket.security.TokenService;
 import org.springframework.http.HttpHeaders;
@@ -43,8 +44,8 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
         attributes.put(ATTR_USER_ID, tokenInfo.getUserId());
         attributes.put(ATTR_CLAIMS, tokenInfo.getClaims());
         MultiValueMap<String, String> params = UriComponentsBuilder.fromUri(request.getURI()).build().getQueryParams();
-        String clientId = params.getFirst("clientId");
-        String resumeId = params.getFirst("resumeId");
+        String clientId = params.getFirst(WsQueryParam.CLIENT_ID);
+        String resumeId = params.getFirst(WsQueryParam.RESUME_ID);
         if (clientId != null) {
             attributes.put(ATTR_CLIENT_ID, clientId);
         }
@@ -66,6 +67,6 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
             return auth.substring("Bearer ".length());
         }
         MultiValueMap<String, String> params = UriComponentsBuilder.fromUriString(uri).build().getQueryParams();
-        return params.getFirst("token");
+        return params.getFirst(WsQueryParam.TOKEN);
     }
 }

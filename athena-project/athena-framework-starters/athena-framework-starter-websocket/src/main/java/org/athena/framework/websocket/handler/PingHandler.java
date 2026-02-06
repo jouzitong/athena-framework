@@ -3,24 +3,16 @@ package org.athena.framework.websocket.handler;
 import org.athena.framework.websocket.gateway.WsOutbound;
 import org.athena.framework.websocket.protocol.WsMessage;
 import org.athena.framework.websocket.protocol.WsMessageFactory;
+import org.athena.framework.websocket.protocol.WsMessageType;
 import org.athena.framework.websocket.session.WsSession;
 
 /**
  * 心跳处理器
  */
-public class PingHandler implements WsHandler {
-
-    private final WsMessageFactory messageFactory;
-    private final WsOutbound outbound;
+public class PingHandler extends AbstractWsHandler {
 
     public PingHandler(WsMessageFactory messageFactory, WsOutbound outbound) {
-        this.messageFactory = messageFactory;
-        this.outbound = outbound;
-    }
-
-    @Override
-    public boolean supports(String type) {
-        return "PING".equals(type);
+        super(WsMessageType.PING, messageFactory, outbound);
     }
 
     @Override

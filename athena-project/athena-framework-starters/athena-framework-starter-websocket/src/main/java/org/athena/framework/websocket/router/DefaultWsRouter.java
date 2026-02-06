@@ -5,6 +5,8 @@ import java.util.Map;
 import org.athena.framework.websocket.handler.WsHandler;
 import org.athena.framework.websocket.metrics.WsMetrics;
 import org.athena.framework.websocket.protocol.WsMessage;
+import org.athena.framework.websocket.protocol.WsMessageType;
+import org.athena.framework.websocket.protocol.WsPayloadKey;
 import org.athena.framework.websocket.security.AclService;
 import org.athena.framework.websocket.security.TokenInfo;
 import org.athena.framework.websocket.session.WsSession;
@@ -34,13 +36,13 @@ public class DefaultWsRouter implements WsRouter {
         TokenInfo tokenInfo = new TokenInfo(session.getUserId(), session.getClaims());
         String type = message.getType();
         // 订阅类请求先进行 ACL 校验
-        if ("SUBSCRIBE".equals(type) || "UNSUBSCRIBE".equals(type)) {
+        if (WsMessageType.SUBSCRIBE.equals(type) || WsMessageType.UNSUBSCRIBE.equals(type)) {
             if (!aclService.canSubscribe(tokenInfo, message.getTopic())) {
                 throw new WsProtocolException(WsErrorCode.NO_PERMISSION, "no permission to subscribe");
             }
         }
         // 请求类动作做 ACL 校验
-        if ("REQUEST".equals(type)) {
+        if (WsMessageType.REQUEST.equals(type)) {
             String action = extractAction(message.getPayload());
             if (!aclService.canRequest(tokenInfo, action)) {
                 throw new WsProtocolException(WsErrorCode.NO_PERMISSION, "no permission to request");
@@ -71,7 +73,7 @@ public class DefaultWsRouter implements WsRouter {
 
     private String extractAction(Object payload) {
         if (payload instanceof Map) {
-            Object action = ((Map<?, ?>) payload).get("action");
+            Object action = ((Map<?, ?>) payload).get(WsPayloadKey.ACTION);
             if (action != null) {
                 return String.valueOf(action);
             }
