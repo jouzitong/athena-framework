@@ -13,6 +13,13 @@
     <artifactId>athena-framework-test-log4j2</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.athena</groupId>
             <artifactId>athena-framework-starter-web</artifactId>
