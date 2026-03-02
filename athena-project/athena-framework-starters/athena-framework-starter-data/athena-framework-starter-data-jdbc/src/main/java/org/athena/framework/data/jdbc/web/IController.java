@@ -6,9 +6,11 @@ import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.athena.framework.web.annotation.web.ApiDeleteMapping;
 import org.athena.framework.web.annotation.web.ApiGetMapping;
+import org.athena.framework.web.annotation.web.ApiPatchMapping;
 import org.athena.framework.web.annotation.web.ApiPostMapping;
 import org.athena.framework.web.annotation.web.ApiPutMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.athena.framework.web.annotation.web.ApiResponseStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -29,6 +31,7 @@ public interface IController<
      * @return 表示新添加实体的DTO，包括任何生成或更新的字段，如ID
      */
     @ApiPostMapping
+    @ApiResponseStatus(HttpStatus.CREATED)
     DTO add(@RequestBody DTO dto);
 
     /**
@@ -39,6 +42,7 @@ public interface IController<
      * @return 表示已更新实体的DTO，包括任何生成或更新的字段，如版本
      */
     @ApiPutMapping("/{id}")
+    @ApiResponseStatus(HttpStatus.OK)
     DTO update(@PathVariable("id") Long id, @RequestBody DTO dto);
 
     /**
@@ -48,7 +52,8 @@ public interface IController<
      * @param dto 包含实体部分更新的数据传输对象
      * @return 表示部分更新后的实体的DTO，包括任何生成或更新的字段，如版本
      */
-    @PatchMapping("/{id}")
+    @ApiPatchMapping("/{id}")
+    @ApiResponseStatus(HttpStatus.OK)
     DTO edit(@PathVariable("id") Long id, @RequestBody DTO dto);
 
     /**
@@ -58,6 +63,7 @@ public interface IController<
      * @return 如果删除成功则返回true，否则返回false
      */
     @ApiDeleteMapping("/{id}")
+    @ApiResponseStatus(HttpStatus.NO_CONTENT)
     Boolean delete(@PathVariable("id") Long id);
 
     /**
@@ -67,6 +73,7 @@ public interface IController<
      * @return 如果删除成功则返回true，否则返回false
      */
     @ApiDeleteMapping("/physical/{id}")
+    @ApiResponseStatus(HttpStatus.NO_CONTENT)
     Boolean physicalDelete(@PathVariable("id") Long id);
 
     /**
@@ -76,6 +83,7 @@ public interface IController<
      * @return 包含与查询匹配的DTO列表及其分页信息的PageResultVO
      */
     @ApiGetMapping
+    @ApiResponseStatus(HttpStatus.OK)
     PageResultVO<DTO> page(Query query);
 
     /**
@@ -85,6 +93,7 @@ public interface IController<
      * @return 表示检索到的实体的DTO
      */
     @ApiGetMapping("/{id}")
+    @ApiResponseStatus(HttpStatus.OK)
     DTO get(@PathVariable("id") Long id);
 
 }
