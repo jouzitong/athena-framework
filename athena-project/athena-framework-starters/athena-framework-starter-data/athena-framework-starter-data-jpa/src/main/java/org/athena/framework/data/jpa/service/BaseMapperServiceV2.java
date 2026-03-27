@@ -2,8 +2,8 @@ package org.athena.framework.data.jpa.service;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.athena.framework.data.jdbc.convert.IConvert;
 import org.athena.framework.data.jdbc.context.CrudContext;
+import org.athena.framework.data.jdbc.convert.IConvert;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.executor.CrudInterceptorExecutor;
@@ -189,6 +189,24 @@ public abstract class BaseMapperServiceV2<Entity extends IEntity, DTO extends ID
     public DTO get(Long id) {
         LOGGER.trace("get request: {}", id);
         return repository().findById(id).map(convert()::toDTO).orElse(null);
+    }
+
+    @Override
+    public boolean remove(Long id) {
+        LOGGER.info("remove id : {}", id);
+        interceptorExecutor.beforeCheck(CrudContext.builder()
+                .dbOpType(DbOpType.DELETE)
+                .param(id)
+                .entityType(entityType())
+                .build());
+        repository().deleteById(id);
+        interceptorExecutor.after(CrudContext.builder()
+                .dbOpType(DbOpType.DELETE)
+                .param(id)
+                .entityType(entityType())
+                .result(null)
+                .build());
+        return true;
     }
 
     protected Class<?> entityType() {

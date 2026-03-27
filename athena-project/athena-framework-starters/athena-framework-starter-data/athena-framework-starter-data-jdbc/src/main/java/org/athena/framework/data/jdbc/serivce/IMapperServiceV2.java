@@ -1,6 +1,5 @@
 package org.athena.framework.data.jdbc.serivce;
 
-import org.arthena.framework.common.utils.BeanUtils;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
@@ -108,17 +107,14 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    default boolean remove(Long id) {
-        DTO dto = get(id);
-//        dto.setDeleted(true);
-        return update(id, dto) != null;
-    }
+    boolean remove(Long id);
 
     /**
      * 实例化DTO
      *
      * @return DTO对象
      */
+    @Deprecated
     DTO newDTO();
 
     /**
@@ -126,22 +122,7 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
      *
      * @return Entity对象
      */
+    @Deprecated
     Entity newEntity();
-
-    /**
-     * Entity转DTO
-     *
-     * @param entity Entity
-     * @return DTO
-     */
-    default DTO toDTO(Entity entity) {
-        if (entity == null) {
-            return null;
-        }
-        DTO dto = newDTO();
-        BeanUtils.copy(entity, dto);
-        return dto;
-    }
-
 
 }
