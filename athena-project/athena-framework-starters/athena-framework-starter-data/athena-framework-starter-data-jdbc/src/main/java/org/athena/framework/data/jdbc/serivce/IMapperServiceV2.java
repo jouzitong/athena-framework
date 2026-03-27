@@ -15,7 +15,6 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-@Deprecated
 public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
 
     /**
@@ -44,7 +43,6 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
      * @return 总数
      */
     <Query extends BaseRequest> long count(Query query);
-
 
     /**
      * 新增
