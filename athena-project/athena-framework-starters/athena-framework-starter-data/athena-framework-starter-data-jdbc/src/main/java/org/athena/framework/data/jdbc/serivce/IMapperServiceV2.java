@@ -23,6 +23,7 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
      * @param <Query> 查询条件类型
      * @return 查询结果
      */
+    @Transactional(readOnly = true)
     <Query extends BaseRequest> List<DTO> queryAll(Query query);
 
     /**
@@ -32,6 +33,7 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
      * @param <Query> 查询条件类型
      * @return 分页结果
      */
+    @Transactional(readOnly = true)
     <Query extends BaseRequest> PageResultVO<DTO> page(Query query);
 
     /**
