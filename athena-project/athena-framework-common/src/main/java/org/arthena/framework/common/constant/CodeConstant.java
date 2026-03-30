@@ -34,6 +34,40 @@ public interface CodeConstant {
 
     Integer CONFIG_ERROR = 5;
 
+    /**
+     * 对象存储上传失败
+     */
+    Integer OBJECT_STORAGE_UPLOAD_ERROR = 31001;
+
+    /**
+     * 对象存储下载失败
+     */
+    Integer OBJECT_STORAGE_DOWNLOAD_ERROR = 31002;
+
+    /**
+     * 对象存储删除失败
+     */
+    Integer OBJECT_STORAGE_DELETE_ERROR = 31003;
+
+    /**
+     * 对象存储对象不存在
+     */
+    Integer OBJECT_STORAGE_NOT_FOUND = 31004;
+
+    /**
+     * 对象存储预签名失败
+     */
+    Integer OBJECT_STORAGE_PRESIGN_ERROR = 31005;
+
+    /**
+     * 对象存储 bucket 初始化失败
+     */
+    Integer OBJECT_STORAGE_BUCKET_INIT_ERROR = 31006;
+
+    /**
+     * 对象存储配置非法
+     */
+    Integer OBJECT_STORAGE_CONFIG_ERROR = 31007;
 
     Integer ILLEGAL_PARAMETER_ERROR = 10101;
 

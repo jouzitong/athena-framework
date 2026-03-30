@@ -1,0 +1,15 @@
+server:
+  port: 20012
+
+athena:
+  minio:
+    enabled: true
+    endpoint: ${ATHENA_MINIO_ENDPOINT:http://127.0.0.1:9000}
+    accessKey: ${ATHENA_MINIO_ACCESS_KEY:minioadmin}
+    secretKey: ${ATHENA_MINIO_SECRET_KEY:minioadmin}
+    bucket: ${ATHENA_MINIO_BUCKET:athena-dev}
+    autoCreateBucket: true
+    presignExpirySeconds: 900
+    connectTimeoutMs: 3000
+    writeTimeoutMs: 10000
+    readTimeoutMs: 10000

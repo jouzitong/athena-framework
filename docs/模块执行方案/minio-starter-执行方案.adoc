@@ -1,0 +1,355 @@
+= Athena Framework MinIO Starter 模块执行方案
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: coderay
+
+== 文档目的
+
+本文档给出在 Athena Framework 中新增 `MinIO Starter` 的可执行实施方案，目标是：
+
+* 结构清晰
+* 分工明确
+* 风险可控
+* 可按阶段验收
+
+本方案面向仓库当前结构（Maven 多模块、BOM 管理、Spring Boot 自动装配）。
+
+== 背景与目标
+
+=== 背景
+
+当前框架已具备 `web`、`data`、`websocket`、`seata`、`nacos`、`es` 等 starter，缺少对象存储能力。
+
+=== 总体目标
+
+新增 `athena-framework-starter-minio`，为业务系统提供低侵入、可配置、可替换的对象存储能力。
+
+=== 非目标
+
+以下内容不在本次范围内：
+
+* 多云统一抽象（S3/OSS/COS 一次性统一）
+* 大文件分片断点续传
+* 文件转码、图片处理等媒体能力
+
+== 范围定义
+
+=== 本次实现范围
+
+* MinIO 客户端自动装配
+* 统一对象存储服务接口（屏蔽 SDK 细节）
+* 核心能力：上传、下载、删除、元信息、存在性判断、预签名 URL
+* Bucket 自动初始化（可开关）
+* 统一异常映射（与框架错误码体系对齐）
+* 示例工程验证（建议）
+
+=== 交付形式
+
+* 新 starter 模块源码
+* BOM 版本与依赖纳管
+* 示例模块与联调说明
+* 使用文档与配置说明
+
+== 模块与仓库改动
+
+=== 需要新增/修改的模块
+
+. 修改 `athena-project/athena-framework-starters/pom.xml`，新增 module：`athena-framework-starter-minio`
+. 新增模块目录：`athena-project/athena-framework-starters/athena-framework-starter-minio`
+. 修改 `athena-project/framework-dependencies/pom.xml`，增加 MinIO 版本与 starter 管理
+. 建议新增示例模块：`athena-framework-test/athena-framework-test-minio`
+. 修改 `athena-framework-test/pom.xml`，注册测试模块
+
+=== 推荐目录结构
+
+[source,text]
+----
+athena-framework-starter-minio/
+├── pom.xml
+├── src/main/java/org/athena/framework/minio/
+│   ├── MinioAutoConfiguration.java
+│   ├── properties/MinioProperties.java
+│   ├── service/ObjectStorageService.java
+│   ├── service/impl/MinioObjectStorageService.java
+│   ├── model/PutObjectRequest.java
+│   ├── model/StoredObject.java
+│   ├── model/PresignedUrlResult.java
+│   ├── support/BucketInitializer.java
+│   ├── exception/ObjectStorageException.java
+│   └── constant/ObjectStorageErrorCode.java
+└── src/main/resources/
+    └── META-INF/spring/
+        └── org.springframework.boot.autoconfigure.AutoConfiguration.imports
+----
+
+== 依赖与版本管理方案
+
+=== BOM 管理（framework-dependencies）
+
+在 `framework-dependencies` 中新增：
+
+* `minio.version` 属性（建议使用稳定 8.x）
+* `io.minio:minio` 的 `dependencyManagement`
+* `org.athena:athena-framework-starter-minio:${revision}` 的版本纳管
+
+=== starter-minio 依赖建议
+
+* `org.athena:athena-framework-common`
+* `org.springframework.boot:spring-boot-autoconfigure`
+* `org.springframework.boot:spring-boot-starter-validation`
+* `io.minio:minio`
+
+可选依赖：
+
+* `org.springframework.boot:spring-boot-starter-actuator`（如要提供健康检查）
+
+== 配置设计
+
+=== 配置前缀
+
+`athena.minio`
+
+=== 配置项建议
+
+* `enabled`：是否启用（默认 `false`）
+* `endpoint`：MinIO 访问地址
+* `accessKey`：账号
+* `secretKey`：密钥
+* `region`：可选
+* `bucket`：默认 bucket
+* `secure`：是否 HTTPS（默认由 endpoint 决定，可显式覆盖）
+* `autoCreateBucket`：启动时自动创建 bucket（默认 `true`）
+* `connectTimeoutMs`
+* `writeTimeoutMs`
+* `readTimeoutMs`
+* `presignExpirySeconds`：预签名有效期
+* `maxObjectSize`：上传大小上限（可选）
+
+=== 配置校验要求
+
+* 使用 `@ConfigurationProperties + @Validated`
+* 当 `enabled=true` 时，`endpoint/accessKey/secretKey/bucket` 必填
+* 日志禁止输出密钥明文
+
+== 自动装配设计
+
+=== 自动装配入口
+
+类名建议：`MinioAutoConfiguration`
+
+关键注解：
+
+* `@AutoConfiguration`
+* `@EnableConfigurationProperties(MinioProperties.class)`
+* `@ConditionalOnClass(io.minio.MinioClient.class)`
+* `@ConditionalOnProperty(prefix = "athena.minio", name = "enabled", havingValue = "true")`
+
+=== Bean 装配规则
+
+* `MinioClient`：默认提供，`@ConditionalOnMissingBean`
+* `ObjectStorageService`：默认实现 `MinioObjectStorageService`
+* `BucketInitializer`：按配置检查并创建 bucket
+* 可选 `HealthIndicator`：actuator 存在时启用
+
+=== 资源注册
+
+`AutoConfiguration.imports` 内容：
+
+[source,text]
+----
+org.athena.framework.minio.MinioAutoConfiguration
+----
+
+== 对外服务接口设计
+
+=== 设计原则
+
+* 对业务暴露框架抽象接口，不直接泄漏 MinIO SDK 类型
+* 方法命名稳定，便于未来扩展到其他对象存储实现
+
+=== 接口建议
+
+`ObjectStorageService` 建议包含：
+
+* `putObject(PutObjectRequest req)`
+* `InputStream getObject(String bucket, String objectKey)`
+* `void removeObject(String bucket, String objectKey)`
+* `StoredObject statObject(String bucket, String objectKey)`
+* `boolean exists(String bucket, String objectKey)`
+* `String getPresignedGetUrl(String bucket, String objectKey, Duration expiry)`
+* `String getPresignedPutUrl(String bucket, String objectKey, Duration expiry)`
+
+=== 模型建议
+
+* `PutObjectRequest`：bucket、objectKey、contentType、size、stream/bytes、metadata
+* `StoredObject`：bucket、objectKey、size、etag、lastModified、contentType
+* `PresignedUrlResult`：url、method、expireAt
+
+== 异常与错误码
+
+=== 异常模型
+
+* 新增 `ObjectStorageException`，继承框架运行时异常基类
+* 捕获 MinIO SDK 异常后映射为框架错误码与业务可理解消息
+
+=== 错误码建议
+
+建议预留对象存储区间（例如 `31xx`），至少包含：
+
+* 上传失败
+* 下载失败
+* 删除失败
+* 对象不存在
+* 预签名失败
+* bucket 初始化失败
+* 配置非法
+
+=== 统一返回约束
+
+* controller 层通过现有 `R` 模型输出
+* 不向上抛出 SDK 原始异常文本
+
+== 可观测性与安全
+
+=== 日志规范
+
+* 打印：bucket、objectKey、耗时、结果
+* 不打印：`secretKey`、完整签名 URL、敏感 Header
+
+=== 指标建议
+
+建议接入以下指标（若项目已有指标体系可复用）：
+
+* 上传/下载/删除成功次数与失败次数
+* 操作耗时分位
+* 传输大小分布
+
+=== 安全建议
+
+* 预签名 URL 设置合理过期时间（默认短时）
+* 支持对象大小上限
+* 示例配置必须使用环境变量，不提交真实凭据
+
+== 示例模块与联调
+
+=== 示例模块建议
+
+新增 `athena-framework-test/athena-framework-test-minio`，提供：
+
+* 启动类
+* 简单文件接口
+* 示例配置
+* HTTP 调试脚本
+
+=== 建议接口
+
+* `POST /files/upload`
+* `GET /files/{key}`
+* `DELETE /files/{key}`
+* `GET /files/{key}/presign-get`
+* `GET /files/{key}/presign-put`
+
+=== 本地联调基线
+
+建议提供最小化 `docker compose`（MinIO API + Console）：
+
+* API: `9000`
+* Console: `9001`
+
+== 验收标准
+
+=== 功能验收
+
+. `enabled=false` 时，不应创建 MinIO 相关核心 Bean
+. `enabled=true` 且配置合法时，能够上传/下载/删除对象
+. `autoCreateBucket=true` 时，首次启动可自动创建 bucket
+. 预签名 URL 在有效期内可访问，过期后失效
+. 异常可被统一转换为框架错误响应
+
+=== 工程验收
+
+. 顶层构建可通过
+. 新模块已纳入 BOM 和聚合构建
+. 示例模块可独立运行验证
+. 无明文敏感配置提交
+
+== 实施计划（建议）
+
+=== Phase 1：模块骨架与自动装配
+
+* 新建 starter-minio 模块
+* 打通 BOM 与聚合
+* 完成配置类与自动装配
+
+=== Phase 2：核心能力实现
+
+* 完成 ObjectStorageService 与 MinIO 实现
+* 完成 bucket 初始化
+* 完成异常映射与错误码
+
+=== Phase 3：示例与验证
+
+* 新增测试示例模块
+* 完成接口联调
+* 输出使用说明
+
+=== Phase 4：增强（可选）
+
+* 健康检查
+* 指标打点
+* 上传限流/限大小策略增强
+
+== 风险清单与应对
+
+=== 版本兼容风险
+
+* 风险：MinIO SDK 与现有依赖潜在冲突
+* 应对：统一纳入 BOM；首轮锁定单一版本
+
+=== 配置误用风险
+
+* 风险：线上缺少必填配置或错误 endpoint
+* 应对：`enabled=true` 时强校验；启动阶段失败早暴露
+
+=== 安全风险
+
+* 风险：凭据泄漏、签名 URL 泄漏
+* 应对：日志脱敏、配置走环境变量、URL 打印受控
+
+=== 运维风险
+
+* 风险：bucket 不存在导致运行异常
+* 应对：提供 `autoCreateBucket` + 启动检查
+
+== 决策项（实施前确认）
+
+需在开发前确认以下事项：
+
+. `autoCreateBucket` 默认值是否采用 `true`
+. 是否必须支持预签名 PUT（前端直传）
+. 对象存储错误码区间是否采用 `31xx`
+. 示例模块是否纳入默认 CI 构建
+
+== 参考配置示例
+
+[source,yaml]
+----
+athena:
+  minio:
+    enabled: true
+    endpoint: ${ATHENA_MINIO_ENDPOINT:http://127.0.0.1:9000}
+    accessKey: ${ATHENA_MINIO_ACCESS_KEY:minioadmin}
+    secretKey: ${ATHENA_MINIO_SECRET_KEY:minioadmin}
+    bucket: ${ATHENA_MINIO_BUCKET:athena-dev}
+    autoCreateBucket: true
+    presignExpirySeconds: 900
+    connectTimeoutMs: 3000
+    writeTimeoutMs: 10000
+    readTimeoutMs: 10000
+----
+
+== 结论
+
+本方案与 Athena 现有模块化与自动装配风格保持一致，能够以最小侵入引入对象存储能力，并为后续扩展多存储实现保留接口层稳定性。

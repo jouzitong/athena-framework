@@ -1,0 +1,19 @@
+### 上传文件
+POST http://127.0.0.1:20012/files/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="hello.txt"
+Content-Type: text/plain
+
+hello minio
+--WebAppBoundary--
+
+### 查询对象信息
+GET http://127.0.0.1:20012/files/hello.txt/stat
+
+### 获取下载预签名
+GET http://127.0.0.1:20012/files/hello.txt/presign-get
+
+### 删除对象
+DELETE http://127.0.0.1:20012/files/hello.txt

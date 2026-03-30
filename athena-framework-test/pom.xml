@@ -21,6 +21,7 @@
         <module>athena-framework-test-log4j2</module>
         <module>athena-framework-test-jpa</module>
         <module>athena-framework-starters-test-websocket</module>
+        <module>athena-framework-test-minio</module>
     </modules>
 
     <dependencyManagement>
