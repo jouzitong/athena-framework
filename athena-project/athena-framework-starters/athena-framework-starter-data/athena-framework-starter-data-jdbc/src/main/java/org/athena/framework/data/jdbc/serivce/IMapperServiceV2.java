@@ -110,6 +110,17 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
     boolean remove(Long id);
 
     /**
+     * 执行物理删除操作，从数据库中永久移除指定ID的实体。
+     *
+     * @param id 要删除的实体的ID
+     * @return 如果删除成功，则返回true；否则返回false
+     */
+    @Transactional(rollbackFor = Exception.class)
+    default boolean physicalDelete(Long id) {
+        return false;
+    }
+
+    /**
      * 实例化DTO
      *
      * @return DTO对象
