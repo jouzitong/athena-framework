@@ -16,13 +16,13 @@ public class UserContextService implements IUserContextService {
 
     @Override
     public Long getUserId() {
-        LOGGER.warn("UserContextService userId is not configured, please configure it");
+        LOGGER.trace("UserContextService userId is not configured, please configure it");
         return 0L;
     }
 
     @Override
     public String getLocale() {
-        LOGGER.warn("UserContextService local is not configured, please configure it");
+        LOGGER.trace("UserContextService local is not configured, please configure it");
         return SystemContext.getLocale();
     }
 }
