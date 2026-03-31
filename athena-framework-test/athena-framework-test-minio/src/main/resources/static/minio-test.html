@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MinIO 文件测试</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #0f766e;
+      --danger: #dc2626;
+      --border: #d1d5db;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top right, #dbeafe 0, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 32px auto;
+      padding: 0 16px 32px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+
+    .hint {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input[type="text"], input[type="file"] {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: #1d4ed8;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    pre {
+      margin-top: 16px;
+      background: #0b1220;
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 14px;
+      min-height: 220px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>MinIO 文件操作测试页</h1>
+    <p class="hint">用于本地验证上传、下载、删除、查询和预签名地址。先上传文件，再执行其它操作。</p>
+
+    <div class="grid">
+      <div class="field">
+        <label for="bucket">Bucket（可空，默认取服务端配置）</label>
+        <input id="bucket" type="text" placeholder="例如: athena-dev">
+      </div>
+      <div class="field">
+        <label for="objectKey">对象 Key（可空，上传时默认文件名）</label>
+        <input id="objectKey" type="text" placeholder="例如: demo/hello.txt">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="file">选择上传文件</label>
+      <input id="file" type="file">
+    </div>
+
+    <div class="actions">
+      <button onclick="uploadFile()">上传</button>
+      <button class="secondary" onclick="downloadFile()">下载</button>
+      <button class="secondary" onclick="statFile()">查询元信息</button>
+      <button class="secondary" onclick="presignGet()">获取下载预签名</button>
+      <button class="secondary" onclick="presignPut()">获取上传预签名</button>
+      <button class="danger" onclick="deleteFile()">删除</button>
+    </div>
+
+    <pre id="output">等待操作...</pre>
+  </div>
+</div>
+
+<script>
+  function getBucket() {
+    return document.getElementById('bucket').value.trim();
+  }
+
+  function getObjectKey() {
+    return document.getElementById('objectKey').value.trim();
+  }
+
+  function buildQuery(bucket) {
+    return bucket ? ('?bucket=' + encodeURIComponent(bucket)) : '';
+  }
+
+  function print(title, data) {
+    const text = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+    document.getElementById('output').textContent = '[' + new Date().toLocaleTimeString() + '] ' + title + '\n' + text;
+  }
+
+  async function safeJson(res) {
+    try {
+      return await res.json();
+    } catch (e) {
+      return { raw: await res.text() };
+    }
+  }
+
+  async function uploadFile() {
+    const fileInput = document.getElementById('file');
+    if (!fileInput.files.length) {
+      print('上传失败', '请先选择文件');
+      return;
+    }
+
+    const bucket = getBucket();
+    const objectKey = getObjectKey();
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    if (bucket) formData.append('bucket', bucket);
+    if (objectKey) formData.append('objectKey', objectKey);
+
+    const res = await fetch('/files/upload', { method: 'POST', body: formData });
+    const data = await safeJson(res);
+    if (data && data.data && data.data.objectKey && !objectKey) {
+      document.getElementById('objectKey').value = data.data.objectKey;
+    }
+    print('上传结果', data);
+  }
+
+  async function downloadFile() {
+    const bucket = getBucket();
+    const objectKey = getObjectKey();
+    if (!objectKey) {
+      print('下载失败', '请先填写对象 Key');
+      return;
+    }
+
+    const url = '/files/' + encodeURIComponent(objectKey) + buildQuery(bucket);
+    const res = await fetch(url);
+    if (!res.ok) {
+      print('下载失败', await res.text());
+      return;
+    }
+
+    const blob = await res.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = objectKey.split('/').pop() || 'download.bin';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+    print('下载成功', '文件已触发浏览器下载');
+  }
+
+  async function deleteFile() {
+    const bucket = getBucket();
+    const objectKey = getObjectKey();
+    if (!objectKey) {
+      print('删除失败', '请先填写对象 Key');
+      return;
+    }
+
+    const url = '/files/' + encodeURIComponent(objectKey) + buildQuery(bucket);
+    const res = await fetch(url, { method: 'DELETE' });
+    print('删除结果', await safeJson(res));
+  }
+
+  async function statFile() {
+    const bucket = getBucket();
+    const objectKey = getObjectKey();
+    if (!objectKey) {
+      print('查询失败', '请先填写对象 Key');
+      return;
+    }
+
+    const url = '/files/' + encodeURIComponent(objectKey) + '/stat' + buildQuery(bucket);
+    const res = await fetch(url);
+    print('元信息结果', await safeJson(res));
+  }
+
+  async function presignGet() {
+    const bucket = getBucket();
+    const objectKey = getObjectKey();
+    if (!objectKey) {
+      print('预签名失败', '请先填写对象 Key');
+      return;
+    }
+
+    const url = '/files/' + encodeURIComponent(objectKey) + '/presign-get' + buildQuery(bucket);
+    const res = await fetch(url);
+    print('下载预签名结果', await safeJson(res));
+  }
+
+  async function presignPut() {
+    const bucket = getBucket();
+    const objectKey = getObjectKey();
+    if (!objectKey) {
+      print('预签名失败', '请先填写对象 Key');
+      return;
+    }
+
+    const url = '/files/' + encodeURIComponent(objectKey) + '/presign-put' + buildQuery(bucket);
+    const res = await fetch(url);
+    print('上传预签名结果', await safeJson(res));
+  }
+</script>
+</body>
+</html>
