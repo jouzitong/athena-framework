@@ -32,18 +32,33 @@
 [source,text]
 ----
 athena-framework
-├── athena-dependencies
-├── athena-common
-├── athena-core
-├── athena-web
-├── athena-data
-├── athena-cache
-├── athena-security
-├── athena-log
-├── athena-boot-autoconfigure
-├── athena-boot-starter
-├── athena-security-starter
-├── athena-demo
+├── athena-project
+│   ├── athena-framework-common
+│   └── athena-framework-starters
+│       ├── athena-framework-starter-web
+│       ├── athena-framework-starter-data
+│       │   ├── athena-framework-starter-data-jdbc
+│       │   ├── athena-framework-starter-data-jpa
+│       │   ├── athena-framework-starter-data-mybatis
+│       │   └── athena-framework-starter-data-mongo
+│       ├── athena-framework-starter-websocket
+│       ├── athena-framework-starter-nacos
+│       ├── athena-framework-starter-seata
+│       ├── athena-framework-starter-es
+│       ├── athena-framework-starter-minio
+│       ├── athena-framework-starters-ai
+│       ├── athena-framework-starter-security
+│       │   ├── athena-framework-starter-security-auth-core（必选）
+│       │   ├── athena-framework-starter-security-token-jwt（可选）
+│       │   ├── athena-framework-starter-security-token-redis（可选）
+│       │   ├── athena-framework-starter-security-authorization（可选）
+│       │   ├── athena-framework-starter-security-menu（可选）
+│       │   ├── athena-framework-starter-security-rbac（可选）
+│       │   ├── athena-framework-starter-security-audit（可选）
+│       │   └── athena-framework-starter-security-data-scope（可选）
+│       └── athena-framework-starter-security-all（可选聚合包）
+├── athena-project/framework-dependencies
+└── athena-framework-test
 ----
 
 === 2.2 模块职责说明
@@ -52,39 +67,70 @@ athena-framework
 |===
 |模块 |职责
 
-|athena-common
+|athena-framework-common
 |基础工具、常量、异常、通用模型
 
-|athena-core
-|核心接口定义（用户、权限、菜单等）
+|athena-framework-starters
+|全部业务能力 starter 聚合层（web/data/websocket/seata/nacos/es/minio/ai/security）
 
-|athena-web
-|Web 支撑（异常、返回值、拦截器）
+|athena-framework-starter-web
+|Web 基础能力（统一返回、异常处理、Web 工具）
 
-|athena-data
-|数据访问支撑（分页、审计字段等）
+|athena-framework-starter-data
+|数据能力聚合（JDBC/JPA/MyBatis/Mongo 子模块）
 
-|athena-cache
-|缓存能力（Redis、token缓存）
+|athena-framework-starter-security-auth-core
+|认证核心（登录、用户加载、认证上下文、基础拦截链），作为所有安全功能基础
 
-|athena-security
-|认证授权核心逻辑
+|athena-framework-starter-security-token-jwt / token-redis
+|Token 实现模块（按需选择，可并存但通过配置指定生效实现）
 
-|athena-log
-|日志与审计
+|athena-framework-starter-security-authorization
+|权限校验能力（URL/方法鉴权）
 
-|athena-boot-autoconfigure
-|自动装配
+|athena-framework-starter-security-menu
+|菜单过滤与菜单树能力
 
-|athena-boot-starter
-|基础 starter
+|athena-framework-starter-security-rbac
+|角色与权限关系管理（可选）
 
-|athena-security-starter
-|安全 starter
+|athena-framework-starter-security-audit
+|安全审计日志（登录、鉴权、拒绝事件）
 
-|athena-demo
-|示例项目
+|athena-framework-starter-security-data-scope
+|数据权限（预留实现与扩展 SPI）
+
+|framework-dependencies
+|BOM 与版本依赖统一管理
+
+|athena-framework-test
+|各 starter 集成验证与示例工程
 |===
+
+=== 2.3 安全模块目录建议
+
+[source,text]
+----
+athena-framework-starter-security/
+├── pom.xml                                    # parent/pom 聚合，不放业务代码
+├── athena-framework-starter-security-auth-core/
+├── athena-framework-starter-security-token-jwt/
+├── athena-framework-starter-security-token-redis/
+├── athena-framework-starter-security-authorization/
+├── athena-framework-starter-security-menu/
+├── athena-framework-starter-security-rbac/
+├── athena-framework-starter-security-audit/
+└── athena-framework-starter-security-data-scope/
+----
+
+=== 2.4 模块启停原则
+
+功能模块生效需同时满足两个条件：
+
+* 条件1：模块依赖在 classpath 中（已引入对应 starter）
+* 条件2：配置项 `enabled=true`
+
+即“依赖存在 + 配置开启”双重门控，避免误启用。
 
 == 3. 核心设计
 
@@ -190,8 +236,10 @@ TokenService 生成 token
 
 [source,yaml]
 ----
-auth:
-  token-type: jwt
+athena:
+  security:
+    token:
+      type: jwt
 ----
 
 ---
@@ -291,9 +339,21 @@ public class MenuNode {
 
 [source,java]
 ----
-@Configuration
-@ConditionalOnProperty(prefix="auth", name="enabled", havingValue="true", matchIfMissing=true)
-public class SecurityAutoConfiguration {
+@AutoConfiguration
+@ConditionalOnProperty(prefix = "athena.security.auth", name = "enabled", havingValue = "true", matchIfMissing = true)
+public class SecurityAuthCoreAutoConfiguration {
+}
+----
+
+可选模块示例（以菜单模块为例）：
+
+[source,java]
+----
+@AutoConfiguration
+@ConditionalOnClass(MenuService.class)
+@ConditionalOnBean(SecurityAuthCoreMarker.class)
+@ConditionalOnProperty(prefix = "athena.security.menu", name = "enabled", havingValue = "true", matchIfMissing = true)
+public class SecurityMenuAutoConfiguration {
 }
 ----
 
@@ -317,32 +377,67 @@ public TokenService tokenService() {
 }
 ----
 
+=== 8.3 自动装配注册
+
+每个子模块独立维护自己的：
+
+`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+
+这样可以做到子模块解耦发布与独立开关。
+
 ---
 
 == 9. Starter 设计
 
 === 9.1 基础 starter
 
-athena-boot-starter：
+沿用现有 starter 组合方式，安全能力改为“核心必选 + 功能按需”。
 
-* web
-* data
-* cache
+推荐基础依赖组合：
+
+* `athena-framework-starter-web`
+* `athena-framework-starter-data`（按需再选 jdbc/jpa/mybatis/mongo）
+* `athena-framework-starter-websocket`（按需）
 
 === 9.2 安全 starter
 
-athena-security-starter：
+拆分策略：
 
-* security
-* autoconfigure
+* 必选：`athena-framework-starter-security-auth-core`
+* 可选：`token-jwt`、`token-redis`、`authorization`、`menu`、`rbac`、`audit`、`data-scope`
+* 可选聚合：`athena-framework-starter-security-all`（全量场景）
 
-使用方式：
+最小化接入（仅认证）：
 
 [source,xml]
 ----
 <dependency>
-    <groupId>xxx</groupId>
-    <artifactId>athena-security-starter</artifactId>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-auth-core</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-token-jwt</artifactId>
+</dependency>
+----
+
+需要权限鉴权时再追加：
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-authorization</artifactId>
+</dependency>
+----
+
+需要菜单能力时再追加：
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-menu</artifactId>
 </dependency>
 ----
 
@@ -352,15 +447,39 @@ athena-security-starter：
 
 [source,yaml]
 ----
-auth:
-  enabled: true
-  token-type: jwt
-  token-header: Authorization
-  token-prefix: Bearer
-  access-token-expire-minutes: 120
-  ignore-urls:
-    - /auth/login
+athena:
+  security:
+    auth:
+      enabled: true
+      token-header: Authorization
+      token-prefix: Bearer
+      ignore-urls:
+        - /auth/login
+    token:
+      type: jwt  # jwt | redis
+      jwt:
+        enabled: true
+        access-token-expire-minutes: 120
+      redis:
+        enabled: false
+        access-token-expire-minutes: 120
+    authorization:
+      enabled: false
+    menu:
+      enabled: false
+    rbac:
+      enabled: false
+    audit:
+      enabled: false
+    data-scope:
+      enabled: false
 ----
+
+说明：
+
+* `auth.enabled` 建议默认开启（认证核心）
+* 其他模块默认关闭，按需引入并开启
+* 即使配置开启，若未引入模块依赖，也不会生效
 
 ---
 
@@ -390,12 +509,10 @@ auth:
 
 第一版建议实现：
 
-* 登录认证
-* Token机制
-* 权限校验
-* 方法鉴权
-* 菜单过滤
-* starter接入
+* `auth-core`（登录认证、上下文、基础过滤器）
+* `token-jwt`（默认 token 实现）
+* `authorization`（方法鉴权，默认关闭可配置开启）
+* 模块化 starter 接入与双重门控验证
 
 ---
 
@@ -403,10 +520,10 @@ auth:
 
 === 13.1 可扩展模块
 
-* auth-oauth2
-* auth-tenant
-* auth-sso
-* auth-apikey
+* athena-framework-starter-security-oauth2
+* athena-framework-starter-security-tenant
+* athena-framework-starter-security-sso
+* athena-framework-starter-security-apikey
 
 === 13.2 管理后台
 
