@@ -1,0 +1,435 @@
+= Athena Framework 安全认证授权模块设计
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 1. 文档说明
+
+=== 1.1 目标
+
+.构建一个可插拔的 Spring Boot 安全框架，支持：
+* 用户认证（登录、token）
+* 权限控制（接口 / 方法）
+* 菜单控制（前端展示）
+* 角色（可选）
+* 数据权限（预留）
+* 审计日志
+
+=== 1.2 设计原则
+
+* 可插拔（starter 方式接入）
+* 模块解耦（按能力拆分）
+* 角色非必选
+* 权限统一以 permissionCode 为核心
+* 支持覆盖默认实现
+* 支持渐进式扩展
+
+
+== 2. 总体架构
+
+=== 2.1 模块结构
+
+[source,text]
+----
+athena-framework
+├── athena-dependencies
+├── athena-common
+├── athena-core
+├── athena-web
+├── athena-data
+├── athena-cache
+├── athena-security
+├── athena-log
+├── athena-boot-autoconfigure
+├── athena-boot-starter
+├── athena-security-starter
+├── athena-demo
+----
+
+=== 2.2 模块职责说明
+
+[cols="1,3"]
+|===
+|模块 |职责
+
+|athena-common
+|基础工具、常量、异常、通用模型
+
+|athena-core
+|核心接口定义（用户、权限、菜单等）
+
+|athena-web
+|Web 支撑（异常、返回值、拦截器）
+
+|athena-data
+|数据访问支撑（分页、审计字段等）
+
+|athena-cache
+|缓存能力（Redis、token缓存）
+
+|athena-security
+|认证授权核心逻辑
+
+|athena-log
+|日志与审计
+
+|athena-boot-autoconfigure
+|自动装配
+
+|athena-boot-starter
+|基础 starter
+
+|athena-security-starter
+|安全 starter
+
+|athena-demo
+|示例项目
+|===
+
+== 3. 核心设计
+
+=== 3.1 统一认证模型
+
+[source,java]
+----
+public class LoginUser {
+private Long userId;
+private String username;
+private String tenantId;
+private Set<String> permissions;
+}
+----
+
+=== 3.2 核心接口定义
+
+==== 用户加载
+
+[source,java]
+----
+public interface AuthUserService {
+LoginUser loadByUsername(String username);
+LoginUser loadByUserId(Long userId);
+}
+----
+
+==== 权限服务
+
+[source,java]
+----
+public interface PermissionService {
+    Set<String> getPermissions(Long userId);
+}
+----
+
+==== 菜单服务
+
+[source,java]
+----
+public interface MenuService {
+    List<MenuNode> getMenus(Long userId);
+}
+----
+
+==== Token 服务
+
+[source,java]
+----
+public interface TokenService {
+    String createToken(LoginUser user);
+    LoginUser parseToken(String token);
+    void invalidate(String token);
+}
+----
+
+==== 数据权限（预留）
+
+[source,java]
+----
+public interface DataPermissionService {
+    DataScope getDataScope(Long userId, String permission);
+}
+----
+
+---
+
+== 4. 认证设计
+
+=== 4.1 登录流程
+
+[source,text]
+----
+用户请求登录
+↓
+AuthUserService 查询用户
+↓
+校验密码
+↓
+生成 LoginUser
+↓
+TokenService 生成 token
+↓
+返回 token
+----
+
+=== 4.2 Token 方案
+
+支持两种模式：
+
+[cols="1,2"]
+|===
+|类型 |说明
+
+|JWT
+|无状态，简单
+
+|Redis Token
+|支持踢下线、实时失效
+|===
+
+配置：
+
+[source,yaml]
+----
+auth:
+  token-type: jwt
+----
+
+---
+
+== 5. 授权设计
+
+=== 5.1 权限模型
+
+统一使用：
+
+[source,text]
+----
+permissionCode
+
+示例：
+
+* user:create
+* user:update
+* order:list
+----
+
+=== 5.2 鉴权方式
+
+==== URL 鉴权
+
+[source,java]
+----
+/api/user/** -> user:read
+----
+
+==== 方法鉴权
+
+[source,java]
+----
+@RequirePermission("user:create")
+----
+
+或：
+
+[source,java]
+----
+@PreAuthorize("hasAuthority('user:create')")
+----
+
+---
+
+== 6. 菜单设计
+
+=== 6.1 菜单模型
+
+[source,java]
+----
+public class MenuNode {
+    private Long id;
+    private Long parentId;
+    private String name;
+    private String path;
+    private String permissionCode;
+}
+----
+
+=== 6.2 菜单过滤流程
+
+[source,text]
+----
+查询用户权限
+↓
+查询全部菜单
+↓
+根据 permissionCode 过滤
+↓
+构建树结构
+----
+
+---
+
+== 7. 角色设计（可选）
+
+=== 7.1 设计原则
+
+* 角色只是权限集合
+* 非必须
+
+=== 7.2 模型关系
+
+[source,text]
+----
+用户 -> 权限
+用户 -> 角色 -> 权限
+----
+
+---
+
+== 8. 自动装配设计
+
+=== 8.1 自动配置类
+
+[source,java]
+----
+@Configuration
+@ConditionalOnProperty(prefix="auth", name="enabled", havingValue="true", matchIfMissing=true)
+public class SecurityAutoConfiguration {
+}
+----
+
+=== 8.2 默认 Bean 策略
+
+[source,text]
+----
+提供默认实现
+↓
+业务可覆盖
+----
+
+示例：
+
+[source,java]
+----
+@ConditionalOnMissingBean
+@Bean
+public TokenService tokenService() {
+    return new JwtTokenService();
+}
+----
+
+---
+
+== 9. Starter 设计
+
+=== 9.1 基础 starter
+
+athena-boot-starter：
+
+* web
+* data
+* cache
+
+=== 9.2 安全 starter
+
+athena-security-starter：
+
+* security
+* autoconfigure
+
+使用方式：
+
+[source,xml]
+----
+<dependency>
+    <groupId>xxx</groupId>
+    <artifactId>athena-security-starter</artifactId>
+</dependency>
+----
+
+---
+
+== 10. 配置设计
+
+[source,yaml]
+----
+auth:
+  enabled: true
+  token-type: jwt
+  token-header: Authorization
+  token-prefix: Bearer
+  access-token-expire-minutes: 120
+  ignore-urls:
+    - /auth/login
+----
+
+---
+
+== 11. 扩展点设计
+
+=== 11.1 可扩展接口
+
+* AuthUserService
+* PermissionService
+* MenuService
+* TokenService
+* DataPermissionService
+
+=== 11.2 扩展能力
+
+未来支持：
+
+* OAuth2 登录
+* 多租户
+* 单点登录
+* API Key
+* 数据权限
+
+---
+
+== 12. MVP实现范围
+
+第一版建议实现：
+
+* 登录认证
+* Token机制
+* 权限校验
+* 方法鉴权
+* 菜单过滤
+* starter接入
+
+---
+
+== 13. 后续演进
+
+=== 13.1 可扩展模块
+
+* auth-oauth2
+* auth-tenant
+* auth-sso
+* auth-apikey
+
+=== 13.2 管理后台
+
+athena-admin-support：
+
+* 用户管理
+* 角色管理
+* 菜单管理
+
+---
+
+== 14. 总结
+
+该框架具备：
+
+* 模块化设计
+* starter 插件化接入
+* 权限统一模型
+* 高扩展性
+
+适用于：
+
+* 中后台系统
+* SaaS系统
+* 多租户系统
+* 微服务体系
