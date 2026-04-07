@@ -33,7 +33,7 @@ public abstract class AuditableEntity extends BaseEntity {
 
     @Getter
     @Setter
-    @Column(name = "created_by", columnDefinition = "varchar(64) default -1 comment '创建人'")
+    @Column(name = "created_by", columnDefinition = "bigint default -1 comment '创建人'")
     @CreatedBy
     private Long createdBy;
 
@@ -46,7 +46,7 @@ public abstract class AuditableEntity extends BaseEntity {
 
     @Getter
     @Setter
-    @Column(name = "updated_by", columnDefinition = "varchar(64) default -1 comment '最后修改人'")
+    @Column(name = "updated_by", columnDefinition = "bigint default -1 comment '最后修改人'")
     @LastModifiedBy
     private Long updatedBy;
 }
