@@ -12,7 +12,6 @@
     </parent>
     <packaging>pom</packaging>
     <artifactId>framework-dependencies</artifactId>
-    <version>${revision}</version>
 
     <description>框架版本依赖管理</description>
 
