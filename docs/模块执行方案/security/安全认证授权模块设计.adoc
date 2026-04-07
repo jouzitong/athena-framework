@@ -26,7 +26,8 @@
 === 2.2 非目标
 
 * 不在本阶段提供完整 IAM 管理后台
-* 不在本阶段绑定特定持久化实现（仅定义 SPI）
+* 认证核心不绑定特定持久化实现（仅依赖 SPI）
+* 不在本阶段实现多租户隔离能力（仅预留字段与扩展点）
 * 不在本阶段做旧模型兼容迁移
 
 == 3. 总体架构
@@ -44,6 +45,7 @@ athena-framework
 │           ├── athena-framework-starter-security-api
 │           ├── athena-framework-starter-security-auth-core（内核）
 │           ├── athena-framework-starter-security（统一入口，建议必选）
+│           ├── athena-framework-starter-security-user-jpa（可选，首个用户存储适配器）
 │           ├── athena-framework-starter-security-token-jwt（可选）
 │           ├── athena-framework-starter-security-token-redis（可选）
 │           ├── athena-framework-starter-security-authorization（可选）
@@ -68,6 +70,7 @@ athena-framework
 * `security-api` 不依赖任何安全实现模块
 * `security-auth-core` 仅依赖 `security-api`
 * `athena-framework-starter-security` 依赖 `security-api + security-auth-core`，作为应用统一接入入口
+* `security-user-jpa` 作为首个用户存储适配器，依赖 `athena-framework-starter-security + athena-framework-starter-data-jpa`
 * 其他安全功能模块依赖 `athena-framework-starter-security`（或至少依赖其 marker 契约）
 * `security-data-scope` 不新增独立 `*-adapter` 子模块，与 ORM 的衔接在现有数据模块完成
 * `athena-framework-starter-data-mybatis` 与 `athena-framework-starter-data-jpa` 分别提供数据范围注入扩展点
@@ -97,6 +100,12 @@ athena-framework
 |不直接承载授权/菜单/RBAC/审计/数据权限实现
 |SecurityCoreMarker/基础配置装配点
 |`athena.security.enabled`（默认 true）
+
+|security-user-jpa
+|基于 JPA 提供用户查询与密码凭据校验默认实现（MVP 首个适配器）
+|不改动认证主流程，不向 `auth-core` 泄漏 ORM 细节
+|SecurityUserRepository/CredentialVerifier
+|`athena.security.user.jpa.enabled`（默认 false）
 
 |security-token-jwt
 |JWT 生成、解析、刷新、失效策略
@@ -200,6 +209,15 @@ public interface UserContextEnricher {
 
 [source,java]
 ----
+public interface SecurityUserRepository {
+    Optional<SecurityUser> findByUsername(String username);
+    Optional<SecurityUser> findByUserId(String userId);
+}
+
+public interface CredentialVerifier {
+    CredentialVerifyResult verify(SecurityUser user, CredentialInput input);
+}
+
 public interface IdentityProvider {
     Optional<IdentityPrincipal> loadByUsername(String username);
     Optional<IdentityPrincipal> loadByUserId(String userId);
@@ -209,6 +227,11 @@ public interface Authenticator {
     AuthenticationResult authenticate(AuthenticationRequest request);
 }
 ----
+
+说明：
+
+* `auth-core` 仅依赖 `SecurityUserRepository/CredentialVerifier` 等 SPI，不依赖 JPA/MyBatis
+* `security-user-jpa` 通过适配上述 SPI 提供默认实现，便于后续新增 `security-user-mybatis` 时无侵入替换
 
 === 5.2 令牌与会话
 
@@ -274,6 +297,49 @@ Authenticator 认证
 写入 SecurityContext
 ----
 
+=== 6.3 与用户存储适配器的关系
+
+* `auth-core` 只编排认证流程，不关心用户来自 JPA 还是其他存储
+* 用户表、凭据表、Repository 等实现放在 `security-user-jpa` 等适配层模块
+* 业务可通过 `@Primary` 或 `@ConditionalOnMissingBean` 覆盖默认用户查询/校验实现
+
+=== 6.4 基础用户表（MVP）
+
+建议拆分为“用户基础信息 + 凭据信息”两表，降低后续接入多认证方式的改造成本：
+
+[source,sql]
+----
+-- 用户基础信息（示例）
+CREATE TABLE sec_user (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id VARCHAR(64) NOT NULL UNIQUE,
+  username VARCHAR(64) NOT NULL,
+  display_name VARCHAR(128),
+  status VARCHAR(16) NOT NULL DEFAULT 'ENABLED',
+  tenant_id VARCHAR(64) DEFAULT NULL, -- TODO: 多租户能力开启后再启用约束与过滤
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 用户凭据（示例）
+CREATE TABLE sec_user_credential (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id VARCHAR(64) NOT NULL,
+  credential_type VARCHAR(32) NOT NULL DEFAULT 'PASSWORD',
+  password_hash VARCHAR(255) NOT NULL,
+  password_algo VARCHAR(32) NOT NULL,
+  password_salt VARCHAR(255),
+  expire_at DATETIME NULL,
+  UNIQUE KEY uk_user_credential (user_id, credential_type)
+);
+----
+
+当前约束：
+
+* 本阶段不实现多租户隔离逻辑（登录态隔离、租户数据过滤、租户路由）
+* 仅保留 `tenant_id` 字段和 SPI 入参，代码中以 `TODO` 标识待扩展点
+* 当前默认按“单租户运行”处理（`tenant_id` 可为空，不参与认证判定）
+
 == 7. Token 子模块设计
 
 === 7.1 模块职责
@@ -332,6 +398,7 @@ Authenticator 认证
 * 可选模块必须 `@ConditionalOnBean(SecurityCoreMarker.class)`
 * 可选模块 `matchIfMissing=false`
 * 仅 `auth-core` 允许 `matchIfMissing=true`
+* `security-user-jpa` 需额外满足 `@ConditionalOnClass(EntityManager.class)`，避免无 JPA 依赖时误装配
 
 示例：
 
@@ -367,6 +434,9 @@ athena:
         access-token-expire-minutes: 120
     authorization:
       enabled: false
+    user:
+      jpa:
+        enabled: true
     menu:
       enabled: false
     rbac:
@@ -405,6 +475,10 @@ athena:
 ----
 <dependency>
     <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-user-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.athena</groupId>
     <artifactId>athena-framework-starter-security-authorization</artifactId>
 </dependency>
 <dependency>
@@ -420,12 +494,15 @@ athena:
 * `security-api`
 * `security-auth-core`
 * `athena-framework-starter-security`
+* `security-user-jpa`（首个用户存储适配器）
 * `security-token-jwt`
 * `security-authorization`（方法鉴权）
 * 双重启停机制与基础示例
+* 多租户字段预留（`tenant_id`），实现标记为 TODO，暂不启用租户隔离逻辑
 
 == 13. 后续演进
 
+* 多租户隔离能力（租户上下文解析、租户级唯一性约束、租户数据过滤）
 * `security-token-redis` 完整多端会话管理
 * `security-rbac` 与 `security-menu` 标准实现
 * `security-audit` 事件持久化适配器
