@@ -1,0 +1,442 @@
+= Athena Framework 安全认证授权模块设计（重构版）
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 1. 文档定位
+
+本文档是 Athena Framework 安全体系的框架级设计文档，目标是：
+
+* 提供可插拔、可组合的安全能力
+* 明确模块边界与依赖关系
+* 以认证核心为必选，其他能力按需启用
+* 保证后续实现不需要兼容旧设计
+
+说明：当前尚未落代码，本方案直接采用新模型，不保留旧逻辑兼容层。
+
+== 2. 设计目标与非目标
+
+=== 2.1 目标
+
+* 必选能力：用户认证、用户上下文建立、会话/令牌管理
+* 可选能力：授权、菜单、RBAC、审计、数据权限
+* 支持“依赖存在 + 配置开启”双重启停
+* 统一 SPI 契约，业务可覆盖默认实现
+
+=== 2.2 非目标
+
+* 不在本阶段提供完整 IAM 管理后台
+* 不在本阶段绑定特定持久化实现（仅定义 SPI）
+* 不在本阶段做旧模型兼容迁移
+
+== 3. 总体架构
+
+=== 3.1 分层结构
+
+[source,text]
+----
+athena-framework
+├── athena-project
+│   ├── athena-framework-common
+│   └── athena-framework-starters
+│       └── athena-framework-starter-security/（父目录，聚合模块）
+│           ├── pom.xml
+│           ├── athena-framework-starter-security-api
+│           ├── athena-framework-starter-security-auth-core（内核）
+│           ├── athena-framework-starter-security（统一入口，建议必选）
+│           ├── athena-framework-starter-security-token-jwt（可选）
+│           ├── athena-framework-starter-security-token-redis（可选）
+│           ├── athena-framework-starter-security-authorization（可选）
+│           ├── athena-framework-starter-security-menu（可选）
+│           ├── athena-framework-starter-security-rbac（可选）
+│           ├── athena-framework-starter-security-audit（可选）
+│           ├── athena-framework-starter-security-data-scope（可选）
+│           └── athena-framework-starter-security-all（可选聚合）
+├── athena-project/framework-dependencies
+└── athena-framework-test
+----
+
+=== 3.2 依赖约束
+
+目录约束：
+
+* 所有安全子模块都位于 `athena-framework-starter-security/` 目录下
+* `athena-framework-starter-security/pom.xml` 作为父 `packaging=pom` 聚合
+
+依赖约束：
+
+* `security-api` 不依赖任何安全实现模块
+* `security-auth-core` 仅依赖 `security-api`
+* `athena-framework-starter-security` 依赖 `security-api + security-auth-core`，作为应用统一接入入口
+* 其他安全功能模块依赖 `athena-framework-starter-security`（或至少依赖其 marker 契约）
+* `security-data-scope` 不新增独立 `*-adapter` 子模块，与 ORM 的衔接在现有数据模块完成
+* `athena-framework-starter-data-mybatis` 与 `athena-framework-starter-data-jpa` 分别提供数据范围注入扩展点
+* 模块之间禁止循环依赖
+* 业务应用优先引入 `athena-framework-starter-security`，再按需引入插件子模块
+
+=== 3.3 模块边界定义
+
+[cols="1,2,2,2,1"]
+|===
+|模块 |职责（做什么） |非职责（不做什么） |扩展点 |开关
+
+|security-api
+|定义统一模型、SPI、错误码与事件契约
+|不提供 Spring 自动装配与实现
+|全部 SPI 契约
+|无
+
+|security-auth-core
+|认证主流程、上下文建立、认证解析、默认会话入口
+|不负责鉴权策略、菜单过滤、RBAC、审计落库
+|IdentityProvider/Authenticator/UserContextEnricher
+|由 `athena-framework-starter-security` 统一管理（通常不直接给业务暴露）
+
+|athena-framework-starter-security
+|应用侧统一入口、聚合认证内核、提供统一 marker 与基础默认配置
+|不直接承载授权/菜单/RBAC/审计/数据权限实现
+|SecurityCoreMarker/基础配置装配点
+|`athena.security.enabled`（默认 true）
+
+|security-token-jwt
+|JWT 生成、解析、刷新、失效策略
+|不负责登录流程与鉴权判定
+|TokenManager
+|`athena.security.token.jwt.enabled`（默认 false）
+
+|security-token-redis
+|Redis token/session 存储与失效控制
+|不负责鉴权判定
+|TokenStore/TokenManager
+|`athena.security.token.redis.enabled`（默认 false）
+
+|security-authorization
+|URL/方法级鉴权执行、拒绝处理
+|不负责认证与会话管理
+|AuthorizationProvider/PermissionEvaluator
+|`athena.security.authorization.enabled`（默认 false）
+
+|security-menu
+|菜单按权限过滤与树构建
+|不负责接口鉴权
+|MenuProvider/MenuFilter
+|`athena.security.menu.enabled`（默认 false）
+
+|security-rbac
+|用户-角色-权限关系解析
+|不负责菜单渲染和审计记录
+|RoleProvider/RolePermissionResolver
+|`athena.security.rbac.enabled`（默认 false）
+
+|security-audit
+|认证/鉴权事件审计输出
+|不负责业务日志实现细节
+|AuditPublisher/AuditEventMapper
+|`athena.security.audit.enabled`（默认 false）
+
+|security-data-scope
+|数据权限范围模型与解析契约
+|不直接绑定特定 ORM 实现
+|DataScopeProvider/DataScopeResolver
+|`athena.security.data-scope.enabled`（默认 false）
+|===
+
+== 4. 核心模型设计
+
+=== 4.1 统一上下文模型
+
+核心模型采用 `UserContext`，替代旧的 `LoginUser`。
+
+[source,java]
+----
+public interface UserContext {
+    Subject subject();
+    AuthnState authn();
+    AuthorizationSnapshot authorization(); // 可空
+    SessionState session();                // 可空
+    Map<String, Object> attributes();      // 扩展属性
+}
+----
+
+=== 4.2 子模型建议
+
+[source,java]
+----
+public record Subject(
+    String userId,
+    String username,
+    String tenantId,
+    String userType
+) {}
+
+public record AuthorizationSnapshot(
+    Set<String> permissions,
+    Set<String> roles,
+    Set<String> scopes
+) {}
+----
+
+设计要点：
+
+* 主体信息和能力信息分离
+* 权限/角色为可选快照，不要求所有系统都实现
+* `attributes` 作为框架扩展区，承载菜单、组织、岗位等增量能力
+
+=== 4.3 上下文构建机制
+
+`auth-core` 完成基础上下文后，其他模块通过 `UserContextEnricher` 增量注入：
+
+[source,java]
+----
+public interface UserContextEnricher {
+    int order();
+    void enrich(MutableUserContext context);
+}
+----
+
+== 5. 核心 SPI 设计
+
+=== 5.1 认证与身份
+
+[source,java]
+----
+public interface IdentityProvider {
+    Optional<IdentityPrincipal> loadByUsername(String username);
+    Optional<IdentityPrincipal> loadByUserId(String userId);
+}
+
+public interface Authenticator {
+    AuthenticationResult authenticate(AuthenticationRequest request);
+}
+----
+
+=== 5.2 令牌与会话
+
+[source,java]
+----
+public interface TokenManager {
+    String create(UserContext context);
+    UserContext parse(String token);
+    void invalidate(String token);
+}
+----
+
+=== 5.3 可选能力 SPI
+
+[source,java]
+----
+public interface AuthorizationProvider {
+    Set<String> permissions(String userId, String tenantId);
+}
+
+public interface MenuProvider {
+    List<MenuNode> loadMenus(UserContext context);
+}
+
+public interface DataScopeProvider {
+    DataScope resolve(UserContext context, String permissionCode);
+}
+----
+
+== 6. 认证核心模块（security-auth-core）
+
+=== 6.1 功能边界
+
+包含：
+
+* 登录认证主流程
+* 请求凭证解析（Header/Cookie/Query）
+* `UserContext` 建立与生命周期管理
+* 认证失败/成功事件发布
+* 默认可运行令牌入口（可被 `token-*` 模块替换）
+
+不包含：
+
+* 权限判断策略
+* 菜单过滤
+* 角色关系管理
+* 审计存储细节
+
+=== 6.2 认证流程
+
+[source,text]
+----
+请求进入
+↓
+CredentialExtractor 提取凭证
+↓
+Authenticator 认证
+↓
+构建基础 UserContext（subject/authn/session）
+↓
+执行 UserContextEnricher 链
+↓
+写入 SecurityContext
+----
+
+== 7. Token 子模块设计
+
+=== 7.1 模块职责
+
+* `token-jwt`：无状态场景，部署简单
+* `token-redis`：支持强制下线、实时失效、多端控制
+
+=== 7.2 选择策略
+
+* 配置 `athena.security.token.type=jwt|redis|local`
+* 若配置与已引入模块不匹配，启动失败并给出明确错误
+
+== 8. 可选功能模块设计
+
+=== 8.1 authorization
+
+* 支持 `@RequirePermission` 与表达式鉴权
+* 对接 `AuthorizationProvider` 获取权限快照
+
+=== 8.2 menu
+
+* 按 `permissionCode` 过滤菜单
+* 输出树形结构给前端使用
+
+=== 8.3 rbac
+
+* 提供用户-角色-权限映射解析
+* 可作为 `authorization/menu` 的上游数据源
+
+=== 8.4 audit
+
+* 监听认证与鉴权事件
+* 输出标准化审计事件（可接日志、MQ、DB）
+
+=== 8.5 data-scope
+
+* 提供数据范围模型与计算接口
+* 不单独拆 `security-data-scope-mybatis/jpa` 子模块
+* 与 MyBatis/JPA 的衔接放在现有模块：
+  - `athena-framework-starter-data-mybatis`：负责查询条件注入
+  - `athena-framework-starter-data-jpa`：负责 `Specification/Predicate` 条件拼装
+* `security-data-scope` 仅提供统一 SPI 与规则计算，不直接依赖 ORM
+
+== 9. 自动装配与启停规则
+
+=== 9.1 启停总规则
+
+模块生效需同时满足：
+
+* classpath 中存在模块依赖
+* 对应 `enabled=true`
+
+=== 9.2 自动装配约束
+
+* 各模块独立维护 `AutoConfiguration.imports`
+* 可选模块必须 `@ConditionalOnBean(SecurityCoreMarker.class)`
+* 可选模块 `matchIfMissing=false`
+* 仅 `auth-core` 允许 `matchIfMissing=true`
+
+示例：
+
+[source,java]
+----
+@AutoConfiguration
+@ConditionalOnBean(SecurityCoreMarker.class)
+@ConditionalOnProperty(prefix = "athena.security.authorization", name = "enabled", havingValue = "true")
+public class SecurityAuthorizationAutoConfiguration {
+}
+----
+
+== 10. 配置模型
+
+[source,yaml]
+----
+athena:
+  security:
+    enabled: true
+    auth:
+      enabled: true
+      token-header: Authorization
+      token-prefix: Bearer
+      ignore-urls:
+        - /auth/login
+    token:
+      type: jwt      # local | jwt | redis
+      jwt:
+        enabled: true
+        access-token-expire-minutes: 120
+      redis:
+        enabled: false
+        access-token-expire-minutes: 120
+    authorization:
+      enabled: false
+    menu:
+      enabled: false
+    rbac:
+      enabled: false
+    audit:
+      enabled: false
+    data-scope:
+      enabled: false
+----
+
+== 11. 引入方式
+
+=== 11.1 最小接入（仅认证）
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security</artifactId>
+</dependency>
+----
+
+如需显式使用 JWT 能力，再追加：
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-token-jwt</artifactId>
+</dependency>
+----
+
+=== 11.2 按需追加能力
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-authorization</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.athena</groupId>
+    <artifactId>athena-framework-starter-security-menu</artifactId>
+</dependency>
+----
+
+== 12. MVP 范围
+
+第一版只实现：
+
+* `security-api`
+* `security-auth-core`
+* `athena-framework-starter-security`
+* `security-token-jwt`
+* `security-authorization`（方法鉴权）
+* 双重启停机制与基础示例
+
+== 13. 后续演进
+
+* `security-token-redis` 完整多端会话管理
+* `security-rbac` 与 `security-menu` 标准实现
+* `security-audit` 事件持久化适配器
+* 在现有 `starter-data-mybatis/jpa` 中补齐 `security-data-scope` 的查询注入能力
+* `security-oauth2`、`security-sso`、`security-apikey` 扩展模块
+
+== 14. 总结
+
+本方案将安全体系明确为“认证核心 + 可选能力模块”的框架形态，核心收益：
+
+* 边界清晰：每个模块做什么、不做什么明确
+* 可组合：系统按需引入，避免大而全
+* 可扩展：统一 `UserContext` 与 SPI，支持渐进演进
+* 易维护：模块解耦，自动装配规则一致

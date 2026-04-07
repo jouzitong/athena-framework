@@ -1,0 +1,250 @@
+= Athena Framework 安全认证授权模块用户测试方案
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 1. 文档目的
+
+本文档用于指导安全模块的用户测试（UAT），验证以下目标：
+
+* `athena-framework-starter-security` 作为统一入口可正常工作
+* 安全子模块按“依赖引入 + 配置开启”生效
+* 不同业务系统可按需启用附加能力，不引入不生效
+
+== 2. 测试模块定位
+
+=== 2.1 测试模块命名规范
+
+参考现有专门测试模块（如 `athena-framework-starters-test-websocket`），安全模块建议使用：
+
+* `athena-framework-test/athena-framework-starters-test-security`
+
+说明：
+
+* 该模块用于验证安全 starter 组合能力
+* 仅放测试/演示代码，不放框架实现代码
+
+=== 2.2 推荐目录结构
+
+[source,text]
+----
+athena-framework-test/
+└── athena-framework-starters-test-security/
+    ├── pom.xml
+    ├── http/
+    │   ├── auth.http
+    │   ├── authorization.http
+    │   ├── menu.http
+    │   └── audit.http
+    └── src/main/
+        ├── java/org/athena/test/security/
+        │   ├── SecurityTestApplication.java
+        │   ├── controller/AuthController.java
+        │   ├── controller/ProfileController.java
+        │   ├── controller/AdminController.java
+        │   └── mock/MockIdentityProvider.java
+        └── resources/
+            ├── application.yml
+            ├── application-auth-only.yml
+            ├── application-authz.yml
+            ├── application-menu.yml
+            └── application-full.yml
+----
+
+== 3. 测试范围
+
+=== 3.1 本次范围
+
+* 统一入口模块：`athena-framework-starter-security`
+* 子模块：`token-jwt`、`authorization`、`menu`（优先）
+* 开关验证：`enabled=true/false` 生效差异
+* 配置与依赖不匹配时的失败行为验证
+
+=== 3.2 非范围
+
+* 复杂 SSO/OAuth2 接入
+* 全量 RBAC 管理后台
+* 生产级审计存储性能压测
+
+== 4. 依赖组合测试矩阵
+
+[cols="1,2,2,3"]
+|===
+|场景 |依赖组合 |配置 |预期结果
+
+|S1 最小认证
+|`starter-security`
+|`athena.security.enabled=true`
+|应用可启动；受保护接口未登录返回 401；登录后可访问基础接口
+
+|S2 JWT 认证
+|`starter-security + token-jwt`
+|`token.type=jwt` 且 `token.jwt.enabled=true`
+|登录返回 JWT；携带 token 可解析出 `UserContext`
+
+|S3 鉴权启用
+|`S2 + authorization`
+|`authorization.enabled=true`
+|无权限访问返回 403；有权限访问 200
+
+|S4 菜单启用
+|`S3 + menu`
+|`menu.enabled=true`
+|菜单接口按 `permissionCode` 过滤返回
+
+|S5 配置开启但未引入模块
+|仅 `starter-security`
+|`authorization.enabled=true`
+|应用启动失败或明确告警（按框架约定），提示缺少模块依赖
+|===
+
+== 5. 测试前置准备
+
+=== 5.1 环境准备
+
+* JDK 17
+* Maven 3.8+
+* 本地端口：`18090`（建议）
+
+=== 5.2 测试账号与权限
+
+建议内置 3 个测试用户：
+
+* `admin/admin123`：权限 `user:read,user:create,menu:view`
+* `operator/op123`：权限 `user:read,menu:view`
+* `guest/guest123`：无管理权限
+
+== 6. 用户测试用例
+
+=== 6.1 认证流程用例（auth-core）
+
+[source,http]
+----
+### 1) 登录获取 token
+POST http://127.0.0.1:18090/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2) 访问个人信息（携带 token）
+GET http://127.0.0.1:18090/profile/me
+Authorization: Bearer {{token}}
+----
+
+预期：
+
+* 登录成功返回 token
+* `profile/me` 返回 `UserContext.subject` 基本信息
+
+=== 6.2 鉴权用例（authorization）
+
+[source,http]
+----
+### 无权限用户访问管理接口
+GET http://127.0.0.1:18090/admin/users
+Authorization: Bearer {{guestToken}}
+
+### 有权限用户访问管理接口
+GET http://127.0.0.1:18090/admin/users
+Authorization: Bearer {{adminToken}}
+----
+
+预期：
+
+* `guest` 返回 403
+* `admin` 返回 200
+
+=== 6.3 菜单过滤用例（menu）
+
+[source,http]
+----
+### 获取当前用户菜单
+GET http://127.0.0.1:18090/menu/current
+Authorization: Bearer {{operatorToken}}
+----
+
+预期：
+
+* 返回菜单树
+* 仅包含 `operator` 有权限的菜单节点
+
+=== 6.4 开关验证用例（双重门控）
+
+步骤：
+
+1. 引入 `authorization` 模块，`authorization.enabled=false`
+2. 启动后访问需要权限接口
+3. 改为 `authorization.enabled=true` 重启再访问
+
+预期：
+
+* `enabled=false` 时不触发鉴权逻辑
+* `enabled=true` 时触发鉴权逻辑并返回 403/200
+
+== 7. 失败场景测试
+
+=== 7.1 token 类型与依赖不匹配
+
+配置：
+
+[source,yaml]
+----
+athena:
+  security:
+    token:
+      type: redis
+      redis:
+        enabled: true
+----
+
+但未引入 `token-redis` 模块。
+
+预期：
+
+* 启动失败并输出明确错误信息：缺少对应 token 模块依赖
+
+=== 7.2 重复 token 实现冲突
+
+同时引入 `token-jwt` 和 `token-redis`，但未配置 `token.type`。
+
+预期：
+
+* 启动失败或按约定默认策略处理，并打印可读提示
+
+== 8. 验收标准
+
+满足以下条件即通过用户测试：
+
+* S1~S5 场景全部通过
+* 401/403/200 行为符合预期
+* 菜单过滤与权限一致
+* 模块缺失/配置冲突时具备可读报错
+* 文档中的 HTTP 用例可在测试模块直接复现
+
+== 9. 执行建议
+
+=== 9.1 执行顺序
+
+1. 先跑 `S1`（仅入口模块）
+2. 再跑 `S2`（token）
+3. 再跑 `S3/S4`（授权与菜单）
+4. 最后跑失败场景（`S5` 与冲突场景）
+
+=== 9.2 产出物
+
+每次测试建议产出：
+
+* 测试配置文件（生效 profile）
+* HTTP 执行结果截图或响应日志
+* 问题清单（含复现步骤、期望与实际）
+
+== 10. 后续扩展
+
+后续可在同一测试模块继续扩展：
+
+* `rbac` 用户-角色-权限联动测试
+* `audit` 事件链路测试（登录/拒绝/放行）
+* `data-scope` 与 JPA/MyBatis 适配联测
