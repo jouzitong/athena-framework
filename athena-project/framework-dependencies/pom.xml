@@ -128,6 +128,36 @@
                 <artifactId>athena-framework-starter-minio</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-auth-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-user-jpa</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-token-jwt</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-authorization</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
             <!-- ######################## 框架依赖 ########################### -->
             <dependency>

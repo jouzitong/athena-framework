@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.athena</groupId>
+        <artifactId>athena-framework-starters</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>athena-framework-starter-security-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>athena-framework-starter-security-api</module>
+        <module>athena-framework-starter-security-auth-core</module>
+        <module>athena-framework-starter-security</module>
+        <module>athena-framework-starter-security-user-jpa</module>
+        <module>athena-framework-starter-security-token-jwt</module>
+        <module>athena-framework-starter-security-authorization</module>
+    </modules>
+</project>
