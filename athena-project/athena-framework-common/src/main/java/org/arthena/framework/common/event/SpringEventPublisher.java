@@ -3,14 +3,13 @@ package org.arthena.framework.common.event;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.stereotype.Component;
 
 /**
  * 事件发布器
  *
  * @author zhouzhitong
  */
-//@Component("springEventPublisher")
+//@Component("defaultSpringEventPublisher")
 @Slf4j
 public class SpringEventPublisher implements EventPublisher, ApplicationEventPublisherAware {
 
