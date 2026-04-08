@@ -1,0 +1,14 @@
+athena:
+  security:
+    auth:
+      enabled: true
+      ignore-urls:
+        - /auth/login
+        - /profile/ping
+        - /template/test
+    token:
+      type: local
+      jwt:
+        enabled: false
+    authorization:
+      enabled: false

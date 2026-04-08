@@ -1,0 +1,21 @@
+athena:
+  security:
+    enabled: true
+    auth:
+      enabled: true
+      token-header: Authorization
+      token-prefix: Bearer
+      ignore-urls:
+        - /auth/login
+        - /profile/ping
+    token:
+      type: jwt
+      jwt:
+        enabled: true
+      redis:
+        enabled: false
+    authorization:
+      enabled: true
+    user:
+      jpa:
+        enabled: true

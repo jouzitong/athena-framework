@@ -1,0 +1,38 @@
+server:
+  port: 18090
+
+spring:
+  application:
+    name: athena-framework-starters-test-security
+  datasource:
+    url: jdbc:mysql://localhost:3306/test_security_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+
+athena:
+  security:
+    enabled: true
+    auth:
+      enabled: true
+      token-header: Authorization
+      token-prefix: Bearer
+      ignore-urls:
+        - /auth/login
+        - /profile/ping
+        - /template/test
+    token:
+      type: jwt
+      jwt:
+        enabled: true
+    authorization:
+      enabled: true
+    user:
+      jpa:
+        enabled: true

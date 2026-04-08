@@ -1,0 +1,31 @@
+@host = http://127.0.0.1:18090
+
+### 登录：admin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 登录：operator
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "operator",
+  "password": "op123"
+}
+
+### 登录：guest
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "guest",
+  "password": "guest123"
+}
+
+### 未登录访问受保护接口（预期 401）
+GET {{host}}/profile/me

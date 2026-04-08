@@ -1,0 +1,11 @@
+@host = http://127.0.0.1:18090
+@operatorToken = replace-with-operator-token
+@adminToken = replace-with-admin-token
+
+### operator 菜单
+GET {{host}}/menu/current
+Authorization: Bearer {{operatorToken}}
+
+### admin 菜单
+GET {{host}}/menu/current
+Authorization: Bearer {{adminToken}}

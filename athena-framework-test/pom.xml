@@ -22,6 +22,7 @@
         <module>athena-framework-test-jpa</module>
         <module>athena-framework-starters-test-websocket</module>
         <module>athena-framework-test-minio</module>
+        <module>athena-framework-starters-test-security</module>
     </modules>
 
     <dependencyManagement>

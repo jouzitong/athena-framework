@@ -1,0 +1,4 @@
+@host = http://127.0.0.1:18090
+
+### 预留：当前版本未实现 audit 模块
+GET {{host}}/profile/ping

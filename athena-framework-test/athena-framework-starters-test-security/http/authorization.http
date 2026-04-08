@@ -1,0 +1,11 @@
+@host = http://127.0.0.1:18090
+@adminToken = replace-with-admin-token
+@guestToken = replace-with-guest-token
+
+### guest 访问管理接口（预期 403）
+GET {{host}}/admin/users
+Authorization: Bearer {{guestToken}}
+
+### admin 访问管理接口（预期 200）
+GET {{host}}/admin/users
+Authorization: Bearer {{adminToken}}

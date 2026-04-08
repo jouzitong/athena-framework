@@ -1,0 +1,8 @@
+athena:
+  security:
+    token:
+      type: jwt
+      jwt:
+        enabled: true
+    authorization:
+      enabled: true

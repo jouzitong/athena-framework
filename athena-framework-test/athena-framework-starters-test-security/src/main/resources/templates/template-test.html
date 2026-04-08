@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${title}">Athena Security UAT Console</title>
+    <style>
+        :root {
+            --bg: #f3f7fc;
+            --card: #ffffff;
+            --line: #d4dfec;
+            --text: #12283f;
+            --muted: #47627d;
+            --brand: #0d6efd;
+            --danger: #cb2e3d;
+            --ok: #0a7f3f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "SF Mono", Menlo, Consolas, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle at 10% 10%, #ffffff 0%, var(--bg) 65%);
+            color: var(--text);
+        }
+        .wrap {
+            max-width: 1180px;
+            margin: 28px auto;
+            padding: 0 14px;
+        }
+        .hero {
+            padding: 18px 22px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: linear-gradient(145deg, #ffffff 0%, #f7fbff 100%);
+            margin-bottom: 14px;
+        }
+        .hero h1 { margin: 0; font-size: 24px; }
+        .hero p { margin: 6px 0 0; color: var(--muted); }
+        .grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 12px;
+        }
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--card);
+            padding: 14px;
+        }
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            border-bottom: 1px dashed var(--line);
+            padding-bottom: 8px;
+        }
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        label {
+            font-size: 12px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+        input {
+            width: 100%;
+            border: 1px solid #b9cde3;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            background: #fff;
+        }
+        .field { flex: 1; min-width: 140px; }
+        button {
+            border: 1px solid #a8c6e4;
+            background: #eff6ff;
+            color: #0c4578;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        button.primary {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+        button.danger {
+            background: #ffecef;
+            color: var(--danger);
+            border-color: #f4c8cf;
+        }
+        .token-box {
+            font-size: 12px;
+            background: #f6fbff;
+            border: 1px solid #dce8f6;
+            border-radius: 8px;
+            padding: 8px;
+            word-break: break-all;
+            min-height: 46px;
+        }
+        .test-list { display: grid; gap: 8px; }
+        .test-item {
+            border: 1px solid #dce8f6;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fbfdff;
+        }
+        .test-item strong { font-size: 13px; }
+        .test-item p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+        .console {
+            margin-top: 10px;
+            background: #0f1f33;
+            color: #d6e4f5;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 12px;
+            min-height: 300px;
+            white-space: pre-wrap;
+            overflow: auto;
+        }
+        @media (max-width: 980px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="hero">
+        <h1 th:text="${title}">Athena Security UAT Console</h1>
+        <p th:text="${description}">Use this page to validate authn/authz/menu/user-management behavior.</p>
+        <p>Rendered At: <strong th:text="${time}">-</strong></p>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>1. Login & Token</h2>
+            <div class="row">
+                <button type="button" onclick="quickLogin('admin','admin123')">Login Admin</button>
+                <button type="button" onclick="quickLogin('operator','op123')">Login Operator</button>
+                <button type="button" onclick="quickLogin('guest','guest123')">Login Guest</button>
+            </div>
+            <div class="row">
+                <div class="field">
+                    <label>Username</label>
+                    <input id="username" value="admin" />
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input id="password" value="admin123" type="password" />
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button class="primary" type="button" onclick="login()">Login</button>
+                </div>
+            </div>
+            <label>Current Token</label>
+            <div class="token-box" id="tokenView">(no token)</div>
+            <div class="row" style="margin-top:8px;">
+                <button type="button" class="danger" onclick="clearToken()">Clear Token</button>
+                <button type="button" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Core Test Cases</h2>
+            <div class="test-list">
+                <div class="test-item">
+                    <strong>S1: Auth Basic</strong>
+                    <p>Call <code>/profile/me</code> without token, expected 401.</p>
+                    <button type="button" onclick="testUnauthorized()">Run S1 (401)</button>
+                </div>
+                <div class="test-item">
+                    <strong>S2: JWT Parse</strong>
+                    <p>Login then call <code>/profile/me</code>, expected 200 + subject/authn/session.</p>
+                    <button type="button" onclick="testProfile()">Run S2 (profile)</button>
+                </div>
+                <div class="test-item">
+                    <strong>S3: Authorization</strong>
+                    <p>Guest call <code>/admin/users</code> expected 403; admin expected 200.</p>
+                    <button type="button" onclick="testAdminRead()">Run S3 (admin/users)</button>
+                </div>
+                <div class="test-item">
+                    <strong>User Management</strong>
+                    <p>Call <code>POST /admin/users</code> requiring <code>user:create</code>.</p>
+                    <div class="row" style="margin-top:6px; margin-bottom:0;">
+                        <input id="newUsername" placeholder="new username" value="u_001" />
+                        <button type="button" onclick="testCreateUser()">Create User</button>
+                    </div>
+                </div>
+                <div class="test-item">
+                    <strong>S4: Menu Permission Control</strong>
+                    <p>Call <code>/menu/current</code> and verify returned menu nodes by permission.</p>
+                    <button type="button" onclick="testMenu()">Run S4 (menu)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+        <h2>3. Console</h2>
+        <div class="console" id="console"></div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const base = [[@{/}]].replace(/\/$/, '');
+    let token = localStorage.getItem('security_test_token') || '';
+
+    function now() {
+        return new Date().toISOString().replace('T', ' ').replace('Z', '');
+    }
+
+    function log(title, payload, ok) {
+        const el = document.getElementById('console');
+        const state = ok === undefined ? '' : (ok ? ' [PASS]' : ' [FAIL]');
+        const text = '[' + now() + '] ' + title + state + '\n'
+            + (typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2))
+            + '\n\n';
+        el.textContent = text + el.textContent;
+    }
+
+    function refreshTokenView() {
+        document.getElementById('tokenView').textContent = token || '(no token)';
+    }
+
+    function authHeaders() {
+        return token ? { Authorization: 'Bearer ' + token } : {};
+    }
+
+    async function api(path, method, body, useAuth) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (useAuth) {
+            Object.assign(headers, authHeaders());
+        }
+        const response = await fetch(base + path, {
+            method: method || 'GET',
+            headers,
+            body: body ? JSON.stringify(body) : null
+        });
+        const raw = await response.text();
+        let data = raw;
+        try {
+            data = JSON.parse(raw);
+        } catch (e) {
+        }
+        return { status: response.status, data };
+    }
+
+    async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const result = await api('/auth/login', 'POST', { username, password }, false);
+        if (result.status === 200 && result.data && result.data.token) {
+            token = result.data.token;
+            localStorage.setItem('security_test_token', token);
+            refreshTokenView();
+            log('Login ' + username, result, true);
+        } else {
+            log('Login ' + username, result, false);
+        }
+    }
+
+    function quickLogin(username, password) {
+        document.getElementById('username').value = username;
+        document.getElementById('password').value = password;
+        login();
+    }
+
+    async function logout() {
+        const result = await api('/auth/logout', 'POST', {}, true);
+        log('Logout', result, result.status === 204 || result.status === 200);
+    }
+
+    function clearToken() {
+        token = '';
+        localStorage.removeItem('security_test_token');
+        refreshTokenView();
+        log('Clear Token', 'local token removed', true);
+    }
+
+    async function testUnauthorized() {
+        const saved = token;
+        token = '';
+        const result = await api('/profile/me', 'GET', null, true);
+        token = saved;
+        log('S1 /profile/me without token', result, result.status === 401);
+    }
+
+    async function testProfile() {
+        const result = await api('/profile/me', 'GET', null, true);
+        log('S2 /profile/me with token', result, result.status === 200);
+    }
+
+    async function testAdminRead() {
+        const result = await api('/admin/users', 'GET', null, true);
+        log('S3 GET /admin/users', result, result.status === 200 || result.status === 403);
+    }
+
+    async function testCreateUser() {
+        const username = document.getElementById('newUsername').value;
+        const result = await api('/admin/users', 'POST', { username }, true);
+        log('User Management POST /admin/users', result, result.status === 200 || result.status === 403);
+    }
+
+    async function testMenu() {
+        const result = await api('/menu/current', 'GET', null, true);
+        log('S4 GET /menu/current', result, result.status === 200 || result.status === 401);
+    }
+
+    refreshTokenView();
+    log('UAT Console Ready', {
+        tips: [
+            'admin: read/create/menu all should pass',
+            'operator: read/menu pass, create should fail 403',
+            'guest: read/create fail 403, menu likely empty'
+        ]
+    }, true);
+</script>
+</body>
+</html>
