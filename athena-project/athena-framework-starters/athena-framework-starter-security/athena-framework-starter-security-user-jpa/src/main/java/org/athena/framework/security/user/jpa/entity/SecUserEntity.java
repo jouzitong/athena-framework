@@ -13,6 +13,10 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "sec_user")
+/**
+ * 用户主表实体。
+ * 对应 sec_user 表，承载用户身份基础字段与状态信息。
+ */
 public class SecUserEntity {
 
     @Id

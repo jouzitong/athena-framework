@@ -1,5 +1,9 @@
 package org.athena.framework.security.api.auth;
 
+/**
+ * 凭据校验结果。
+ * 表示密码等凭据是否通过校验，并附带失败原因。
+ */
 public record CredentialVerifyResult(
     boolean success,
     String code,

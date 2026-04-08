@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 本地内存令牌管理器。
+ * 使用进程内 Map 保存 token 与用户上下文映射，适用于单机测试。
+ */
 public class LocalTokenManager implements TokenManager {
 
     private final Map<String, UserContext> tokenStore = new ConcurrentHashMap<>();

@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+/**
+ * 认证模块配置项。
+ * 定义 token 头、前缀和免认证 URL 列表等运行参数。
+ */
 @ConfigurationProperties(prefix = "athena.security.auth")
 public class SecurityAuthProperties {
 

@@ -8,6 +8,10 @@ import org.athena.framework.security.api.spi.PermissionEvaluator;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * 默认权限判定器。
+ * 优先使用上下文缓存权限，缺失时回退到 {@link AuthorizationProvider} 实时加载。
+ */
 public class DefaultPermissionEvaluator implements PermissionEvaluator {
 
     private final AuthorizationProvider authorizationProvider;
@@ -31,6 +35,10 @@ public class DefaultPermissionEvaluator implements PermissionEvaluator {
         return permissions != null && permissions.contains(permission);
     }
 
+    /**
+     * 空授权提供者。
+     * 当业务方未提供授权数据源时返回空权限集合。
+     */
     public static class EmptyAuthorizationProvider implements AuthorizationProvider {
 
         @Override

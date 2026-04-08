@@ -18,6 +18,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+/**
+ * 默认认证接口控制器。
+ * 对外暴露登录和登出接口，并与认证应用服务联动。
+ */
 public class SecurityAuthController {
 
     private final SecurityAuthenticationService securityAuthenticationService;
@@ -61,6 +65,10 @@ public class SecurityAuthController {
     }
 
     @Data
+    /**
+     * 登录命令对象。
+     * 承载登录接口请求体字段。
+     */
     public static class LoginCommand {
 
         private String username;

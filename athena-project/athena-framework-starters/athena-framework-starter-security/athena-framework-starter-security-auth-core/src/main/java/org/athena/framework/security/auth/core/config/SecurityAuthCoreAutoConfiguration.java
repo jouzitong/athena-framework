@@ -33,6 +33,10 @@ import org.springframework.context.annotation.Primary;
 
 import java.util.List;
 
+/**
+ * 认证核心自动配置。
+ * 负责装配认证链路中的默认实现（用户仓储、认证器、令牌管理、过滤器与控制器）。
+ */
 @AutoConfiguration
 @AutoConfigureAfter(name = "org.athena.framework.security.user.jpa.config.SecurityUserJpaAutoConfiguration")
 @ConditionalOnProperty(prefix = "athena.security.auth", name = "enabled", havingValue = "true", matchIfMissing = true)

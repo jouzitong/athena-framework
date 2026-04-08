@@ -11,6 +11,8 @@ import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,7 +20,12 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * 安全上下文过滤器。
+ * 从请求中提取 token 并解析为 {@link UserContext}，随后绑定到线程上下文供后续链路使用。
+ */
 public class SecurityContextFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityContextFilter.class);
 
     private final CredentialExtractor credentialExtractor;
 
@@ -56,8 +63,13 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                             }
                         }
                         SecurityContextHolder.set(userContext);
+                        LOGGER.debug("Security context set for uri={}", request.getRequestURI());
+                    } else {
+                        LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
                     }
                 }
+            } else {
+                LOGGER.debug("Security filter ignored uri={}", request.getRequestURI());
             }
             filterChain.doFilter(request, response);
         } finally {

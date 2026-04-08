@@ -9,6 +9,10 @@ import org.athena.framework.security.user.jpa.repository.SecUserJpaRepository;
 
 import java.util.Optional;
 
+/**
+ * JPA 安全用户仓储适配器。
+ * 聚合用户主表与凭据表，组装为统一的 {@link SecurityUser} 领域对象。
+ */
 public class JpaSecurityUserRepository implements SecurityUserRepository {
 
     private static final String CREDENTIAL_TYPE_PASSWORD = "PASSWORD";

@@ -12,6 +12,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * 安全模块顶层自动配置。
+ * 提供核心 marker，并在启动时校验 token 类型配置是否与实际模块一致。
+ */
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "athena.security", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(SecurityProperties.class)
@@ -32,6 +36,10 @@ public class SecurityAutoConfiguration {
         return new SecurityTokenTypeValidator(properties, tokenManager);
     }
 
+    /**
+     * token 类型校验器。
+     * 在容器启动时检测 local/jwt/redis 配置组合是否合法。
+     */
     public static class SecurityTokenTypeValidator {
 
         private final SecurityProperties properties;

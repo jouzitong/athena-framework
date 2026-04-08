@@ -11,6 +11,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * 授权模块自动配置。
+ * 装配权限数据提供者、权限判定器和注解切面。
+ */
 @AutoConfiguration
 @ConditionalOnBean(SecurityCoreMarker.class)
 @ConditionalOnProperty(prefix = "athena.security.authorization", name = "enabled", havingValue = "true")

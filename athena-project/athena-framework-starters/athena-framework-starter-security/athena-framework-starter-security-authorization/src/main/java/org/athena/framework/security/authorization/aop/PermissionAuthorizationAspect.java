@@ -4,12 +4,19 @@ import org.athena.framework.security.api.annotation.RequirePermission;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.PermissionEvaluator;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
+/**
+ * 权限校验切面。
+ * 在命中 {@link RequirePermission} 注解的方法前执行权限判定。
+ */
 @Aspect
 public class PermissionAuthorizationAspect {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PermissionAuthorizationAspect.class);
 
     private final PermissionEvaluator permissionEvaluator;
 
@@ -42,6 +49,11 @@ public class PermissionAuthorizationAspect {
         }
 
         if (!hasPermission) {
+            LOGGER.warn("Permission denied, method={}, userId={}, requiredPermissions={}, requireAll={}",
+                joinPoint.getSignature().toShortString(),
+                userContext != null && userContext.subject() != null ? userContext.subject().userId() : null,
+                String.join(",", permissions),
+                requirePermission.requireAll());
             throw new SecurityException("permission denied");
         }
         return joinPoint.proceed();

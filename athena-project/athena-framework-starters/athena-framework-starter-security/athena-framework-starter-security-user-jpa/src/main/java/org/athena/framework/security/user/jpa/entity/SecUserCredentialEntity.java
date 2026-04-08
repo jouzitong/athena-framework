@@ -13,6 +13,10 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "sec_user_credential")
+/**
+ * 用户凭据实体。
+ * 对应 sec_user_credential 表，保存密码哈希、算法与凭据类型等认证数据。
+ */
 public class SecUserCredentialEntity {
 
     @Id

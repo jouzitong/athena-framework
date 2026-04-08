@@ -4,6 +4,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 
+/**
+ * 基于请求头的 token 提取器。
+ * 优先读取配置头，其次回退到标准 Authorization 头和 token 请求参数。
+ */
 public class HeaderTokenCredentialExtractor implements CredentialExtractor {
 
     private final String tokenHeader;

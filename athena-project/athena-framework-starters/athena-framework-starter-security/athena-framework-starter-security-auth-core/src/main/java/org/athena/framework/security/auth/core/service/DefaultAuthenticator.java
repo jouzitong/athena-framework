@@ -13,12 +13,19 @@ import org.athena.framework.security.api.principal.SecurityUser;
 import org.athena.framework.security.api.spi.Authenticator;
 import org.athena.framework.security.api.spi.CredentialVerifier;
 import org.athena.framework.security.api.spi.SecurityUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * 默认认证器实现。
+ * 按用户名加载用户后执行凭据校验，并构造基础用户上下文与会话信息。
+ */
 public class DefaultAuthenticator implements Authenticator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAuthenticator.class);
 
     private static final String CREDENTIAL_TYPE_PASSWORD = "PASSWORD";
 
@@ -34,11 +41,13 @@ public class DefaultAuthenticator implements Authenticator {
     @Override
     public AuthenticationResult authenticate(AuthenticationRequest request) {
         if (StringUtils.isBlank(request.username()) || StringUtils.isBlank(request.password())) {
+            LOGGER.warn("Authentication rejected due to empty username or password, username={}", request.username());
             return AuthenticationResult.failed("INVALID_ARGUMENT", "username or password is empty");
         }
 
         Optional<SecurityUser> userOptional = securityUserRepository.findByUsername(request.username());
         if (userOptional.isEmpty()) {
+            LOGGER.warn("Authentication user not found, username={}", request.username());
             return AuthenticationResult.failed("USER_NOT_FOUND", "user not found");
         }
 
@@ -47,6 +56,8 @@ public class DefaultAuthenticator implements Authenticator {
             StringUtils.defaultIfBlank(request.credentialType(), CREDENTIAL_TYPE_PASSWORD));
         CredentialVerifyResult verifyResult = credentialVerifier.verify(user, credentialInput);
         if (!verifyResult.success()) {
+            LOGGER.warn("Credential verification failed, username={}, code={}",
+                request.username(), verifyResult.code());
             return AuthenticationResult.failed(verifyResult.code(), verifyResult.message());
         }
 
@@ -56,6 +67,7 @@ public class DefaultAuthenticator implements Authenticator {
         userContext.setSession(new SessionState(UUID.randomUUID().toString(), null, Instant.now(), null));
         userContext.getAttributes().put("displayName", user.displayName());
         // TODO 多租户隔离能力待实现，当前仅保留 tenantId 字段，不参与认证判定。
+        LOGGER.debug("Authentication context built, userId={}, username={}", user.userId(), user.username());
 
         return AuthenticationResult.success(userContext);
     }

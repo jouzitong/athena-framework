@@ -23,6 +23,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * 基于 JPA 的用户模块自动配置。
+ * 注册密码编码器、用户仓储适配器和凭据校验器，实现数据库驱动的认证数据接入。
+ */
 @AutoConfiguration
 @AutoConfigureAfter(SecurityAutoConfiguration.class)
 @AutoConfigureBefore(SecurityAuthCoreAutoConfiguration.class)

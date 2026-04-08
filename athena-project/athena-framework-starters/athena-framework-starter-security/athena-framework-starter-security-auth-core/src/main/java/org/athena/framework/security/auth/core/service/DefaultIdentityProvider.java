@@ -7,6 +7,10 @@ import org.athena.framework.security.api.spi.SecurityUserRepository;
 
 import java.util.Optional;
 
+/**
+ * 默认身份提供者。
+ * 复用 {@link SecurityUserRepository} 查询用户并转换成轻量身份主体。
+ */
 public class DefaultIdentityProvider implements IdentityProvider {
 
     private final SecurityUserRepository securityUserRepository;

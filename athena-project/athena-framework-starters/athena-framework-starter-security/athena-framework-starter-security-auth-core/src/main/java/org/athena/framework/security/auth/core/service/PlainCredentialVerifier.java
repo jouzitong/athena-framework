@@ -6,6 +6,10 @@ import org.athena.framework.security.api.auth.CredentialVerifyResult;
 import org.athena.framework.security.api.principal.SecurityUser;
 import org.athena.framework.security.api.spi.CredentialVerifier;
 
+/**
+ * 明文凭据校验器。
+ * 仅用于本地开发或测试场景，生产环境建议替换为加密哈希校验实现。
+ */
 public class PlainCredentialVerifier implements CredentialVerifier {
 
     @Override

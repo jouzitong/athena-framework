@@ -7,6 +7,10 @@ import org.athena.framework.security.api.principal.SecurityUser;
 import org.athena.framework.security.api.spi.CredentialVerifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * 基于 JPA 用户数据的凭据校验器。
+ * 支持 BCrypt 校验，并兼容明文密码用于历史数据平滑迁移。
+ */
 public class JpaCredentialVerifier implements CredentialVerifier {
 
     private final PasswordEncoder passwordEncoder;

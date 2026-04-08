@@ -2,6 +2,10 @@ package org.athena.framework.security.api.auth;
 
 import org.athena.framework.security.api.model.MutableUserContext;
 
+/**
+ * 认证结果对象。
+ * 统一承载认证是否成功、错误码、错误信息以及认证后的用户上下文。
+ */
 public record AuthenticationResult(
     boolean success,
     String code,

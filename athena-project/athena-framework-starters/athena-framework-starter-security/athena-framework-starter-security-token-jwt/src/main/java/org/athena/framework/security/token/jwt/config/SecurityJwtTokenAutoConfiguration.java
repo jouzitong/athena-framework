@@ -11,6 +11,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * JWT 令牌模块自动配置。
+ * 在启用 JWT 且 token.type=jwt 时注册 {@link TokenManager} 实现。
+ */
 @AutoConfiguration
 @ConditionalOnBean(SecurityCoreMarker.class)
 @ConditionalOnProperty(prefix = "athena.security.token.jwt", name = "enabled", havingValue = "true")
