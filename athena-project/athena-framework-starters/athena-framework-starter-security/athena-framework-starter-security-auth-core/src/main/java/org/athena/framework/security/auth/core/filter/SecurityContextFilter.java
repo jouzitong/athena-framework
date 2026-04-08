@@ -36,16 +36,20 @@ public class SecurityContextFilter extends OncePerRequestFilter {
 
     private final SecurityAuthProperties properties;
 
+    private final List<SecurityRequestInterceptor> requestInterceptors;
+
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public SecurityContextFilter(CredentialExtractor credentialExtractor,
                                  TokenManager tokenManager,
                                  List<UserContextEnricher> enrichers,
-                                 SecurityAuthProperties properties) {
+                                 SecurityAuthProperties properties,
+                                 List<SecurityRequestInterceptor> requestInterceptors) {
         this.credentialExtractor = credentialExtractor;
         this.tokenManager = tokenManager;
         this.enrichers = enrichers.stream().sorted(Comparator.comparingInt(UserContextEnricher::order)).toList();
         this.properties = properties;
+        this.requestInterceptors = requestInterceptors.stream().sorted(Comparator.comparingInt(SecurityRequestInterceptor::order)).toList();
     }
 
     @Override
@@ -53,24 +57,33 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
-            if (!isIgnored(request.getRequestURI())) {
-                String token = credentialExtractor.extractToken(request);
-                if (StringUtils.isNotBlank(token)) {
-                    UserContext userContext = tokenManager.parse(token);
-                    if (userContext != null) {
-                        if (userContext instanceof MutableUserContext mutableUserContext) {
-                            for (UserContextEnricher enricher : enrichers) {
-                                enricher.enrich(mutableUserContext);
-                            }
+            boolean ignored = isIgnored(request.getRequestURI());
+            String token = ignored ? null : credentialExtractor.extractToken(request);
+            UserContext userContext = null;
+            if (!ignored && StringUtils.isNotBlank(token)) {
+                userContext = tokenManager.parse(token);
+                if (userContext != null) {
+                    if (userContext instanceof MutableUserContext mutableUserContext) {
+                        for (UserContextEnricher enricher : enrichers) {
+                            enricher.enrich(mutableUserContext);
                         }
-                        SecurityContextHolder.set(userContext);
-                        LOGGER.debug("Security context set for uri={}", request.getRequestURI());
-                    } else {
-                        LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
                     }
+                    SecurityContextHolder.set(userContext);
+                    LOGGER.debug("Security context set for uri={}", request.getRequestURI());
+                } else {
+                    LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
                 }
-            } else {
+            }
+            if (ignored) {
                 LOGGER.debug("Security filter ignored uri={}", request.getRequestURI());
+            }
+
+            for (SecurityRequestInterceptor requestInterceptor : requestInterceptors) {
+                if (!requestInterceptor.preHandle(request, response, token, userContext, ignored)) {
+                    LOGGER.debug("Request blocked by interceptor={}, uri={}",
+                        requestInterceptor.getClass().getSimpleName(), request.getRequestURI());
+                    return;
+                }
             }
             filterChain.doFilter(request, response);
         } finally {

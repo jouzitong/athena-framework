@@ -13,6 +13,7 @@ import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.extractor.HeaderTokenCredentialExtractor;
 import org.athena.framework.security.auth.core.filter.SecurityContextFilter;
+import org.athena.framework.security.auth.core.filter.SecurityRequestInterceptor;
 import org.athena.framework.security.auth.core.service.DefaultAuthenticator;
 import org.athena.framework.security.auth.core.service.DefaultIdentityProvider;
 import org.athena.framework.security.auth.core.service.DefaultSecurityUserRepository;
@@ -30,6 +31,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
@@ -111,9 +113,16 @@ public class SecurityAuthCoreAutoConfiguration {
     public FilterRegistrationBean<SecurityContextFilter> securityContextFilterRegistrationBean(CredentialExtractor credentialExtractor,
                                                                                                TokenManager tokenManager,
                                                                                                List<UserContextEnricher> enrichers,
+                                                                                               ObjectProvider<SecurityRequestInterceptor> requestInterceptors,
                                                                                                SecurityAuthProperties properties) {
         FilterRegistrationBean<SecurityContextFilter> bean = new FilterRegistrationBean<>();
-        bean.setFilter(new SecurityContextFilter(credentialExtractor, tokenManager, enrichers, properties));
+        bean.setFilter(new SecurityContextFilter(
+            credentialExtractor,
+            tokenManager,
+            enrichers,
+            properties,
+            requestInterceptors.orderedStream().toList()
+        ));
         bean.setOrder(-110);
         bean.addUrlPatterns("/*");
         return bean;
