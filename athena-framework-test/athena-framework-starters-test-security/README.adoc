@@ -37,11 +37,11 @@ CREATE DATABASE IF NOT EXISTS test_security_db CHARACTER SET utf8mb4 COLLATE utf
 
 === 3.2 导入 JPA 测试数据库模块
 
-如果需要复用 `athena-framework-test-jpa` 的数据库环境（`jpa_test`），可使用 `jpa-db` profile：
+如果需要复用 `athena-framework-test-jpa` 的数据库环境（`jpa_test`），直接在 `application.yml` 中切换数据源地址：
 
 * 数据库：`jpa_test`
 * 地址：`jdbc:mysql://localhost:3306/jpa_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC`
-* 配置文件：`src/main/resources/application-jpa-db.yml`
+* 配置文件：`src/main/resources/application.yml`
 
 启动前请先创建数据库：
 
@@ -72,24 +72,24 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am -Dskip
 mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run
 ----
 
-=== 5.3 指定 profile 启动
+=== 5.3 单文件场景切换（命令行覆盖）
 
 [source,bash]
 ----
 # S1: 仅认证（local token，关闭 authorization）
-mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=auth-only
+mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run \
+  -Dspring-boot.run.arguments="--athena.security.token.type=local,--athena.security.token.jwt.enabled=false,--athena.security.authorization.enabled=false"
 
-# S3: 鉴权场景
-mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=authz
-
-# S4: 菜单场景
-mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=menu
+# S3/S4: 鉴权与菜单场景（默认配置即可）
+mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run
 
 # S5/S7.1: token 配置与模块不匹配（预期启动失败）
-mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=missing-module
+mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run \
+  -Dspring-boot.run.arguments="--athena.security.token.type=redis,--athena.security.token.redis.enabled=true"
 
 # 复用 JPA 测试数据库（jpa_test）
-mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=jpa-db
+mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run \
+  -Dspring-boot.run.arguments="--spring.datasource.url=jdbc:mysql://localhost:3306/jpa_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC"
 ----
 
 == 6. 执行方式
@@ -159,12 +159,7 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring
 == 8. 关键配置文件
 
 * `src/main/resources/application.yml`（默认）
-* `src/main/resources/application-auth-only.yml`
-* `src/main/resources/application-authz.yml`
-* `src/main/resources/application-menu.yml`
-* `src/main/resources/application-full.yml`
-* `src/main/resources/application-missing-module.yml`
-* `src/main/resources/application-jpa-db.yml`
+  - 已合并认证/鉴权/菜单/缺失模块/数据库切换场景说明，可直接作为框架接入参考模板
 
 == 9. 常见问题排查
 
@@ -183,10 +178,10 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring
 * 确认当前登录用户角色是否正确
 * 确认启动 profile 是否启用 `athena.security.authorization.enabled=true`
 
-=== 9.4 profile 未生效
+=== 9.4 命令行覆盖参数未生效
 
-* 检查启动命令是否带：`-Dspring-boot.run.profiles=<profile>`
-* 检查是否读取到对应 `application-<profile>.yml`
+* 检查启动命令是否带：`-Dspring-boot.run.arguments="--key=value,..."`
+* 检查参数分隔是否为英文逗号 `,`
 
 == 10. 建议执行顺序
 

@@ -1,7 +1,0 @@
-athena:
-  security:
-    enabled: true
-    token:
-      type: redis
-      redis:
-        enabled: true

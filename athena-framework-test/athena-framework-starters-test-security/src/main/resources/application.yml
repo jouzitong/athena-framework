@@ -5,10 +5,13 @@ spring:
   application:
     name: athena-framework-starters-test-security
   datasource:
+    # 默认测试库（推荐）
     url: jdbc:mysql://localhost:3306/test_security_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
     username: root
     password: root
     type: com.alibaba.druid.pool.DruidDataSource
+    # 可选：复用 jpa_test 库时改为下面地址
+    # url: jdbc:mysql://localhost:3306/jpa_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
   jpa:
     hibernate:
       ddl-auto: none
@@ -18,7 +21,10 @@ spring:
 
 athena:
   security:
+    # 全局开关
     enabled: true
+
+    # 认证模块
     auth:
       enabled: true
       token-header: Authorization
@@ -27,12 +33,34 @@ athena:
         - /auth/login
         - /profile/ping
         - /template/test
+
+    # token 模块
     token:
+      # 推荐：jwt（完整认证 + 鉴权场景）
       type: jwt
       jwt:
         enabled: true
+      redis:
+        enabled: false
+
+      # 仅认证场景（等价原 auth-only）：
+      # type: local
+      # jwt:
+      #   enabled: false
+
+    # 授权模块
     authorization:
       enabled: true
+      # 仅认证场景（等价原 auth-only）：
+      # enabled: false
+
+    # 用户模块
     user:
       jpa:
         enabled: true
+
+    # 缺失模块校验场景（等价原 missing-module，预期启动失败）：
+    # token:
+    #   type: redis
+    #   redis:
+    #     enabled: true
