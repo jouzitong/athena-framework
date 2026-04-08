@@ -44,7 +44,7 @@ public class JwtTokenManager implements TokenManager {
             Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("iat", now);
             payload.put("exp", exp);
-            payload.put("ctx", context);
+            payload.put("ctx", toContextPayload(context));
 
             String encodedHeader = encode(objectMapper.writeValueAsBytes(header));
             String encodedPayload = encode(objectMapper.writeValueAsBytes(payload));
@@ -112,5 +112,19 @@ public class JwtTokenManager implements TokenManager {
 
     private String encode(byte[] value) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(value);
+    }
+
+    private Map<String, Object> toContextPayload(UserContext context) {
+        if (context == null) {
+            return null;
+        }
+        Map<String, Object> contextPayload = new LinkedHashMap<>();
+        contextPayload.put("subject", context.subject());
+        contextPayload.put("authn", context.authn());
+        contextPayload.put("authorization", context.authorization());
+        contextPayload.put("session", context.session());
+        contextPayload.put("attributes",
+            context.attributes() == null ? Map.of() : new LinkedHashMap<>(context.attributes()));
+        return contextPayload;
     }
 }

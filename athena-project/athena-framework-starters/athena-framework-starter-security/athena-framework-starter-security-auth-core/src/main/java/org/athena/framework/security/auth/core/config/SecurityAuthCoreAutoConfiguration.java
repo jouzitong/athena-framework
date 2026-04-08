@@ -12,11 +12,13 @@ import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.extractor.HeaderTokenCredentialExtractor;
+import org.athena.framework.security.auth.core.filter.SecurityContextFilter;
 import org.athena.framework.security.auth.core.service.DefaultAuthenticator;
 import org.athena.framework.security.auth.core.service.DefaultIdentityProvider;
 import org.athena.framework.security.auth.core.service.DefaultSecurityUserRepository;
 import org.athena.framework.security.auth.core.service.NoopUserContextEnricher;
 import org.athena.framework.security.auth.core.service.PlainCredentialVerifier;
+import org.athena.framework.security.auth.core.service.SecurityAuthenticationFacade;
 import org.athena.framework.security.auth.core.service.SecurityAuthenticationService;
 import org.athena.framework.security.auth.core.token.LocalTokenManager;
 import org.athena.framework.security.auth.core.web.SecurityAuthController;
@@ -98,7 +100,7 @@ public class SecurityAuthCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SecurityAuthController securityAuthController(SecurityAuthenticationService securityAuthenticationService,
+    public SecurityAuthController securityAuthController(SecurityAuthenticationFacade securityAuthenticationService,
                                                          CredentialExtractor credentialExtractor) {
         return new SecurityAuthController(securityAuthenticationService, credentialExtractor);
     }
@@ -107,9 +109,9 @@ public class SecurityAuthCoreAutoConfiguration {
     @ConditionalOnClass(Filter.class)
     @ConditionalOnMissingBean(name = "securityContextFilterRegistrationBean")
     public FilterRegistrationBean<SecurityContextFilter> securityContextFilterRegistrationBean(CredentialExtractor credentialExtractor,
-                                                                                                TokenManager tokenManager,
-                                                                                                List<UserContextEnricher> enrichers,
-                                                                                                SecurityAuthProperties properties) {
+                                                                                               TokenManager tokenManager,
+                                                                                               List<UserContextEnricher> enrichers,
+                                                                                               SecurityAuthProperties properties) {
         FilterRegistrationBean<SecurityContextFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new SecurityContextFilter(credentialExtractor, tokenManager, enrichers, properties));
         bean.setOrder(-110);

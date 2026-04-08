@@ -1,4 +1,4 @@
-package org.athena.framework.security.auth.core.config;
+package org.athena.framework.security.auth.core.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,6 +9,7 @@ import org.athena.framework.security.api.model.MutableUserContext;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.api.spi.UserContextEnricher;
+import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.slf4j.Logger;

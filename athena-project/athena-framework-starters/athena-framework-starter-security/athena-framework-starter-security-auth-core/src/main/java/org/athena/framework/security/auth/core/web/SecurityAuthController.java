@@ -5,8 +5,11 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.auth.AuthenticationRequest;
 import org.athena.framework.security.api.auth.AuthenticationResult;
+import org.athena.framework.security.api.model.UserContext;
+import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
-import org.athena.framework.security.auth.core.service.SecurityAuthenticationService;
+import org.athena.framework.security.auth.core.service.SecurityAuthenticationFacade;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -24,11 +28,11 @@ import java.util.Map;
  */
 public class SecurityAuthController {
 
-    private final SecurityAuthenticationService securityAuthenticationService;
+    private final SecurityAuthenticationFacade securityAuthenticationService;
 
     private final CredentialExtractor credentialExtractor;
 
-    public SecurityAuthController(SecurityAuthenticationService securityAuthenticationService,
+    public SecurityAuthController(SecurityAuthenticationFacade securityAuthenticationService,
                                   CredentialExtractor credentialExtractor) {
         this.securityAuthenticationService = securityAuthenticationService;
         this.credentialExtractor = credentialExtractor;
@@ -62,6 +66,36 @@ public class SecurityAuthController {
         if (StringUtils.isNotBlank(token)) {
             securityAuthenticationService.logout(token);
         }
+    }
+
+    @PostMapping("/refresh")
+    public Map<String, Object> refresh(HttpServletRequest request) {
+        String token = credentialExtractor.extractToken(request);
+        AuthenticationResult result = securityAuthenticationService.refresh(token);
+        if (!result.success() || result.context() == null || result.context().session() == null) {
+            throw new SecurityException("refresh failed: " + result.code());
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("token", result.context().session().tokenId());
+        response.put("user", result.context().subject());
+        response.put("authenticatedAt", result.context().authn() == null ? null : result.context().authn().authenticatedAt().toString());
+        return response;
+    }
+
+    @GetMapping("/me")
+    public Map<String, Object> me() {
+        UserContext userContext = SecurityContextHolder.get();
+        if (userContext == null || userContext.subject() == null) {
+            throw new SecurityException("unauthorized");
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("user", userContext.subject());
+        response.put("displayName", userContext.attributes() == null ? null : userContext.attributes().get("displayName"));
+        response.put("authn", userContext.authn());
+        response.put("session", userContext.session());
+        return response;
     }
 
     @Data
