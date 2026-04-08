@@ -12,3 +12,6 @@ athena:
         enabled: false
     authorization:
       enabled: false
+    user:
+      jpa:
+        enabled: true

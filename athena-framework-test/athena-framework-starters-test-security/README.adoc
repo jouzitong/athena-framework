@@ -35,6 +35,21 @@ CREATE DATABASE IF NOT EXISTS test_security_db CHARACTER SET utf8mb4 COLLATE utf
 
 应用启动时会执行 `schema.sql` 和 `data.sql` 初始化测试表与样例数据。
 
+=== 3.2 导入 JPA 测试数据库模块
+
+如果需要复用 `athena-framework-test-jpa` 的数据库环境（`jpa_test`），可使用 `jpa-db` profile：
+
+* 数据库：`jpa_test`
+* 地址：`jdbc:mysql://localhost:3306/jpa_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC`
+* 配置文件：`src/main/resources/application-jpa-db.yml`
+
+启动前请先创建数据库：
+
+[source,sql]
+----
+CREATE DATABASE IF NOT EXISTS jpa_test CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+----
+
 == 4. 测试账号
 
 * `admin/admin123`：`user:read,user:create,menu:view`
@@ -72,6 +87,9 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring
 
 # S5/S7.1: token 配置与模块不匹配（预期启动失败）
 mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=missing-module
+
+# 复用 JPA 测试数据库（jpa_test）
+mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring-boot:run -Dspring-boot.run.profiles=jpa-db
 ----
 
 == 6. 执行方式
@@ -146,6 +164,7 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring
 * `src/main/resources/application-menu.yml`
 * `src/main/resources/application-full.yml`
 * `src/main/resources/application-missing-module.yml`
+* `src/main/resources/application-jpa-db.yml`
 
 == 9. 常见问题排查
 

@@ -6,3 +6,6 @@ athena:
         enabled: true
     authorization:
       enabled: true
+    user:
+      jpa:
+        enabled: true

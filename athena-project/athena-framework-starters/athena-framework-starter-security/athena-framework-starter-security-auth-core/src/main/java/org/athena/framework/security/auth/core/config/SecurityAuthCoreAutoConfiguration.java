@@ -21,6 +21,7 @@ import org.athena.framework.security.auth.core.service.SecurityAuthenticationSer
 import org.athena.framework.security.auth.core.token.LocalTokenManager;
 import org.athena.framework.security.auth.core.web.SecurityAuthController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Primary;
 import java.util.List;
 
 @AutoConfiguration
+@AutoConfigureAfter(name = "org.athena.framework.security.user.jpa.config.SecurityUserJpaAutoConfiguration")
 @ConditionalOnProperty(prefix = "athena.security.auth", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(SecurityAuthProperties.class)
 public class SecurityAuthCoreAutoConfiguration {
