@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ConditionalOnBean(SecurityCoreMarker.class)
 @ConditionalOnProperty(prefix = "athena.security.user.jpa", name = "enabled", havingValue = "true")
 @EnableJpaRepositories(basePackageClasses = {SecUserJpaRepository.class, SecUserCredentialJpaRepository.class})
+@EntityScan(basePackages = "org.athena.framework.security.user.jpa.entity")
 public class SecurityUserJpaAutoConfiguration {
 
     @Bean

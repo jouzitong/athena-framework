@@ -19,6 +19,7 @@ import org.athena.framework.security.auth.core.service.NoopUserContextEnricher;
 import org.athena.framework.security.auth.core.service.PlainCredentialVerifier;
 import org.athena.framework.security.auth.core.service.SecurityAuthenticationService;
 import org.athena.framework.security.auth.core.token.LocalTokenManager;
+import org.athena.framework.security.auth.core.web.SecurityAuthController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -69,6 +70,7 @@ public class SecurityAuthCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "athena.security.token", name = "type", havingValue = "local", matchIfMissing = true)
     public TokenManager tokenManager() {
         return new LocalTokenManager();
     }
@@ -86,6 +88,13 @@ public class SecurityAuthCoreAutoConfiguration {
                                                                        List<UserContextEnricher> enrichers,
                                                                        ApplicationEventPublisher eventPublisher) {
         return new SecurityAuthenticationService(authenticator, tokenManager, enrichers, eventPublisher);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SecurityAuthController securityAuthController(SecurityAuthenticationService securityAuthenticationService,
+                                                         CredentialExtractor credentialExtractor) {
+        return new SecurityAuthController(securityAuthenticationService, credentialExtractor);
     }
 
     @Bean
