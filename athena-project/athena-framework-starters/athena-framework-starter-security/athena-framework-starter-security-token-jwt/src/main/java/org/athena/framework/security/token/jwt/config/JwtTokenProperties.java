@@ -13,6 +13,9 @@ public class JwtTokenProperties {
 
     private boolean enabled = false;
 
+    /**
+     * 访问令牌过期时间（分钟）。
+     */
     private long accessTokenExpireMinutes = 120;
 
     private String secret = "athena-security-jwt-secret-change-me";
