@@ -1,1 +1,4 @@
 org.athena.framework.security.user.jpa.config.SecurityUserJpaAutoConfiguration
+org.athena.framework.security.user.jpa.config.SecurityRbacJpaAutoConfiguration
+org.athena.framework.security.user.jpa.config.SecurityMenuJpaAutoConfiguration
+org.athena.framework.security.user.jpa.config.SecurityAuditJpaAutoConfiguration

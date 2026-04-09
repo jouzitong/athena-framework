@@ -19,6 +19,12 @@ public class SecurityProperties {
 
     private User user = new User();
 
+    private Menu menu = new Menu();
+
+    private Rbac rbac = new Rbac();
+
+    private Audit audit = new Audit();
+
     @Data
     /**
      * token 子配置。
@@ -56,6 +62,33 @@ public class SecurityProperties {
      * 授权模块配置。
      */
     public static class Authorization {
+
+        private boolean enabled = false;
+    }
+
+    @Data
+    /**
+     * 菜单模块配置。
+     */
+    public static class Menu {
+
+        private boolean enabled = false;
+    }
+
+    @Data
+    /**
+     * RBAC 模块配置。
+     */
+    public static class Rbac {
+
+        private boolean enabled = false;
+    }
+
+    @Data
+    /**
+     * 审计模块配置。
+     */
+    public static class Audit {
 
         private boolean enabled = false;
     }

@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -34,7 +35,8 @@ public class SecurityAuthorizationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PermissionAuthorizationAspect permissionAuthorizationAspect(PermissionEvaluator permissionEvaluator) {
-        return new PermissionAuthorizationAspect(permissionEvaluator);
+    public PermissionAuthorizationAspect permissionAuthorizationAspect(PermissionEvaluator permissionEvaluator,
+                                                                       ApplicationEventPublisher eventPublisher) {
+        return new PermissionAuthorizationAspect(permissionEvaluator, eventPublisher);
     }
 }

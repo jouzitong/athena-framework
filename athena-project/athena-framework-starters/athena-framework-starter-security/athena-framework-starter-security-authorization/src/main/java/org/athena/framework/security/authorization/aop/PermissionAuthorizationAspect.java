@@ -1,6 +1,7 @@
 package org.athena.framework.security.authorization.aop;
 
 import org.athena.framework.security.api.annotation.RequirePermission;
+import org.athena.framework.security.api.event.AuthorizationDecisionEvent;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.PermissionEvaluator;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * 权限校验切面。
@@ -20,8 +22,12 @@ public class PermissionAuthorizationAspect {
 
     private final PermissionEvaluator permissionEvaluator;
 
-    public PermissionAuthorizationAspect(PermissionEvaluator permissionEvaluator) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public PermissionAuthorizationAspect(PermissionEvaluator permissionEvaluator,
+                                         ApplicationEventPublisher eventPublisher) {
         this.permissionEvaluator = permissionEvaluator;
+        this.eventPublisher = eventPublisher;
     }
 
     @Around("@annotation(requirePermission)")
@@ -54,8 +60,24 @@ public class PermissionAuthorizationAspect {
                 userContext != null && userContext.subject() != null ? userContext.subject().userId() : null,
                 String.join(",", permissions),
                 requirePermission.requireAll());
+            eventPublisher.publishEvent(new AuthorizationDecisionEvent(
+                userContext,
+                joinPoint.getSignature().toShortString(),
+                permissions,
+                requirePermission.requireAll(),
+                false,
+                "permission denied"
+            ));
             throw new SecurityException("permission denied");
         }
+        eventPublisher.publishEvent(new AuthorizationDecisionEvent(
+            userContext,
+            joinPoint.getSignature().toShortString(),
+            permissions,
+            requirePermission.requireAll(),
+            true,
+            "permission granted"
+        ));
         return joinPoint.proceed();
     }
 }

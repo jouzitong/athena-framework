@@ -54,6 +54,15 @@ athena:
       # 仅认证场景（等价原 auth-only）：
       # enabled: false
 
+    menu:
+      enabled: true
+
+    rbac:
+      enabled: true
+
+    audit:
+      enabled: true
+
     # 用户模块
     user:
       jpa:

@@ -115,7 +115,7 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring
 * `http/auth.http`
 * `http/authorization.http`
 * `http/menu.http`
-* `http/audit.http`（当前为占位）
+* `http/audit.http`
 
 == 7. 测试场景与验收标准
 
@@ -155,6 +155,13 @@ mvn -pl athena-framework-test/athena-framework-starters-test-security -am spring
 
 * 操作：使用 `missing-module` profile 启动（配置 `token.type=redis` 但未引入 redis token 模块）
 * 预期：启动失败，日志出现 token 模块缺失/不匹配提示
+
+=== 7.7 审计日志
+
+* 操作：执行登录、访问鉴权接口后，调用 `GET /audit/logs`
+* 预期：
+  - 认证成功/失败写入 `AUTHN`
+  - 权限校验写入 `AUTHZ`
 
 == 8. 关键配置文件
 
