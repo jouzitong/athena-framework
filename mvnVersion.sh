@@ -69,7 +69,7 @@ current_version() {
 
 update_revision() {
   local new_version="$1"
-  perl -0777 -i -pe "s#(<revision>\\s*)[^<\\s]+(\\s*</revision>)#\\1${new_version}\\2#g" "$ROOT_POM"
+  perl -0777 -i -pe "s#(<revision>\\s*)[^<\\s]+(\\s*</revision>)#\${1}${new_version}\${2}#g" "$ROOT_POM"
 }
 
 is_snapshot() {
