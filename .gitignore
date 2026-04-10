@@ -43,6 +43,7 @@ build/
 
 ### framework auto generated files ###
 .flattened-pom.xml
+*.flattened-pom.xml
 
 # 自动生成 ddl 文件
 **/*ddl.sql
