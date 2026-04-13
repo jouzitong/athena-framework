@@ -72,6 +72,21 @@ public interface CodeConstant {
     Integer ILLEGAL_PARAMETER_ERROR = 10101;
 
     /**
+     * 未认证/登录失效
+     */
+    Integer UNAUTHORIZED = 40401;
+
+    /**
+     * 登录失败
+     */
+    Integer LOGIN_FAILED = 40402;
+
+    /**
+     * 无权限
+     */
+    Integer FORBIDDEN = 40403;
+
+    /**
      * 请求出现异常而导致为捕获异常的失败
      */
     Integer TODO_ERROR = 99999;

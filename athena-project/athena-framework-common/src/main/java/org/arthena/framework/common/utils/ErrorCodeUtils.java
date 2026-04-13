@@ -31,23 +31,21 @@ public class ErrorCodeUtils {
     private static final Logger log = LoggerFactory.getLogger(ErrorCodeUtils.class);
 
     public static String getMsg(Integer code, Object... args) {
+        if (code == null) {
+            return CodeConstant.UN_KNOW_ERROR_MSG;
+        }
         String msg = getMsg(code);
-        if (args == null) {
+        if (msg == null) {
+            msg = CodeConstant.UN_KNOW_ERROR_MSG;
+        }
+        if (args == null || args.length == 0) {
             return msg;
         }
-        int msgIndex = msg.indexOf(CODE_MSG_PARAM_PLACEHOLDER);
-        int argsIndex = 0;
-        while (msgIndex != -1) {
-            String rMsg = args.length > argsIndex ? " " + args[argsIndex++].toString() + " " : "";
-            msg = msg.replace(CODE_MSG_PARAM_PLACEHOLDER, rMsg);
-            msgIndex = msg.indexOf(CODE_MSG_PARAM_PLACEHOLDER, msgIndex + 1);
-        }
-        return msg;
+        return replacePlaceholders(msg, args);
     }
 
     private static String getMsg(Integer code) {
-        String localeStr = SystemContext.getLocale();
-        String locale = localeStr.substring(0, localeStr.indexOf("_"));
+        String locale = resolveLocale();
         try {
             String msg = getCustomMsg(code, locale);
             if (msg != null) {
@@ -59,6 +57,31 @@ public class ErrorCodeUtils {
         return getDefaultMsg(code, locale);
     }
 
+    private static String resolveLocale() {
+        String localeStr = SystemContext.getLocale();
+        if (localeStr == null || localeStr.isBlank()) {
+            return "zh";
+        }
+        int underscoreIndex = localeStr.indexOf("_");
+        if (underscoreIndex <= 0) {
+            return localeStr;
+        }
+        return localeStr.substring(0, underscoreIndex);
+    }
+
+    private static String replacePlaceholders(String msg, Object[] args) {
+        String result = msg;
+        for (Object arg : args) {
+            int placeholderIndex = result.indexOf(CODE_MSG_PARAM_PLACEHOLDER);
+            if (placeholderIndex < 0) {
+                break;
+            }
+            String replacement = arg == null ? "" : String.valueOf(arg);
+            result = result.substring(0, placeholderIndex) + replacement
+                + result.substring(placeholderIndex + CODE_MSG_PARAM_PLACEHOLDER.length());
+        }
+        return result;
+    }
 
     /**
      * 获取默认错误码
@@ -71,7 +94,7 @@ public class ErrorCodeUtils {
         String name = ERROR_CODE_PREFIX + locale + FILE_TYPE;
         Properties properties = loadErrorCode(locale, name);
         if (properties == null) {
-            return null;
+            return CodeConstant.UN_KNOW_ERROR_MSG;
         }
         String msg = properties.getProperty(code.toString());
         if (msg != null) {
@@ -89,7 +112,7 @@ public class ErrorCodeUtils {
      */
     private static String getCustomMsg(Integer code, String locale) {
         String name = CUSTOM_ERROR_CODE_FILE + locale + FILE_TYPE;
-        Properties properties = loadErrorCode(CUSTOM, name);
+        Properties properties = loadErrorCode(CUSTOM + locale, name);
         if (properties == null) {
             return null;
         }

@@ -2,6 +2,7 @@ package org.athena.framework.security.authorization.aop;
 
 import org.athena.framework.security.api.annotation.RequirePermission;
 import org.athena.framework.security.api.event.AuthorizationDecisionEvent;
+import org.athena.framework.security.api.exception.ForbiddenException;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.PermissionEvaluator;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
@@ -68,7 +69,7 @@ public class PermissionAuthorizationAspect {
                 false,
                 "permission denied"
             ));
-            throw new SecurityException("permission denied");
+            throw new ForbiddenException();
         }
         eventPublisher.publishEvent(new AuthorizationDecisionEvent(
             userContext,
