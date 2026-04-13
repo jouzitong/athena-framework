@@ -1,0 +1,297 @@
+= Athena Framework 异常处理三阶段改进详细设计
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 目标与非目标
+
+=== 目标
+
+* *统一错误语义*：让调用方能够用“同一套规则”处理异常响应（至少在 HTTP + Security 内对齐）。
+* *提升可维护性*：明确异常分层、错误码治理规则、扩展点与默认实现边界。
+* *提升可观测性*：引入 traceId/requestId 贯穿与日志分级策略，为后续指标/告警/追踪打基础。
+* *保证兼容*：尽量保持现有 `R` 模型与错误码不破坏业务方升级（默认行为可控）。
+* *模块边界清晰*：各模块管理各自领域异常（common/data/security/...），web 仅负责“HTTP 出口编排”，避免把所有异常语义硬编码到一个 `ControllerAdvice`。
+
+=== 非目标
+
+* 不在本次设计中强行引入特定 APM/Tracing 产品（如 OpenTelemetry/Zipkin），但提供接入点与字段约定。
+* 不试图在框架层“统一所有业务系统的错误码分段”，仅提供治理约定与工具支持。
+
+== 现状输入（与代码对齐）
+
+* HTTP 全局异常：`BaseControllerAdvice`
+* 错误码解析：`ErrorCodeUtils` + `ErrorCode-*.properties`
+* Security：`SecurityContextFilter` + `SecurityRequestInterceptor` + `PermissionAuthorizationAspect`
+* WebSocket：`WsGatewayHandler` + `WsProtocolException/WsErrorCode`
+
+== 统一模型与术语
+
+=== 0) 模块边界与职责划分（必须遵守）
+
+==== 总体原则
+
+* `common`：只定义“跨模块通用”的异常基类、错误码约定与 *异常翻译 SPI*（接口），不感知 HTTP/Servlet/WebSocket。
+* `starter-web`：只负责 HTTP 出口（`ControllerAdvice`）的编排与统一返回模型，不应该内置某个领域模块（data/security/xxx）的具体异常细节。
+* `starter-data-*`：负责数据库/ORM/事务等数据层异常的归一化（将底层异常翻译成框架领域异常或统一错误码）。
+* `starter-security-*`：负责认证/授权/鉴权链路异常的归一化（401/403 等），并定义与安全领域相关的错误码与文案。
+* 其他 starter（如 minio/websocket）：同理，负责其领域异常与错误码；对外输出遵循统一约定。
+
+==== 推荐的“异常翻译 SPI”模型
+
+为避免 `ControllerAdvice` 逐渐膨胀为“全模块异常百科”，建议引入 SPI：
+
+* `ExceptionTranslator`（定义在 `common`）：
+** `boolean supports(Throwable ex)`
+** `TranslatedError translate(Throwable ex, RequestContext ctx)`
+* `TranslatedError`（定义在 `common`）：
+** `int code`
+** `int httpStatus`
+** `Object details`（可选）
+** `LogLevel logLevel`（可选）
+
+各模块实现自己的 Translator：
+
+* data：`DataExceptionTranslator`
+* security：`SecurityExceptionTranslator`
+* websocket：`WsExceptionTranslator`（用于网关层回包）
+* web：只做“按顺序调用 translators + fallback”的编排
+
+说明：
+
+* 第一阶段不要求一次性重构为 SPI，但设计上必须以此为最终形态；先从 security/data 这类高频领域开始落地。
+
+=== 1) 错误分类（建议）
+
+* *输入错误*：参数校验失败、JSON 解析失败、缺参、类型不匹配、方法不支持等（典型 4xx）
+* *认证失败*：token 缺失/无效/过期（401）
+* *授权失败*：已认证但无权限（403）
+* *资源不存在*：404
+* *业务可预期异常*：明确的业务失败（一般不应打 `error`，并可被统计）
+* *系统异常*：代码缺陷、依赖故障、不可预期异常（500，必须打 `error`）
+
+=== 2) 响应模型（HTTP 建议）
+
+沿用 `R`，但建议补齐可观测字段（保持可选、默认不破坏）：
+
+* `code`：业务错误码（int）
+* `msg`：用户可读信息（由 `ErrorCodeUtils` 生成，或明确 message）
+* `traceId`：请求链路标识（从 header 透传或生成）
+* `timestamp`：服务器时间
+* `details`（可选）：结构化细节（例如字段校验错误列表）
+
+说明：
+
+* 如果短期不希望修改 `R` 的 JSON 结构，可先把 `traceId/details` 放到响应 header 或使用 `args` 承载，并提供一致的协议约定。
+
+=== 3) 错误码治理约定（建议）
+
+* `CodeConstant` 定义“框架保留码段”
+* 业务方自定义错误码推荐在 `config/ErrorCode-*.properties` 覆盖或扩展
+* 错误码 message 中使用 `{}` 占位符时，参数按顺序替换（并保证不会触发 NPE）
+
+=== 4) 常用异常码归类与 code 前缀约定（建议落地为文档与校验规则）
+
+==== 约定目标
+
+* 通过“前缀/码段”快速判断错误类别与归属模块（输入/业务/安全/数据/外部依赖/系统）
+* 支持按码段聚合告警与指标（例如 40xxx 认证失败、41xxx 参数错误）
+
+==== 推荐码段（在不破坏现有 code 的前提下）
+
+下表为 *建议规范*（允许在兼容期并存旧码段，但新错误码应遵循）：
+
+[cols="1,1,2,2",options="header"]
+|===
+|码段/前缀 |类别 |归属模块（建议） |示例/备注
+
+|`0`
+|成功
+|web/common
+|`CodeConstant.SUCCESS=0`
+
+|`41xxx`
+|参数/输入错误
+|web + common（通用输入类）
+|建议将校验/绑定/缺参/类型不匹配统一映射到该段；现有 `10101` 可保留兼容，但建议后续迁移到 `41xxx`
+
+|`40xxx`
+|认证失败（未登录/无 token/无效 token）
+|security
+|建议新增明确错误码（不要复用未知异常）；现有文案里出现 `40402`（登录失败）但码段与注释不一致，建议统一到 `40xxx`
+
+|`42xxx`
+|授权失败（无权限）
+|security
+|对应 HTTP 403；`PermissionAuthorizationAspect` 应抛框架安全异常并映射到此码段
+
+|`43xxx`
+|资源不存在（可按领域细分）
+|web + 各领域模块
+|HTTP 404；现有 `RESOURCE_NOT_FOUND=4` 可保留，但建议新增/迁移到 `43xxx` 以便治理
+
+|`30xxx`
+|外部依赖/基础设施（存储/消息/第三方）
+|各 starter（minio/es/...）
+|现有对象存储 `31xxx` 是一个很好的范例（`31001..31007`）
+
+|`50xxx`
+|服务端逻辑/系统异常
+|common
+|用于代码缺陷、不可预期异常；不建议业务方大量使用
+
+|`99xxx`
+|保留/未实现/降级
+|common
+|现有 `TODO_ERROR=99999`，建议继续保留在 `99xxx`
+|===
+
+==== 治理规则（建议）
+
+* 新增错误码必须同时满足：
+** 在对应模块内定义常量（或枚举/接口别名）
+** 在默认错误码文件中有文案（或在 `config/` 覆盖文件中提供）
+* 禁止跨模块直接引用“另一个模块的错误码常量”（避免耦合），推荐做别名接口（如 `ObjectStorageErrorCode`）。
+
+== 第一阶段（低风险修复，优先稳定性与正确性）
+
+=== 目标
+
+* HTTP 侧“该是 4xx 的就按 4xx 表达”，并返回可理解的 `code/msg/details`
+* 修复 `ErrorCodeUtils` 的稳定性与多语言缓存问题
+* 调整日志策略：减少噪声、避免丢栈
+
+=== 交付物
+
+1) `BaseControllerAdvice` 补齐异常映射（建议至少包含）：
+
+* `BindException`：表单/Query 参数绑定失败
+* `ConstraintViolationException`：`@Validated` + `@RequestParam/@PathVariable` 约束失败
+* `HttpMessageNotReadableException`：JSON 解析失败
+* `MissingServletRequestParameterException`：缺参
+* `HttpRequestMethodNotSupportedException`：方法不支持
+* `HttpMediaTypeNotSupportedException`：Content-Type 不支持
+* `MethodArgumentTypeMismatchException`：类型不匹配
+
+2) 对安全类异常做明确映射（先做到“不会被当成未知异常”）：
+
+* `SecurityException`（来自授权切面）映射为 403（并返回明确的 code）
+* 认证失败（token 缺失/解析失败）映射为 401（并返回明确的 code）
+
+3) `ErrorCodeUtils` 修复点：
+
+* 文件/错误码缺失：必须兜底返回可用字符串，禁止返回 `null`
+* `{}` 替换：按 args 顺序逐个替换（避免 `String.replace` 全量替换）
+* custom 缓存：按 locale 分隔缓存 key（至少 `CUSTOM_<locale>`）
+
+4) 日志策略（最小可行）：
+
+* 输入错误 / 业务可预期异常：`warn`（可选打印简要上下文）
+* 系统异常：`error` + 堆栈
+* `BaseUserException`：必须打印异常堆栈（否则无法排查）
+
+5) 模块化异常边界（第一阶段最小落地）
+
+* 在不大改结构的前提下，`starter-web` 的 `BaseControllerAdvice` 只保留：
+** 通用输入类异常（属于 web/common 的职责）
+** `BaseRuntimeException`（框架统一基类）
+** “兜底未知异常”
+* `security`、`data` 等模块的特有异常映射：
+** 优先通过“领域异常 -> BaseRuntimeException(code,args)”的方式在模块内部完成
+** 或者提供 `ExceptionTranslator` SPI 的最小实现并被 `starter-web` 自动装配（建议从 security 开始）
+
+=== 兼容性策略
+
+* 默认仍返回 `R`，不改变既有字段含义。
+* 新增错误码（如 401/403 对应业务码）应在 `config/ErrorCode-zh.properties` 中补齐文案。
+
+=== 验收标准
+
+* 典型输入错误不再返回 code=1 的“未知异常”
+* 403/401 不再被吞成未知异常
+* `ErrorCodeUtils.getMsg` 在错误码文件缺失时不会抛 NPE
+
+== 第二阶段（语义对齐：HTTP 与 Security 统一）
+
+=== 目标
+
+* Security 层不再直接 `sendError` 输出随机格式，而是与 HTTP 侧的错误协议对齐
+* 授权异常不再抛裸 `SecurityException`，改为框架可识别的异常类型
+
+=== 设计要点
+
+1) 新增/规范安全异常类型（建议）：
+
+* `UnauthorizedException extends BaseUserException`（401）
+* `ForbiddenException extends BaseUserException`（403）
+
+2) `PermissionAuthorizationAspect` 行为调整：
+
+* 无权限时抛 `ForbiddenException`（带统一错误码与可选 args）
+* 保留事件发布（`AuthorizationDecisionEvent`）
+
+3) `SecurityRequestInterceptor` 输出对齐：
+
+* 不建议直接 `sendError`，改为写 `application/json` 的 `R.fail(...)`（或由统一的响应写入器组件完成）
+* 引入一个小工具类（例如 `HttpResponseWriter`）统一输出 JSON、设置状态码、写 traceId
+
+=== 兼容性策略
+
+* 保留 `sendError` 的能力作为“逃生舱”，但默认提供更一致的实现与示例。
+* 通过配置开关控制是否启用“统一 JSON 错误响应”（便于渐进迁移）。
+
+=== 验收标准
+
+* 同一类错误（未认证/无权限）在 Controller 内抛出和在 Filter/Interceptor 拦截时，对调用方表现一致（HTTP status + `R.code/msg`）
+
+== 第三阶段（工程化：可观测、治理与长期演进）
+
+=== 目标
+
+* 引入 traceId/requestId 贯穿（至少 HTTP），并在日志与响应中体现
+* 增加结构化 `details`，提升调用方可定位性
+* WebSocket 增加兜底，保证“异常必回包”
+
+=== 设计要点
+
+1) HTTP traceId 机制
+
+* 新增 Filter：
+** 优先读取 `X-Trace-Id`（或团队统一 header）
+** 不存在则生成（例如 UUID/雪花）
+** 写入 MDC（如 `traceId`），并写回响应 header
+* `BaseControllerAdvice` 日志打印与响应体（或 header）携带 traceId
+
+2) 结构化校验错误 details
+
+* 将 `MethodArgumentNotValidException` 的字段错误列表作为结构化对象输出，而不是 JSON 字符串塞 args。
+* 若短期不改 `R`，可约定 header（如 `X-Error-Details`）或统一字段（建议还是 `details`）。
+
+3) WebSocket 兜底
+
+* 在 `WsGatewayHandler.handleTextMessage` 增加 `catch (Throwable)`：
+** 回 `INTERNAL_ERROR`
+** 记录日志并统计指标（若已有 metrics 接口）
+** 尽可能携带 `requestId/traceId`
+
+4) 错误码治理与发布流程（建议）
+
+* 引入 lint/校验脚本（可选）：检查 `CodeConstant` 中定义的错误码是否在 `ErrorCode-*.properties` 存在文案。
+* 文案占位符规则：明确 `{}` 数量与 args 对齐方式。
+
+=== 验收标准
+
+* 任意一次请求都能从响应/日志中定位到 traceId
+* 校验失败错误可被客户端直接定位到具体字段
+* WebSocket 端“业务异常必回 ERROR 回包”
+
+== 里程碑与推进建议
+
+* M1（第一阶段）：先做“正确性 + 稳定性”修复，风险小、收益高。
+* M2（第二阶段）：对齐 Security 输出与授权异常类型，减少前后端复杂度。
+* M3（第三阶段）：补齐 traceId 与治理工具，形成长期可演进能力。
+
+== 附：与现有错误码文件的对齐建议
+
+* 现有 `10101=非法参数异常` 不含 `{}`，若继续用 args 传细节，建议改为 `10101=非法参数异常：{}`。
+* 对 401/403 建议新增明确错误码与文案，避免复用 `UN_KNOW_ERROR=1`。

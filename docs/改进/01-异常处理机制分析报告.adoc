@@ -1,0 +1,191 @@
+= Athena Framework 异常处理机制分析报告
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 范围与结论摘要
+
+本报告聚焦 Athena Framework 当前（仓库现状）的异常处理机制，核心输出：
+
+* 现状链路梳理（HTTP/Security/WebSocket）
+* 核心缺点（按影响排序）
+* 改进方向（为后续三阶段详细设计提供依据）
+
+结论摘要：
+
+* 当前存在 *三套错误语义*（HTTP 返回 `R`、Security `sendError`、WebSocket 自定义错误码），导致调用方难以统一处理，且告警/统计难聚合。
+* 权限/认证异常在 HTTP 侧很容易 *被误归类为“未知异常”*（code=1），影响排障与风险识别。
+* 错误码消息加载工具 `ErrorCodeUtils` 存在多处隐患（占位符替换、空指针、custom 多语言缓存），属于需要优先处理的基础问题。
+
+== 当前机制梳理
+
+=== 1) HTTP（Spring MVC）全局异常捕获
+
+全局异常入口：
+
+* `athena-project/athena-framework-starters/athena-framework-starter-web/src/main/java/org/athena/framework/web/advice/BaseControllerAdvice.java`
+
+处理范围与行为（概览）：
+
+* `Exception` / `RuntimeException`：统一返回 `R.fail(CodeConstant.UN_KNOW_ERROR)`（code=1）
+* `BaseRuntimeException`：返回 `R.fail(e.getCode(), e.getArgs())`
+* `ResourceNotFindException`：HTTP 404，返回 `R.fail(CodeConstant.RESOURCE_NOT_FOUND, ...)`
+* `BaseUserException`：HTTP 401，返回 `R.fail(e.getCode())`（且日志不带异常堆栈）
+* `MethodArgumentNotValidException`：返回 `R.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, <errors-json>)`
+
+返回模型：
+
+* `athena-project/athena-framework-starters/athena-framework-starter-web/src/main/java/org/athena/framework/web/vo/R.java`
+* code=0 表示成功；非 0 表示失败；`msg` 由 `ErrorCodeUtils` 解析错误码 + 参数得到。
+
+=== 2) 异常基类与错误码体系
+
+异常基类：
+
+* `athena-project/athena-framework-common/src/main/java/org/arthena/framework/common/exception/base/BaseRuntimeException.java`
+* `athena-project/athena-framework-common/src/main/java/org/arthena/framework/common/exception/base/BaseException.java`（目前未见被实际抛出/捕获）
+* `BaseUserException extends BaseRuntimeException`：用户安全校验失败异常（注释写 404XX）
+
+错误码常量：
+
+* `athena-project/athena-framework-common/src/main/java/org/arthena/framework/common/constant/CodeConstant.java`
+
+错误码消息文件（properties）：
+
+* 默认：`athena-project/athena-framework-common/src/main/resources/ErrorCode-zh.properties`
+* custom（覆盖）：`athena-project/athena-framework-starters/athena-framework-starter-web/src/main/resources/config/ErrorCode-zh.properties`
+
+解析机制：
+
+* `athena-project/athena-framework-common/src/main/java/org/arthena/framework/common/utils/ErrorCodeUtils.java`
+** 默认读取：`ErrorCode-<lang>.properties`
+** custom 读取：`config/ErrorCode-<lang>.properties`（优先级高于默认）
+** `SystemContext.getLocale()` 决定语言（默认 `zh_CN`，工具内部仅取 `_` 前的语言段，如 `zh`）
+
+=== 3) Security（认证/授权链路中的异常处理）
+
+认证上下文过滤器（建立/清理上下文）：
+
+* `athena-project/athena-framework-starters/athena-framework-starter-security/athena-framework-starter-security-auth-core/src/main/java/org/athena/framework/security/auth/core/filter/SecurityContextFilter.java`
+
+请求拦截扩展点：
+
+* `SecurityRequestInterceptor` 可在进入业务前拦截并“自行写响应”。
+* 示例实现 `RequireTokenSecurityRequestInterceptor` 直接 `response.sendError(401, "unauthorized")`。
+
+授权（注解切面）：
+
+* `PermissionAuthorizationAspect` 在无权限时直接 `throw new SecurityException("permission denied")` 并发布事件。
+
+=== 4) WebSocket 异常处理
+
+协议错误码：
+
+* `athena-project/athena-framework-starters/athena-framework-starter-websocket/src/main/java/org/athena/framework/websocket/support/WsErrorCode.java`
+
+协议异常：
+
+* `WsProtocolException` 携带 `WsErrorCode`
+
+统一回包位置：
+
+* `WsGatewayHandler.handleTextMessage` 捕获 `WsProtocolException` 并回 ERROR；捕获 `IOException` 视为 JSON 解析失败回 BAD_SCHEMA。
+* 当前未显式兜底捕获其他 `RuntimeException/Throwable`（可能导致客户端无标准错误回包）。
+
+== 核心缺点（按影响排序）
+
+=== 缺点 1：错误响应语义不一致（HTTP / Security / WebSocket 三套）
+
+表现：
+
+* HTTP：`R`（int code + msg）
+* Security：`sendError`（HTTP status + reason，缺少业务 code 规范）
+* WebSocket：`WsErrorCode`（字符串枚举）+ message
+
+影响：
+
+* 业务方与前端/调用方需要写多套错误处理逻辑
+* 日志、指标与告警难以按统一维度聚合（比如按 errorCode 统计）
+
+=== 缺点 2：权限/认证异常在 HTTP 侧易被误归类为“未知异常”
+
+表现：
+
+* 授权切面抛 `SecurityException`，在 `BaseControllerAdvice` 中会落入 `RuntimeException/Exception` 分支，最终返回 `UN_KNOW_ERROR=1`。
+* “403/401 类问题”被伪装成“系统异常”，HTTP status 也可能不正确。
+
+影响：
+
+* 排障困难：权限配置问题看起来像系统故障
+* 告警噪声：安全类事件无法被单独识别与监控
+
+=== 缺点 3：HTTP 全局异常覆盖面偏窄，常见 4xx 输入错误会被当成系统异常
+
+表现：
+
+* 只显式处理 `MethodArgumentNotValidException`，未覆盖常见输入错误与协议错误（如 JSON 解析异常、缺参、方法不支持等）。
+
+影响：
+
+* 调用方体验差：明明是请求问题却得到“未知异常”
+* 服务端日志噪声增加
+
+=== 缺点 4：参数校验细节信息无法被用户看到
+
+表现：
+
+* `MethodArgumentNotValidException` 将错误列表 JSON 作为 `args` 传入，但 `10101` 的错误码文案无 `{}` 占位符，导致 `msg` 不包含细节。
+
+影响：
+
+* 客户端无法快速定位哪个字段不合法
+* 业务方只能依赖日志排查
+
+=== 缺点 5：`ErrorCodeUtils` 存在隐患（占位符替换/空指针/custom 多语言缓存）
+
+表现：
+
+* 占位符替换使用 `String.replace`，会一次性替换所有 `{}`，导致多个参数无法按顺序替换。
+* 找不到错误码文件时可能返回 `null`，后续 `indexOf` 引发 NPE。
+* custom 缓存 key 不区分 locale，多语言场景会出现“先加载哪个语言就一直使用哪个语言”的问题。
+
+影响：
+
+* 错误信息不可靠，且可能在运行时触发二次异常（NPE）
+* 多语言能力名存实亡
+
+=== 缺点 6：日志策略粗糙（噪声大、信息少、关键堆栈丢失）
+
+表现：
+
+* `BaseUserException` 仅打印空字符串，不带异常对象。
+* 业务可预期异常与系统异常统一 `error` 打印。
+* HTTP 侧缺少请求级 traceId/requestId 的贯穿机制（WS 协议设计中已有 traceId 字段，但 HTTP 未对齐）。
+
+影响：
+
+* 日志难检索、难聚合、成本高
+* 运维侧难以做有效告警分级
+
+=== 缺点 7：WebSocket 异常兜底不足
+
+表现：
+
+* `WsGatewayHandler.handleTextMessage` 仅兜底 `WsProtocolException/IOException`，业务 handler 抛出其他运行时异常时，客户端可能无标准 ERROR 回包。
+
+影响：
+
+* 客户端无法稳定获得失败原因
+* 线上问题难以复现与定位
+
+== 改进方向（概览）
+
+* 统一错误语义：将 HTTP / Security / WebSocket 的错误输出对齐到统一模型（或至少统一错误码与可观测字段）。
+* 补齐异常映射：HTTP 侧完善常见 4xx 异常处理；安全相关异常明确映射为 401/403。
+* 修复基础工具：优先修复 `ErrorCodeUtils` 的稳定性与多语言缓存。
+* 完善可观测性：引入 traceId/requestId 的贯穿（至少 HTTP），并建立日志分级策略。
+
+详细实现方案见：
+
+* `docs/改进/02-异常处理三阶段改进详细设计.adoc`
+
