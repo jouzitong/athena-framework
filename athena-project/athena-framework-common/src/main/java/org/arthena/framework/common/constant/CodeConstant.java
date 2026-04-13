@@ -87,6 +87,16 @@ public interface CodeConstant {
     Integer FORBIDDEN = 40403;
 
     /**
+     * token 已过期（登录态失效）
+     */
+    Integer TOKEN_EXPIRED = 40404;
+
+    /**
+     * token 无效（格式错误/签名校验失败等）
+     */
+    Integer TOKEN_INVALID = 40405;
+
+    /**
      * 请求出现异常而导致为捕获异常的失败
      */
     Integer TODO_ERROR = 99999;

@@ -6,6 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.model.MutableUserContext;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.TokenManager;
+import org.athena.framework.security.api.spi.TokenManagerWithParseResult;
+import org.athena.framework.security.api.spi.TokenParseResult;
+import org.athena.framework.security.api.spi.TokenParseStatus;
 import org.athena.framework.security.token.jwt.config.JwtTokenProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +25,7 @@ import java.util.Map;
  * JWT 令牌管理器。
  * 负责生成/解析基于 HS256 签名的 JWT，并将用户上下文写入 ctx 声明。
  */
-public class JwtTokenManager implements TokenManager {
+public class JwtTokenManager implements TokenManagerWithParseResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenManager.class);
 
     private final ObjectMapper objectMapper;
@@ -59,21 +62,26 @@ public class JwtTokenManager implements TokenManager {
 
     @Override
     public UserContext parse(String token) {
+        return parseWithResult(token).getUserContext();
+    }
+
+    @Override
+    public TokenParseResult parseWithResult(String token) {
         if (StringUtils.isBlank(token)) {
             LOGGER.debug("Skip parsing jwt token because token is blank");
-            return null;
+            return new TokenParseResult(null, TokenParseStatus.EMPTY);
         }
         try {
             String[] chunks = token.split("\\.");
             if (chunks.length != 3) {
                 LOGGER.debug("Invalid jwt token format");
-                return null;
+                return new TokenParseResult(null, TokenParseStatus.INVALID_FORMAT);
             }
             String signingPayload = chunks[0] + "." + chunks[1];
             String expectedSignature = sign(signingPayload);
             if (!StringUtils.equals(expectedSignature, chunks[2])) {
                 LOGGER.debug("JWT signature validation failed");
-                return null;
+                return new TokenParseResult(null, TokenParseStatus.INVALID_SIGNATURE);
             }
 
             byte[] payloadBytes = Base64.getUrlDecoder().decode(chunks[1]);
@@ -82,18 +90,22 @@ public class JwtTokenManager implements TokenManager {
             Number exp = (Number) payload.get("exp");
             if (exp != null && Instant.now().getEpochSecond() > exp.longValue()) {
                 LOGGER.debug("JWT token expired, exp={}", exp.longValue());
-                return null;
+                return new TokenParseResult(null, TokenParseStatus.EXPIRED);
             }
 
             Object contextRaw = payload.get("ctx");
             if (contextRaw == null) {
                 LOGGER.debug("JWT token missing ctx payload");
-                return null;
+                return new TokenParseResult(null, TokenParseStatus.MISSING_CONTEXT);
             }
-            return objectMapper.convertValue(contextRaw, MutableUserContext.class);
+            return new TokenParseResult(objectMapper.convertValue(contextRaw, MutableUserContext.class), TokenParseStatus.OK);
+        } catch (IllegalArgumentException ex) {
+            // Base64 URL 解码可能抛 IllegalArgumentException
+            LOGGER.debug("Invalid jwt token payload encoding: {}", ex.getMessage());
+            return new TokenParseResult(null, TokenParseStatus.INVALID_FORMAT);
         } catch (Exception ex) {
             LOGGER.warn("Failed to parse jwt token: {}", ex.getMessage());
-            return null;
+            return new TokenParseResult(null, TokenParseStatus.ERROR);
         }
     }
 

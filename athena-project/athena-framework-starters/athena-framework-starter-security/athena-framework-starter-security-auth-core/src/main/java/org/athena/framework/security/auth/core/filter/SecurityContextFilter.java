@@ -8,6 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.model.MutableUserContext;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.TokenManager;
+import org.athena.framework.security.api.spi.TokenManagerWithParseResult;
+import org.athena.framework.security.api.spi.TokenParseResult;
+import org.athena.framework.security.api.spi.TokenParseStatus;
+import org.athena.framework.security.api.spi.SecurityAuthAttributes;
 import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
@@ -60,8 +64,16 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             boolean ignored = isIgnored(request.getRequestURI());
             String token = ignored ? null : credentialExtractor.extractToken(request);
             UserContext userContext = null;
+            TokenParseStatus tokenParseStatus = TokenParseStatus.EMPTY;
             if (!ignored && StringUtils.isNotBlank(token)) {
-                userContext = tokenManager.parse(token);
+                if (tokenManager instanceof TokenManagerWithParseResult tokenManagerWithParseResult) {
+                    TokenParseResult tokenParseResult = tokenManagerWithParseResult.parseWithResult(token);
+                    userContext = tokenParseResult == null ? null : tokenParseResult.getUserContext();
+                    tokenParseStatus = tokenParseResult == null ? TokenParseStatus.ERROR : tokenParseResult.getStatus();
+                } else {
+                    userContext = tokenManager.parse(token);
+                    tokenParseStatus = userContext == null ? TokenParseStatus.ERROR : TokenParseStatus.OK;
+                }
                 if (userContext != null) {
                     if (userContext instanceof MutableUserContext mutableUserContext) {
                         for (UserContextEnricher enricher : enrichers) {
@@ -77,6 +89,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             if (ignored) {
                 LOGGER.debug("Security filter ignored uri={}", request.getRequestURI());
             }
+            request.setAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS, tokenParseStatus);
 
             for (SecurityRequestInterceptor requestInterceptor : requestInterceptors) {
                 if (!requestInterceptor.preHandle(request, response, token, userContext, ignored)) {

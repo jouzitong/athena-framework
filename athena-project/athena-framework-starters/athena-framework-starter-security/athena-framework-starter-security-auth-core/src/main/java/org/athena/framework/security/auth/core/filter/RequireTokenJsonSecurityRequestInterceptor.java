@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.constant.CodeConstant;
+import org.athena.framework.security.api.spi.SecurityAuthAttributes;
+import org.athena.framework.security.api.spi.TokenParseStatus;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.auth.core.web.SecurityHttpResponseWriter;
 
@@ -37,10 +39,21 @@ public class RequireTokenJsonSecurityRequestInterceptor implements SecurityReque
             return true;
         }
         if (StringUtils.isBlank(token) || userContext == null) {
-            if (jsonErrorResponse) {
-                SecurityHttpResponseWriter.writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, CodeConstant.UNAUTHORIZED);
+            int code;
+            if (StringUtils.isBlank(token)) {
+                code = CodeConstant.UNAUTHORIZED;
             } else {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "unauthorized");
+                TokenParseStatus tokenParseStatus = (TokenParseStatus) request.getAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS);
+                if (tokenParseStatus == TokenParseStatus.EXPIRED) {
+                    code = CodeConstant.TOKEN_EXPIRED;
+                } else {
+                    code = CodeConstant.TOKEN_INVALID;
+                }
+            }
+            if (jsonErrorResponse) {
+                SecurityHttpResponseWriter.writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, code);
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, org.arthena.framework.common.utils.ErrorCodeUtils.getMsg(code));
             }
             return false;
         }

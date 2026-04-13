@@ -3,6 +3,8 @@ package org.athena.framework.security.auth.core.web;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
 import org.athena.framework.security.api.auth.AuthenticationRequest;
 import org.athena.framework.security.api.auth.AuthenticationResult;
 import org.athena.framework.security.api.model.UserContext;
@@ -49,7 +51,7 @@ public class SecurityAuthController {
         );
         AuthenticationResult result = securityAuthenticationService.authenticate(authenticationRequest);
         if (!result.success() || result.context() == null || result.context().session() == null) {
-            throw new SecurityException("login failed: " + result.code());
+            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), CodeConstant.LOGIN_FAILED);
         }
 
         return Map.of(
@@ -73,7 +75,17 @@ public class SecurityAuthController {
         String token = credentialExtractor.extractToken(request);
         AuthenticationResult result = securityAuthenticationService.refresh(token);
         if (!result.success() || result.context() == null || result.context().session() == null) {
-            throw new SecurityException("refresh failed: " + result.code());
+            int code;
+            if ("TOKEN_EMPTY".equals(result.code())) {
+                code = CodeConstant.UNAUTHORIZED;
+            } else if ("TOKEN_EXPIRED".equals(result.code())) {
+                code = CodeConstant.TOKEN_EXPIRED;
+            } else if ("TOKEN_INVALID".equals(result.code())) {
+                code = CodeConstant.TOKEN_INVALID;
+            } else {
+                code = CodeConstant.UNAUTHORIZED;
+            }
+            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), code);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -87,7 +99,7 @@ public class SecurityAuthController {
     public Map<String, Object> me() {
         UserContext userContext = SecurityContextHolder.get();
         if (userContext == null || userContext.subject() == null) {
-            throw new SecurityException("unauthorized");
+            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), CodeConstant.UNAUTHORIZED);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();

@@ -9,6 +9,9 @@ import org.athena.framework.security.api.model.SessionState;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.Authenticator;
 import org.athena.framework.security.api.spi.TokenManager;
+import org.athena.framework.security.api.spi.TokenManagerWithParseResult;
+import org.athena.framework.security.api.spi.TokenParseResult;
+import org.athena.framework.security.api.spi.TokenParseStatus;
 import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,7 @@ public class SecurityAuthenticationService implements SecurityAuthenticationFaca
 
     @Override
     public AuthenticationResult authenticate(AuthenticationRequest request) {
+        LOGGER.info("Authenticating, username={}", request.username());
         AuthenticationResult result = authenticator.authenticate(request);
         if (!result.success() || result.context() == null) {
             LOGGER.warn("Authentication failed, username={}, code={}, message={}",
@@ -102,9 +106,20 @@ public class SecurityAuthenticationService implements SecurityAuthenticationFaca
             LOGGER.warn("Refresh failed because token is empty");
             return AuthenticationResult.failed("TOKEN_EMPTY", "token is empty");
         }
-        UserContext userContext = tokenManager.parse(token);
+        UserContext userContext;
+        TokenParseStatus tokenParseStatus = null;
+        if (tokenManager instanceof TokenManagerWithParseResult tokenManagerWithParseResult) {
+            TokenParseResult tokenParseResult = tokenManagerWithParseResult.parseWithResult(token);
+            userContext = tokenParseResult == null ? null : tokenParseResult.getUserContext();
+            tokenParseStatus = tokenParseResult == null ? TokenParseStatus.ERROR : tokenParseResult.getStatus();
+        } else {
+            userContext = tokenManager.parse(token);
+        }
         if (userContext == null || userContext.subject() == null) {
             LOGGER.warn("Refresh failed because token is invalid");
+            if (tokenParseStatus == TokenParseStatus.EXPIRED) {
+                return AuthenticationResult.failed("TOKEN_EXPIRED", "token expired");
+            }
             return AuthenticationResult.failed("TOKEN_INVALID", "token is invalid");
         }
 
