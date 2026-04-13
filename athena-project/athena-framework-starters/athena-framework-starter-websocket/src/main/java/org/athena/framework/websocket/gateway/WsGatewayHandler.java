@@ -14,6 +14,8 @@ import org.athena.framework.websocket.subscription.SubscriptionManager;
 import org.athena.framework.websocket.support.ResumeStore;
 import org.athena.framework.websocket.support.SessionSnapshot;
 import org.athena.framework.websocket.support.WsProtocolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class WsGatewayHandler extends TextWebSocketHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WsGatewayHandler.class);
 
     private final ObjectMapper objectMapper;
     private final SessionManager sessionManager;
@@ -110,6 +113,13 @@ public class WsGatewayHandler extends TextWebSocketHandler {
             // JSON 解析失败
             WsMessage error = messageFactory.errorResponse(new WsMessage(),
                 "BAD_SCHEMA", "invalid json", false);
+            outbound.send(wsSession, error);
+        } catch (Throwable ex) {
+            // 兜底：业务运行时异常统一回 INTERNAL_ERROR，避免客户端无回包
+            LOGGER.error("ws internal error, connId={}, userId={}",
+                wsSession.getConnId(), wsSession.getUserId(), ex);
+            WsMessage base = parsed == null ? new WsMessage() : parsed;
+            WsMessage error = messageFactory.errorResponse(base, "INTERNAL_ERROR", "internal error", false);
             outbound.send(wsSession, error);
         }
     }

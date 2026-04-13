@@ -14,6 +14,7 @@ import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.extractor.HeaderTokenCredentialExtractor;
 import org.athena.framework.security.auth.core.filter.SecurityContextFilter;
 import org.athena.framework.security.auth.core.filter.SecurityRequestInterceptor;
+import org.athena.framework.security.auth.core.filter.RequireTokenJsonSecurityRequestInterceptor;
 import org.athena.framework.security.auth.core.service.DefaultAuthenticator;
 import org.athena.framework.security.auth.core.service.DefaultIdentityProvider;
 import org.athena.framework.security.auth.core.service.DefaultSecurityUserRepository;
@@ -126,6 +127,13 @@ public class SecurityAuthCoreAutoConfiguration {
         bean.setOrder(-110);
         bean.addUrlPatterns("/*");
         return bean;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "athena.security.auth", name = "require-token", havingValue = "true")
+    public SecurityRequestInterceptor requireTokenSecurityRequestInterceptor(SecurityAuthProperties properties) {
+        return new RequireTokenJsonSecurityRequestInterceptor(properties.isJsonErrorResponse());
     }
 
     @Bean

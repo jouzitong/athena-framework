@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.model.UserContext;
+import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 
@@ -23,6 +24,10 @@ public class RequireTokenSecurityRequestInterceptor implements SecurityRequestIn
                              UserContext userContext,
                              boolean ignored) throws IOException {
         if (ignored) {
+            return true;
+        }
+        // 解决 CORS 预检请求问题
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
             return true;
         }
         if (StringUtils.isBlank(token) || userContext == null) {
