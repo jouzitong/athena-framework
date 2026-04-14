@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <!--
+      Athena starter-log 核心 Logback 配置（示例）
+      目标：默认落盘 + 滚动归档 + 分文件（app/error，可选 sql/audit）+ ES-ready(JSON/ECS)
+    -->
+
+    <!-- 读取 Spring 环境变量（支持 application.yml 覆盖） -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="athena-app"/>
+    <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.profiles.active" defaultValue="dev"/>
+
+    <springProperty scope="context" name="LOG_DIR" source="athena.log.dir" defaultValue="./logs"/>
+    <springProperty scope="context" name="ROOT_LEVEL" source="athena.log.level.root" defaultValue="INFO"/>
+
+    <springProperty scope="context" name="MAX_HISTORY" source="athena.log.rolling.max-history" defaultValue="30"/>
+    <springProperty scope="context" name="TOTAL_SIZE_CAP" source="athena.log.rolling.total-size-cap" defaultValue="20GB"/>
+    <springProperty scope="context" name="MAX_FILE_SIZE" source="athena.log.rolling.max-file-size" defaultValue="256MB"/>
+
+    <property name="APP_LOG" value="${LOG_DIR}/${APP_NAME}.log"/>
+    <property name="ERROR_LOG" value="${LOG_DIR}/${APP_NAME}.error.log"/>
+    <property name="SQL_LOG" value="${LOG_DIR}/${APP_NAME}.sql.log"/>
+    <property name="AUDIT_LOG" value="${LOG_DIR}/${APP_NAME}.audit.log"/>
+
+    <!-- 开发态可读格式 -->
+    <property name="PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSS,Asia/Shanghai} %-5level [%thread] %logger{36} - %msg %X{traceId:-} %X{spanId:-}%n%ex{full}"/>
+
+    <!-- Console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Rolling: app.log -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+        <!-- prod: JSON；dev: pattern（见 springProfile） -->
+    </appender>
+
+    <!-- Rolling: error.log（仅 ERROR） -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${ERROR_LOG}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- 可选：SQL 专用日志（默认关闭；需要在业务侧打开相关 logger） -->
+    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SQL_LOG}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.sql.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 可选：审计日志（建议业务显式使用 LoggerFactory.getLogger("AUDIT")） -->
+    <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${AUDIT_LOG}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.audit.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- dev：pattern 输出 -->
+    <springProfile name="dev,local,test">
+        <appender-ref ref="CONSOLE"/>
+
+        <appender name="APP_FILE_DEV" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${APP_LOG}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>${PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <appender name="ERROR_FILE_DEV" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${ERROR_LOG}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/${APP_NAME}.error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            </rollingPolicy>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>${PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <root level="${ROOT_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="APP_FILE_DEV"/>
+            <appender-ref ref="ERROR_FILE_DEV"/>
+        </root>
+    </springProfile>
+
+    <!-- prod：JSON（ES-ready，建议配合 Filebeat/Fluent Bit/Vector 采集） -->
+    <springProfile name="prod,staging">
+        <!-- 依赖：net.logstash.logback:logstash-logback-encoder -->
+        <appender name="APP_FILE_PROD" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${APP_LOG}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <!-- 固定字段（ECS-ready 的 service.*） -->
+                <customFields>{"service":{"name":"${APP_NAME}","environment":"${ACTIVE_PROFILE}"}}</customFields>
+            </encoder>
+        </appender>
+
+        <appender name="ERROR_FILE_PROD" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${ERROR_LOG}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/${APP_NAME}.error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            </rollingPolicy>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"service":{"name":"${APP_NAME}","environment":"${ACTIVE_PROFILE}"}}</customFields>
+            </encoder>
+        </appender>
+
+        <!-- 可选：审计 logger（默认注释，按需启用）
+        <logger name="AUDIT" level="INFO" additivity="false">
+            <appender-ref ref="AUDIT_FILE"/>
+        </logger>
+        -->
+
+        <!-- 可选：SQL logger（默认注释，按需启用）
+        <logger name="org.mybatis" level="DEBUG" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+        </logger>
+        -->
+
+        <root level="${ROOT_LEVEL}">
+            <appender-ref ref="APP_FILE_PROD"/>
+            <appender-ref ref="ERROR_FILE_PROD"/>
+        </root>
+    </springProfile>
+</configuration>
+

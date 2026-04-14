@@ -1,0 +1,246 @@
+= Athena Framework Starter-Log 核心功能与实现方案（ES-ready）
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: coderay
+
+== 文档目的
+
+本文档描述在 Athena Framework 中新增 `starter-log`（日志基础设施 starter）的：
+
+* 核心功能清单（MVP）
+* 核心实现方案（可落地的模块结构、配置项、默认值、关键技术点）
+* ES 分布式日志管理能力预留（ES-ready：当前不实现“直写 ES”，但保证未来接入无需大改）
+
+本方案面向仓库当前结构（Maven 多模块、BOM 管理、Spring Boot 自动装配）。
+
+== 背景与目标
+
+=== 背景
+
+日志是框架级“横切能力”，需要提供一致的默认策略（落盘、滚动、分文件、格式规范、环境差异化），并为后续集中化日志平台（Elastic Stack/ES + Beats/Fluent Bit/Vector + Kibana）接入预留能力。
+
+=== 总体目标
+
+新增 `athena-framework-starter-log`，做到：
+
+* 开箱即用：业务引入依赖即可获得统一的默认日志策略
+* 配置优先：以 `logback-spring.xml` 为核心，通过 Logback 原生机制 + Spring 属性注入完成覆盖
+* 可扩展：按模块/类型拆分日志文件，支持 JSON 结构化日志（ES 友好）
+* ES-ready：预留“集中式日志管理”的字段规范（ECS-ready）与采集链路对接方式
+
+=== 非目标（本期不做）
+
+* 不实现“应用直写 ES”（bulk/http/tcp）
+* 不实现采集器（Filebeat/Fluent Bit/Vector）部署与运维脚本（仅保证输出形态可被采集）
+* 不实现 Kibana Dashboard/Index Template/ILM 策略落地（仅给出对齐建议）
+
+== 核心功能清单（MVP）
+
+=== 1. 默认日志配置（开箱即用）
+
+* 默认落盘目录：`./logs/`
+* 默认文件：
+** `app.log`：应用主日志（INFO+）
+** `error.log`：错误日志（ERROR+，可选仅 error 级别）
+* 默认控制台输出（dev 默认开启，prod 可配置关闭）
+* 默认格式：
+** dev：可读性优先（pattern）
+** prod：结构化优先（JSON）
+* 默认 MDC 字段透传：`traceId`、`spanId`、`requestId`（若存在）
+
+=== 2. 滚动日志（Rolling）
+
+* 按时间滚动（每日）+ 可选按大小辅助滚动（Size + Time）
+* 归档压缩：`gz`
+* 保留策略：
+** 保留天数（`maxHistory`）
+** 归档总大小上限（`totalSizeCap`）
+** 单文件上限（`maxFileSize`，仅 size+time 模式生效）
+
+=== 3. 日志模块划分（分 Logger / 分类型 / 分业务模块）
+
+至少提供“按日志类型分文件”的能力（推荐默认）：
+
+* `app.log`：主日志（root）
+* `error.log`：仅 ERROR（或 WARN+ERROR，按配置）
+
+并预留“按模块分文件”的扩展能力（可选启用）：
+
+* `sql.log`：SQL/ORM 日志（`org.mybatis`、`com.baomidou.mybatisplus`、`jdbc.sqlonly` 等按需）
+* `audit.log`：审计日志（业务显式使用 `AUDIT_LOGGER` 或指定 logger name）
+
+=== 4. 环境化（Profiles/Env）
+
+* `dev`：控制台启用、日志级别更宽松（例如 root=INFO，框架包=DEBUG 可选）
+* `prod`：落盘为主、结构化 JSON、滚动/保留更严格
+
+=== 5. 统一配置入口（properties/yaml）
+
+* 主入口：`logback-spring.xml`
+* 通过 `<springProperty/>` 读取 Spring 配置（建议统一前缀 `athena.log.*` 仅作为“变量来源”，不额外写一套解析逻辑）
+
+== ES 分布式日志管理能力预留（ES-ready：当前不实现，但必须具备）
+
+本节目标：确保当前日志“产出形态”可以被采集器无缝采集并写入 ES，并且字段规范稳定可演进。
+
+=== 1. 结构化日志（JSON）与字段规范
+
+==== 推荐对齐：Elastic Common Schema（ECS）
+
+最小字段集（建议作为 JSON 默认输出）：
+
+* `@timestamp`：事件时间（ISO-8601，UTC 或指定时区）
+* `message`：原始消息
+* `log.level`：日志级别
+* `log.logger`：logger name
+* `process.pid`：进程号
+* `thread.name`：线程名
+* `service.name`：服务名（建议取 `spring.application.name`）
+* `service.version`：版本（可选，从 `build` 或配置注入）
+* `service.environment`：环境（dev/test/prod）
+* `trace.id` / `span.id`：链路追踪（从 MDC 映射）
+* `error.type` / `error.message` / `error.stack_trace`：异常信息（当存在异常）
+
+==== MDC 映射约定（建议）
+
+为了兼容不同 tracing 实现（Sleuth / Micrometer Tracing / 自研），约定映射优先级：
+
+* `trace.id`：优先取 MDC `traceId`，其次 `trace_id`
+* `span.id`：优先取 MDC `spanId`，其次 `span_id`
+* `request.id`：取 MDC `requestId`（若存在）
+* `tenant.id` / `biz.code`：按业务需要扩展（可选）
+
+=== 2. 采集链路预留（推荐默认：落盘 + 采集器）
+
+默认设计为“本地滚动文件 + 采集器采集”：
+
+* 应用只负责：
+** 可靠落盘
+** 文件滚动与保留
+** 字段规范（JSON/ECS-ready）
+* 采集器（未来由平台统一）负责：
+** tail 文件
+** 增加 host/cluster/namespace 等基础元信息
+** 输出到 ES / Kafka / Logstash 等
+
+该模式风险更低、对应用侵入更小、可替换性更强。
+
+=== 3. 输出形态约束（优先采集器链路，不建议应用直写）
+
+框架侧优先选择“本地滚动文件 + 采集器”模式：
+
+* 业务/框架只负责：可靠落盘、滚动保留、JSON/ECS-ready 字段
+* 平台统一负责：采集、转发、索引治理（ES/ClickHouse/Loki 等）
+
+该路径能显著降低应用侧网络依赖与背压复杂度，也更容易通过项目验收。
+
+== 核心实现方案
+
+=== 方案选择
+
+==== 默认实现：Logback（Spring Boot 默认）
+
+优先以 Logback 作为默认实现，理由：
+
+* Spring Boot 默认日志系统（无需额外替换）
+* Rolling/压缩/保留策略成熟
+* 可通过 `logstash-logback-encoder` 输出 JSON（ES 友好）
+
+==== 可选兼容：Log4j2（后续增强）
+
+仓库中存在 `athena-framework-test-log4j2`，说明有 Log4j2 使用场景。Starter 层面建议：
+
+* 本期：Logback 优先落地
+* 后续：补齐 `log4j2-spring.xml` 与同等配置项映射（保持配置前缀不变）
+
+=== 模块与仓库改动（实现落地清单）
+
+==== 需要新增/修改的模块
+
+. 修改 `athena-project/athena-framework-starters/pom.xml`：新增 module `athena-framework-starter-log`
+. 新增模块目录：`athena-project/athena-framework-starters/athena-framework-starter-log`
+. 修改 `athena-project/framework-dependencies/pom.xml`：纳管 `logstash-logback-encoder`（可选依赖，但建议版本统一）
+. 建议新增示例模块：`athena-framework-test/athena-framework-test-log`（验证滚动/分文件/JSON）
+
+==== 推荐目录结构
+
+[source,text]
+----
+athena-framework-starter-log/
+├── pom.xml
+└── src/main/resources/
+    ├── athena-logback-spring.xml
+    └── META-INF/spring/org.springframework.boot.env.EnvironmentPostProcessor
+----
+
+说明：
+
+* 以 Logback 原生配置文件为核心：`athena-logback-spring.xml`
+* 为做到“引入即生效”，建议仅增加一个极薄的 `EnvironmentPostProcessor`：
+** 当业务未显式配置 `logging.config` 时，默认设置为 `classpath:athena-logback-spring.xml`
+** 若业务已配置 `logging.config`，则完全尊重业务配置，不做任何覆盖
+* 除上述“设置默认 logging.config”外，不额外引入“配置解析/映射逻辑”，核心能力全部由 Logback 配置完成
+
+=== 默认配置与滚动策略（Logback）
+
+==== 默认文件与级别
+
+* `app.log`：
+** logger：root
+** level：默认 INFO（可配置）
+* `error.log`：
+** logger：独立 `ERROR_FILE` 或使用 `LevelFilter`
+** level：ERROR
+
+==== Rolling 策略建议（Size + Time）
+
+推荐使用 `SizeAndTimeBasedRollingPolicy`：
+
+* fileNamePattern：`logs/app.%d{yyyy-MM-dd}.%i.log.gz`
+* maxFileSize：`256MB`（可配置）
+* maxHistory：`30`（可配置）
+* totalSizeCap：`20GB`（可配置）
+
+=== 结构化日志（JSON）实现建议
+
+==== 依赖建议
+
+* 引入 `net.logstash.logback:logstash-logback-encoder`（版本由 BOM 统一管理）
+
+==== JSON 输出与字段映射
+
+* 使用 `LogstashEncoder`（或 `LoggingEventCompositeJsonEncoder`）输出 JSON
+* 将 MDC 映射到 ECS 字段：
+** MDC `traceId` -> `trace.id`
+** MDC `spanId` -> `span.id`
+** MDC `requestId` -> `request.id`
+* `service.*` 字段从配置与 Spring 环境注入
+
+=== 配置项设计（仅作为 Logback 变量来源）
+
+本方案仍建议统一一组 `athena.log.*` 作为变量来源，但它们不对应任何“Java 解析逻辑”，仅用于 `logback-spring.xml` 的 `<springProperty/>` 注入：
+
+* `athena.log.dir`：日志目录（默认 `./logs`）
+* `athena.log.level.root`：root 级别（默认 `INFO`）
+* `athena.log.rolling.max-history`：保留天数（默认 `30`）
+* `athena.log.rolling.total-size-cap`：归档总大小（默认 `20GB`）
+* `athena.log.rolling.max-file-size`：单文件大小（默认 `256MB`）
+
+核心 Logback 配置示例见：`docs/detail/starter-log-logback-spring.xml`。
+
+== 验收标准（MVP）
+
+* 引入 `athena-framework-starter-log` 后，不额外配置也能产生日志文件并滚动归档
+* 在 `dev` 环境：控制台输出可读、字段齐全（含 traceId 等）
+* 在 `prod` 环境：默认输出 JSON（可配置切换），字段满足 ECS-ready 最小集
+* `error.log` 仅包含 ERROR（或按配置包含 WARN+ERROR），且滚动策略与 `app.log` 一致
+
+== 后续增强（建议路线图）
+
+* Log4j2 等价能力补齐（统一配置前缀不变）
+* 审计日志（`audit.log`）专用策略：更长保留、更严格落盘、禁止打印到 console
+* 异步写日志（AsyncAppender）：队列、丢弃策略、背压策略可配置
+* 动态级别调整：运行期按 logger name 调整（可对接 actuator 或自定义端点）
+* REMOTE sink 真正实现：支持写入 Logstash/OTel Collector（优先），最后再考虑直写 ES
