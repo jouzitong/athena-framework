@@ -1,0 +1,66 @@
+# Starter-Log 示例配置（可直接复制到业务项目的 application.yml / application-dev.yml）
+#
+# 说明：
+# - 本 starter 默认在你未配置 `logging.config` 时：
+#   1) 若存在 `./config/logback-spring.xml`（服务器常见部署方式），优先使用该文件
+#   2) 否则若存在 `./logback-spring.xml`，使用该文件
+#   3) 否则回退到 classpath 中的 `logback-spring.xml`（starter 内置默认）
+# - 你也可以显式指定 `logging.config` 来完全自定义 Logback 配置（starter 将不再干预）
+
+spring:
+  application:
+    name: demo-service
+  profiles:
+    active: dev
+
+# 如需完全自定义 logback-spring.xml（推荐放在业务 resources 下），取消注释：
+# logging:
+#   config: classpath:logback-spring.xml
+#
+# 如需使用服务器外挂配置（推荐放到 ./config 目录），示例：
+# logging:
+#   config: file:./config/logback-spring.xml
+
+athena:
+  log:
+    starter:
+      enabled: true
+      # default-config: classpath:logback-spring.xml
+    # 日志目录（默认 ./logs）
+    dir: ./logs
+    rolling:
+      # 保留天数（默认 30）
+      max-history: 7
+      # 归档总大小上限（默认 20GB）
+      total-size-cap: 2GB
+      # 单文件上限（默认 256MB）
+      max-file-size: 64MB
+
+# 日志级别建议使用 Spring Boot 原生配置
+logging:
+  level:
+    root: INFO
+    org.athena: DEBUG
+    org.springframework: INFO
+    # 开启 SQL 相关包的 DEBUG（仅当你的 logback 配置里把它们路由到 sql appender 才会落入 sql.log）
+    org.mybatis: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+
+---
+# prod 示例：JSON 输出（由 logback-spring.xml 的 prod profile 控制），更严格的滚动保留
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+athena:
+  log:
+    dir: /var/log/${spring.application.name}
+    rolling:
+      max-history: 30
+      total-size-cap: 20GB
+      max-file-size: 256MB
+
+logging:
+  level:
+    root: INFO

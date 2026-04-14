@@ -23,6 +23,7 @@
         <module>athena-framework-starter-websocket</module>
         <module>athena-framework-starter-minio</module>
         <module>athena-framework-starter-security</module>
+        <module>athena-framework-starter-log</module>
     </modules>
 
     <dependencies>

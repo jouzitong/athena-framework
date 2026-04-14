@@ -170,16 +170,21 @@
 ----
 athena-framework-starter-log/
 ├── pom.xml
+├── src/main/java/org/athena/framework/log/starter/
+│   └── LogConfigEnvironmentPostProcessor.java
 └── src/main/resources/
-    ├── athena-logback-spring.xml
-    └── META-INF/spring/org.springframework.boot.env.EnvironmentPostProcessor
+    ├── logback-spring.xml
+    └── META-INF/spring.factories
 ----
 
 说明：
 
-* 以 Logback 原生配置文件为核心：`athena-logback-spring.xml`
+* 以 Logback 原生配置文件为核心：`logback-spring.xml`
 * 为做到“引入即生效”，建议仅增加一个极薄的 `EnvironmentPostProcessor`：
-** 当业务未显式配置 `logging.config` 时，默认设置为 `classpath:athena-logback-spring.xml`
+** 当业务未显式配置 `logging.config` 时，按以下优先级设置默认值：
+*** 若存在 `./config/logback-spring.xml`（服务器外挂配置目录），使用 `file:./config/logback-spring.xml`
+*** 否则若存在 `./logback-spring.xml`，使用 `file:./logback-spring.xml`
+*** 否则回退到 `classpath:logback-spring.xml`（starter 内置默认）
 ** 若业务已配置 `logging.config`，则完全尊重业务配置，不做任何覆盖
 * 除上述“设置默认 logging.config”外，不额外引入“配置解析/映射逻辑”，核心能力全部由 Logback 配置完成
 
@@ -229,6 +234,7 @@ athena-framework-starter-log/
 * `athena.log.rolling.max-file-size`：单文件大小（默认 `256MB`）
 
 核心 Logback 配置示例见：`docs/detail/starter-log-logback-spring.xml`。
+Starter 内置的默认配置文件为：`athena-project/athena-framework-starters/athena-framework-starter-log/src/main/resources/logback-spring.xml`。
 
 == 验收标准（MVP）
 

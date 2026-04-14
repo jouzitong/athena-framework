@@ -1,0 +1,3 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+org.athena.framework.log.starter.LogConfigEnvironmentPostProcessor
+

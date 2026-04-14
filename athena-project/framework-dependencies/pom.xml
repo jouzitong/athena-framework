@@ -57,6 +57,7 @@
         <commons-io.version>2.5</commons-io.version>
         <guava.version>22.0</guava.version>
         <minio.version>8.5.17</minio.version>
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
     </properties>
 
     <dependencyManagement>
@@ -126,6 +127,11 @@
             <dependency>
                 <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-minio</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-log</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -305,6 +311,12 @@
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>${minio.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
             </dependency>
 
             <dependency>
