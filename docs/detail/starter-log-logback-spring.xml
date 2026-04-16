@@ -9,6 +9,11 @@
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="athena-app"/>
     <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.profiles.active" defaultValue="dev"/>
 
+    <!-- Spring Boot console color support -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+
     <springProperty scope="context" name="LOG_DIR" source="athena.log.dir" defaultValue="./logs"/>
     <springProperty scope="context" name="ROOT_LEVEL" source="athena.log.level.root" defaultValue="INFO"/>
 
@@ -25,10 +30,13 @@
     <property name="PATTERN"
               value="%d{yyyy-MM-dd'T'HH:mm:ss.SSS,Asia/Shanghai} %-5level [%thread] %logger{36} - %msg %X{traceId:-} %X{spanId:-}%n%ex{full}"/>
 
+    <property name="CONSOLE_PATTERN"
+              value="%clr(%d{yyyy-MM-dd'T'HH:mm:ss.SSS,Asia/Shanghai}){faint} %highlight(%-5level) %clr([%thread]){faint} %clr(%logger{36}){cyan} %clr(-){faint} %msg %clr(|){faint} traceId=%X{traceId:-} spanId=%X{spanId:-}%n%wEx"/>
+
     <!-- Console -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${PATTERN}</pattern>
+            <pattern>${CONSOLE_PATTERN}</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -174,4 +182,3 @@
         </root>
     </springProfile>
 </configuration>
-
