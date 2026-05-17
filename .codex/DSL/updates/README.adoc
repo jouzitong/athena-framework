@@ -74,13 +74,13 @@
 
 ==== 参考文件
 
-- codex/rules/01-task-rules.adoc
-- codex/rules/02-logs-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
+- .codex/DSL/rules/02-logs-rules.adoc
 
 ==== 可能修改文件
 
-- codex/rules/01-task-rules.adoc
-- codex/rules/02-logs-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
+- .codex/DSL/rules/02-logs-rules.adoc
 
 == TASK-RULES-Upgrade-T0003: 完善任务类型规范与说明
 
@@ -107,11 +107,11 @@
 
 ==== 参考文件
 
-- codex/rules/01-task-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
 
 ==== 可能修改文件
 
-- codex/rules/01-task-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
 
 == TASK-RULES-Upgrade-T0004: 任务清单需包含 PLAN 入口任务
 
@@ -134,12 +134,12 @@
 
 ==== 参考文件
 
-- codex/runner.md
-- codex/rules/01-task-rules.adoc
+- .codex/DSL/runner.md
+- .codex/DSL/rules/01-task-rules.adoc
 
 ==== 可能修改文件
 
-- codex/rules/01-task-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
 
 == TASK-RULES-Upgrade-T0005: 新增 DOCS 任务类型与文档规则
 
@@ -164,13 +164,13 @@
 
 ==== 参考文件
 
-- codex/rules/01-task-rules.adoc
-- codex/rules/04-docs-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
+- .codex/DSL/rules/04-docs-rules.adoc
 
 ==== 可能修改文件
 
-- codex/rules/01-task-rules.adoc
-- codex/rules/04-docs-rules.adoc
+- .codex/DSL/rules/01-task-rules.adoc
+- .codex/DSL/rules/04-docs-rules.adoc
 
 == TASK-RULES-Upgrade-T0006: 新增 Vue 主题样式规范文档
 
@@ -182,7 +182,7 @@
 === 详细描述
 
 - 参考现有整体样式目录: `tradingview-vue/src/assets/style`，梳理主题变量、基础样式、组件样式约定。
-- 在 `codex/rules/spec` 中新增主题样式规范文件，并说明:
+- 在 `.codex/DSL/rules/spec` 中新增主题样式规范文件，并说明:
 ** 主题色、功能色、文本色、边框色、背景色的定义与命名规则。
 ** 字体、字号、行高、字重等排版规范。
 ** 间距、圆角、阴影、分层（z-index）等基础样式约定。
@@ -197,4 +197,4 @@
 
 ==== 可能修改文件
 
-- codex/rules/spec
+- .codex/DSL/rules/spec

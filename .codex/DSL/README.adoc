@@ -19,8 +19,9 @@
 
 [source,md]
 ----
-codex/
+.codex/DSL/
 ├── README.adoc                  # 总说明：Codex 如何使用本 DSL
+├── GOVERNANCE.md                # 目录归属与变更准入（治理基线）
 │
 ├── rules/                       # 当前生效规则（唯一权威）
 │   ├── 00-global-rules.adoc
@@ -68,6 +69,9 @@ codex/
 
 .README.adoc
 * 说明：Codex 如何使用本 DSL
+
+.GOVERNANCE.md
+* 说明：DSL 目录归属、变更准入、禁止事项、同步与提交流程基线。
 
 .rules/
 * 说明: 执行约束（Execution Constraint）（唯一权威）。主要是约定一些规范问题.
@@ -119,7 +123,7 @@ Codex 在执行任务时不得将本节内容作为规则或约束读取与引�
 
 [source, shell]
 ----
-执行 codex/runner.md 任务
+执行 .codex/DSL/runner.md 任务
 ----
 
 === 典型案例

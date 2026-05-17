@@ -5,4 +5,4 @@
 - 需要执行的任务清单: [tasks](tasks) 目录
 
 需要执行的任务文件包括：
-- active_task_file:: codex/tasks/core/default-config.adoc[DefaultConfig.md](tasks/platform/core/DefaultConfig.md)
+- active_task_file:: .codex/DSL/tasks/core/default-config.adoc[DefaultConfig.md](tasks/platform/core/DefaultConfig.md)
