@@ -13,7 +13,7 @@
 - `flows/*`：负责“步骤顺序与流程行为”。
 - `rules/*`：负责“字段约束、状态机、门禁与裁决标准”。
 - `template/*`：负责“输出骨架”，不得创造新规则。
-- `skills/*`：负责“执行方法”，不得覆盖 DSL 规则。
+- 执行层：负责“执行方法”，不得覆盖 DSL 规则。
 
 == 关键主题归属表
 
@@ -25,9 +25,13 @@
 |`flows/task-execution-flow.adoc`
 |`rules` 中仅可摘要引用，不可全文复制
 
+|标准开发阶段顺序（INTAKE 到 DELIVERY_DECISION）
+|`flows/standard-dev-flow.adoc`
+|阶段门禁与裁决写在 `rules/06-standard-dev-flow-rules.adoc`，执行细节在 DSL 外部执行层维护
+
 |Task/Sub Task 字段结构
 |`rules/01-task-rules.adoc`
-|`template` 与 `skills` 必须引用并对齐
+|`template` 与执行层产物必须引用并对齐
 
 |日志字段与日志步骤
 |`rules/02-logs-rules.adoc`
@@ -55,6 +59,5 @@
 当修改 SSOT 主题时，必须按顺序执行：
 
 1. 修改对应 SSOT 文件
-2. 同步调整引用文件（rules/flows/template/skills）
+2. 同步调整引用文件（rules/flows/template）
 3. 在 `.codex/DSL/updates/README.adoc` 与 `updates/logs/*` 记录变更
-

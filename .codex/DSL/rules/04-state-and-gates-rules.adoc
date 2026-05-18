@@ -65,5 +65,3 @@
 1. 本文件（统一状态机与门禁）
 2. `rules/01-task-rules.adoc`
 3. `flows/task-execution-flow.adoc`
-4. Skill 内场景说明
-

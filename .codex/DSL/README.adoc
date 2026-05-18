@@ -34,12 +34,14 @@
 │   ├── 04-state-and-gates-rules.adoc
 │   ├── 04-ssot-rules.adoc
 │   ├── 05-vue-rules.adoc
+│   ├── 06-standard-dev-flow-rules.adoc
 │   └── spec/
 │       ├── route-and-menu-spec.adoc
 │       └── vue-theme-style-spec.adoc
 │
 ├── flows/                       # Flow 定义
 │   ├── task-execution-flow.adoc
+│   ├── standard-dev-flow.adoc
 │   └── gen/
 │       ├── task-gen-simple.adoc
 │       ├── task-gen-entity-fullstack.adoc
@@ -79,25 +81,28 @@
 .rules/
 * 说明: 执行约束（Execution Constraint）（唯一权威）。主要是约定一些规范问题.
 ** 00-global-rules.adoc: 全局规则
-** 01-task-rules.adoc: 任务相关规则
-** 01-task-gen-rules.adoc: 任务生成规则
-** 01-task-flows-rules.adoc: 任务 Flow 规则
+** 01-task-rules.adoc: 任务统一规范（唯一权威，融合定义/拆分/执行约束摘要）
+** 01-task-gen-rules.adoc: 兼容占位（已并入 01-task-rules）
+** 01-task-flows-rules.adoc: 兼容占位（已并入 01-task-rules）
 ** 02-logs-rules.adoc: 日志相关规则
 ** 03-upgrade-rules.adoc: 规则升级规范
 ** 04-core-model-rules.adoc: 核心对象模型（Task/Sub Task/Execution Log）
 ** 04-state-and-gates-rules.adoc: 统一状态机与执行门禁
 ** 04-ssot-rules.adoc: 单一真相源（SSOT）映射与防重复维护规则
 ** 05-vue-rules.adoc: Vue 相关规范
+** 06-standard-dev-flow-rules.adoc: 标准开发流程门禁与裁决规则
 ** spec/: 业务/前端专项规范
 
 .flows/
 * 说明: Flow 定义。约束 Codex 行为或任务生成流程.
 ** task-execution-flow.adoc: 通用任务执行流程
+** standard-dev-flow.adoc: 标准开发流程（口语化需求到需求完成）
 ** gen/: 任务生成流程集合
 
 .template/
 * 说明: 当前生效模板。主要是任务模板、日志模板、文档模板与 runner 模板.
 ** tasks/: 任务模板（task-plan/task-function 等）
+*** 推荐入口：`template/tasks/task.template.adoc`（需求任务/开发任务统一模板）
 ** logs/: 日志模板
 ** docs/: 文档模板（需求、概要设计、详细设计）
 ** updates/: 升级模板
@@ -180,8 +185,8 @@ Codex 在执行任务时不得将本节内容作为规则或约束读取与引�
 .补充或更新规范文档
 [source, text]
 ----
-输入：已存在 rules/01-task-rules.adoc 与 rules/01-task-gen-rules.adoc
-目标：对齐结构并补充缺失章节
-输出：仅更新 rules/01-task-gen-rules.adoc
-请根据 rules/01-task-rules.adoc 的结构，完善 rules/01-task-gen-rules.adoc。
+输入：已存在 rules/01-task-rules.adoc
+目标：完善主任务/子任务定义（含输入输出与验收）并补齐缺失章节
+输出：仅更新 rules/01-task-rules.adoc
+请根据业务需求，仅在 rules/01-task-rules.adoc 维护任务相关规范。
 ----

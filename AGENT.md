@@ -10,9 +10,9 @@
 
 ### 1) dev-core
 - Path: `.codex/skills/dev-core/SKILL.md`
-- Use when: 从需求到开发测试的完整交付流程
-- Keywords: `dev-core`, `开发`, `需求`, `任务划分`, `系统测试`
-- Mandatory Stages: `需求文档 -> 需求原型 -> 任务划分 -> 系统开发 -> 系统测试`
+- Use when: 基于规划结果执行开发与系统测试
+- Keywords: `dev-core`, `开发`, `实现`, `联调`, `系统测试`
+- Mandatory Stages: `开发准备校验 -> 系统开发 -> 系统测试 -> 交付裁决`
 - DSL Alignment: 必须对齐 `.codex/DSL/rules/*` 与 `.codex/DSL/flows/*`
 
 ### 2) code-review
@@ -30,6 +30,20 @@
 - Use when: 发布前检查、发布说明、回滚准备
 - Keywords: `release`, `发版`, `上线检查`, `回滚`
 
+### 5) standard_plan_core
+- Path: `.codex/skills/standard_plan_core/SKILL.md`
+- Use when: 开发前标准规划（默认）
+- Keywords: `standard_plan_core`, `规划`, `任务规划`, `责任划分`
+- Mandatory Stages: `口语化需求澄清 -> 标准需求文档 -> 原型设计 -> 任务规划与责任划分 -> 规划完成裁决`
+- DSL Alignment: 必须对齐 `.codex/DSL/flows/standard-dev-flow.adoc` 与 `.codex/DSL/rules/06-standard-dev-flow-rules.adoc`
+
+### 6) simple_plan_core
+- Path: `.codex/skills/simple_plan_core/SKILL.md`
+- Use when: 用户显式要求简易/快速规划
+- Keywords: `simple_plan_core`, `简单`, `简易`, `快速`, `轻量`
+- Mandatory Stages: `简化需求确认 -> 最小任务规划 -> 最小测试规划 -> 规划完成裁决`
+- DSL Alignment: 必须对齐 `.codex/DSL/rules/01-task-rules.adoc` 与 `.codex/DSL/rules/04-state-and-gates-rules.adoc`
+
 ## Invocation Examples
 
 - `使用 dev-core skill：根据以下口语化需求，先产出 DSL 对齐的需求文档，再输出原型、任务划分、开发与测试结果。`
@@ -38,7 +52,7 @@
 
 ## Skill Composition Order (Recommended)
 
-1. `dev-core` -> 2. `test-fix` -> 3. `code-review` -> 4. `release`
+1. `standard_plan_core/simple_plan_core` -> 2. `dev-core` -> 3. `test-fix` -> 4. `code-review` -> 5. `release`
 
 ## Rules
 
