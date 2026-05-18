@@ -32,6 +32,9 @@
 | branch
 |<codex/func/REQ-YYYYMMDD-xxxxx>
 
+| task.session_id
+| <SESSION-XXXXX（codex 会话ID）>
+
 |status
 |<TODO / READY / DOING / DONE / BLOCKED / CANCELLED>
 
@@ -143,6 +146,9 @@ task.completion.failure::
 
 | dev_task.depends_on
 | <无 或 DEV-TASK-XXX>
+
+| dev_task.session_ids
+| <[] 或 [SESSION-XXXXX, SESSION-YYYYY]>
 |===
 
 ==== 开发任务概述
