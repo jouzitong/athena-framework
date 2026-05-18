@@ -1,49 +1,83 @@
 = 需求任务模板（Requirement Task Template）
 :doctype: book
 :toc: left
-:toclevels: 2
+:toclevels: 3
 :sectnums:
 
 // 说明：本模板对齐 .codex/DSL/rules/01-task-rules.adoc
 // 用法：替换 <...> 占位内容，保留字段键名（task.* / dev_task.*）
 
-== 需求任务概述
+[preface]
+== 前言
 
-- 背景与目标：<为什么做，期望达到什么结果>
-- 任务拆分方式：<如何拆分开发任务>
-- 开发任务挂接关系：
-  - <DEV-TASK-001 为入口任务>
-  - <DEV-TASK-002 依赖 DEV-TASK-001>
-- 完成/失败判定逻辑：
-  - <满足什么条件判定 DONE>
-  - <出现什么条件判定 BLOCKED>
+[cols="1,3",options="header"]
+|===
+|字段 |值
 
-== 需求任务元信息
+|id
+|<REQ-YYYYMMDD-XXXX>
 
-task.id:: <REQ-XXXX>
-task.name:: <需求任务名称>
-task.type:: <FUNC | BUGFIX | REFACTOR | DOCS>
-task.version:: <V1.0.0>
-task.status:: <TODO | READY | DOING | DONE | BLOCKED | CANCELLED>
-task.objective::
-<用 1~3 句话描述需求最终交付结果，不写实现步骤>
+|name
+|<需求任务名称>
 
-== 需求任务范围
+|type
+|<FUNC/BUGFIX/REFACTOR/DOCS>
 
-task.scope.modules::
+|period
+|<P0/P1/P2/P3>
+
+|version
+|<V1.0.0>
+
+| branch
+|<codex/func/REQ-YYYYMMDD-xxxxx>
+
+|status
+|<TODO / READY / DOING / DONE / BLOCKED / CANCELLED>
+
+|===
+
+== 需求核心信息
+
+=== 需求背景
+
+- <业务背景>
+- <触发原因>
+
+=== 核心需求内容
+
+- <核心需求点-1>
+- <核心需求点-2>
+- <核心需求点-3>
+
+=== 边界定义
+
+==== 范围（task.scope.modules）
+
 - <模块/服务/目录-1>
 - <模块/服务/目录-2>
 
-task.scope.excludes::
+==== 排除（task.scope.excludes）
+
 - <排除项-1>
 - <排除项-2>
 
-== 风险与注意事项
+=== 依赖与约束
 
-- <风险点-1（触发条件 + 影响范围）>
+- <依赖系统/接口/资源>
+- <技术或业务约束>
+
+=== 验收标准
+
+- <验收标准-1（可量化）>
+- <验收标准-2（可验证）>
+
+=== 风险与注意事项
+
+- <风险点-1（触发条件 + 影响）>
 - <风险点-2>
 
-== 需求任务完成条件
+=== 需求任务完成条件
 
 task.completion.success::
 - <成功条件-1>
@@ -53,52 +87,98 @@ task.completion.failure::
 - <失败条件-1>
 - <失败条件-2>
 
-== 开发任务区块
+=== 需求沟通记录（task.communication.inputs）
 
-=== 开发任务概述
+- 记录目标：沉淀“开发者关键输入”，确保该任务可被重复执行。
+- 记录规则：仅追加，不覆盖历史；每条输入都应可直接指导下一次执行。
+
+.需求沟通记录（按需追加）
+. <补充背景、限制条件、优先级或明确指令>
+. <...>
+
+== 开发任务
+
+.开发任务汇总表
+[cols="1,2,1,1,2",options="header"]
+|===
+|开发任务ID |开发任务名称 |类型 |状态 |依赖
+
+|DEV-TASK-001
+|<开发任务名称-1>
+|DOCS
+|READY
+|无
+
+|DEV-TASK-002
+|<开发任务名称-2>
+|FUNC
+|READY
+|DEV-TASK-001
+
+|DEV-TASK-003
+|<开发任务名称-3>
+|TEST
+|READY
+|DEV-TASK-002
+|===
+
+=== DEV-TASK-001 （按需复制）
+
+.开发任务元信息
+[cols="1,3",options="header"]
+|===
+|字段 |值
+
+| dev_task.id
+| <DEV-TASK-001>
+
+| dev_task.name
+| <开发任务名称>
+
+| dev_task.type
+| <DOCS / FUNC / TEST>
+
+| dev_task.status
+| <TODO / READY / DOING / DONE / BLOCKED / CANCELLED>
+
+| dev_task.depends_on
+| <无 或 DEV-TASK-XXX>
+|===
+
+==== 开发任务概述
 
 - 子域：<原型设计/开发实现/系统测试/文档更新等>
 - 目的：<本开发任务要完成什么>
 
-=== 开发任务元信息
+==== 开发任务目标（dev_task.objective）
 
-dev_task.id:: <DEV-TASK-001>
-dev_task.name:: <开发任务名称>
-dev_task.type:: <DOCS | FUNC | TEST>
-dev_task.status:: <TODO | READY | DOING | DONE | BLOCKED | CANCELLED>
-dev_task.objective::
-<开发任务可交付结果>
-dev_task.depends_on:: <无 或 DEV-TASK-XXX>
+- <目标-1：本任务最终要产出的能力/结果>
+- <目标-2>
 
-=== 开发任务输入
+==== 预计修改范围（dev_task.change.scope）
 
-- <输入-1：前置任务产物/依赖接口/配置/权限>
-- <输入-2>
+- 涉及模块（dev_task.change.scope.modules）：<模块/服务-1>, <模块/服务-2>
+- 涉及路径（dev_task.change.scope.paths）：<目录/文件路径-1>, <目录/文件路径-2>
+- 是否跨服务/跨仓（dev_task.change.scope.cross_boundary）：<是/否>
 
-=== 开发任务输出
+==== 预计修改内容（dev_task.change.plan）
 
-- <输出-1：代码/文档/测试报告等>
-- <输出-2：证据>
+- 改动类型（dev_task.change.plan.types）：<新增/重构/修复/删除>
+- 关键改动点（dev_task.change.plan.key_points）：<改动点-1>
+- 数据/接口变更（dev_task.change.plan.api_or_schema_changes）：<无 或 API/Schema/配置变更说明>
+- 高风险改动（dev_task.change.plan.risks）：<无 或 风险点说明>
 
-=== 开发任务完成条件
+==== 完成证据（dev_task.validation.proof）
 
-dev_task.completion.success::
-- <成功条件-1>
-- <成功条件-2>
+- 必要验证（dev_task.validation.proof.required_checks）：<单测/集成测试/回归>
+- 交付物（dev_task.validation.proof.deliverables）：<PR/提交/测试报告/截图>
+- 验收口径（dev_task.validation.proof.acceptance_criteria）：<满足的指标或验证结论>
 
-dev_task.completion.failure::
-- <失败条件-1>
-- <失败条件-2>
+==== 开发任务沟通记录（dev_task.communication.log）
 
-=== 风险与注意事项
+- 记录规则：按轮次追加，不覆盖历史；重点记录任务范围调整、技术决策、阻塞与解除方式。
 
-- <本开发任务风险-1>
-
-=== 执行报告
-
-- 执行摘要：<做了什么>
-- 关键变更：<改了哪些模块/文件>
-- 验证与证据：<测试/日志/评审证据>
-- 问题与结论：<阻塞、结论、建议状态>
-
-// 按需复制“开发任务区块”，形成 DEV-TASK-002、DEV-TASK-003...
+.开发任务沟通记录（按需追加）
+.需求沟通记录
+. <补充背景、限制条件、优先级或明确指令>
+. <...>
