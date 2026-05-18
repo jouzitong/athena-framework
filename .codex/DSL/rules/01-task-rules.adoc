@@ -1,9 +1,9 @@
-= Codex Task 统一规范（Unified Task Rules）
+= Codex 任务统一规范
 :doctype: book
 :toc: left
 :toclevels: 3
 :sectnums:
-:version: 3.1
+:version: 3.2
 
 == 规范说明
 
@@ -11,8 +11,12 @@
 
 - 需求任务/开发任务定义
 - 任务拆分与挂接关系
-- 开发任务输入输出与验收
+- 开发任务修改计划与验收
 - 状态机与执行约束摘要
+
+关联模板：
+
+- 需求任务模板：`.codex/DSL/template/tasks/task.template.adoc`
 
 == 基本原则
 
@@ -24,7 +28,7 @@
 
 == 核心语义
 
-=== 需求任务（Requirement Task）
+=== 需求任务
 
 需求任务核心职责：
 
@@ -34,12 +38,12 @@
 
 需求任务不承载具体实现步骤。
 
-=== 开发任务（Development Task）
+=== 开发任务
 
 开发任务核心职责：
 
 - 定义具体工作内容
-- 定义输入与输出
+- 定义预计修改范围与修改内容
 - 定义通过/失败验收条件
 - 提供执行证据与结果
 
@@ -50,7 +54,221 @@
 - 开发任务是最小裁决单元。
 - 所有必须完成的开发任务达到 `DONE`，且满足 `task.completion.success`，需求任务才可判定 `DONE`。
 
-== Task 文件结构
+== 属性定义与格式规范
+
+本节定义任务字段的数据字典：字段含义、是否必填、格式约束、示例。
+
+=== 需求任务属性（task.*）
+
+[cols="1,1,3,2,2",options="header"]
+|===
+|字段 |必填 |含义 |格式约束 |示例
+
+|`task.id`
+|是
+|需求任务唯一标识
+|建议：`REQ-YYYYMMDD-XXXX`；全局唯一
+|`REQ-20260518-0001`
+
+|`task.name`
+|是
+|需求任务名称
+|简明中文/英文名称，建议 <= 80 字符
+|`统一任务模板与规则升级`
+
+|`task.type`
+|是
+|需求类型
+|枚举：`FUNC/BUGFIX/REFACTOR/DOCS`
+|`FUNC`
+
+|`task.period`
+|是
+|优先级
+|枚举：`P0/P1/P2/P3`
+|`P1`
+
+|`task.version`
+|是
+|需求版本
+|建议语义化版本：`Vx.y.z`
+|`V1.0.0`
+
+|`task.branch`
+|建议
+|关联开发分支
+|建议：`codex/<type>/<task.id-lower>`
+|`codex/func/req-20260518-0001`
+
+|`task.session_id`
+|是
+|需求主会话ID
+|必须可追溯到实际会话；需求级唯一锚点
+|`SESSION-9F3A21`
+
+|`task.status`
+|是
+|需求状态
+|枚举：`TODO/READY/DOING/DONE/BLOCKED/CANCELLED`
+|`READY`
+
+|`task.scope.modules`
+|是
+|需求涉及模块范围
+|列表；元素可判定
+|`gateway, account-service`
+
+|`task.scope.excludes`
+|是
+|需求排除范围
+|列表；元素可判定
+|`billing, settlement`
+
+|`task.completion.success`
+|是
+|需求成功条件
+|列表；每条必须可验证
+|`所有必需 dev_task 为 DONE`
+
+|`task.completion.failure`
+|是
+|需求失败条件
+|列表；每条需有触发器
+|`关键依赖不可用超过 3 天`
+
+|`task.communication.inputs`
+|是
+|开发者关键输入记录
+|仅追加不覆盖；每条仅保留输入内容
+|`- 优先走增量改造，不做全量重构`
+|===
+
+`task.communication.inputs` 子字段：
+
+- `task.communication.inputs.content`：开发者关键输入内容（背景/约束/指令）
+
+=== 开发任务属性（dev_task.*）
+
+[cols="1,1,3,2,2",options="header"]
+|===
+|字段 |必填 |含义 |格式约束 |示例
+
+|`dev_task.id`
+|是
+|开发任务唯一标识（需求内）
+|建议：`DEV-TASK-XXX`；同一需求内唯一
+|`DEV-TASK-001`
+
+|`dev_task.name`
+|是
+|开发任务名称
+|简明描述任务交付目标
+|`补齐任务规则字段字典`
+
+|`dev_task.type`
+|是
+|开发任务类型
+|枚举：`DOCS/FUNC/TEST`
+|`DOCS`
+
+|`dev_task.status`
+|是
+|开发任务状态
+|枚举：`TODO/READY/DOING/DONE/BLOCKED/CANCELLED`
+|`READY`
+
+|`dev_task.depends_on`
+|是
+|开发任务依赖
+|结构化列表：`[]` 或 `[DEV-TASK-001, DEV-TASK-002]`；禁止循环
+|`[DEV-TASK-001]`
+
+|`dev_task.session_ids`
+|建议
+|开发任务关联会话ID
+|列表，可为空或多个；仅追加不覆盖
+|`[SESSION-9F3A21, SESSION-88AB10]`
+
+|`dev_task.objective`
+|是
+|开发任务目标
+|列表；结果导向，不写实现步骤
+|`形成可机检规则字段说明`
+
+|`dev_task.change.scope.modules`
+|是
+|预计修改模块
+|列表；可判定
+|`dsl-rules, task-template`
+
+|`dev_task.change.scope.paths`
+|是
+|预计修改路径
+|列表；建议仓库内相对路径
+|`.codex/DSL/rules/01-task-rules.adoc`
+
+|`dev_task.change.scope.cross_boundary`
+|是
+|是否跨服务/跨仓
+|枚举：`是/否`
+|`否`
+
+|`dev_task.change.plan.types`
+|是
+|改动类型
+|枚举组合：`新增/重构/修复/删除`
+|`新增, 重构`
+
+|`dev_task.change.plan.key_points`
+|是
+|关键改动点
+|列表；应具体到对象/规则/模块
+|`新增属性字典章节`
+
+|`dev_task.change.plan.api_or_schema_changes`
+|是
+|接口或数据结构变化
+|`无` 或具体变化说明
+|`无`
+
+|`dev_task.change.plan.risks`
+|是
+|高风险改动点
+|`无` 或具体风险说明
+|`旧任务文件兼容性风险`
+
+|`dev_task.validation.proof.required_checks`
+|是
+|必要验证项
+|列表；可执行验证动作
+|`规则字段完整性检查`
+
+|`dev_task.validation.proof.deliverables`
+|是
+|交付证据
+|至少一项可追溯证据
+|`commit, rule diff`
+
+|`dev_task.validation.proof.acceptance_criteria`
+|是
+|验收口径
+|需与 `dev_task.completion.success` 对齐
+|`字段定义覆盖率 100%`
+
+|`dev_task.completion.success`
+|是
+|开发任务成功条件
+|列表；每条可验证
+|`规则文档通过评审`
+
+|`dev_task.completion.failure`
+|是
+|开发任务失败条件
+|列表；每条有触发器
+|`关键字段定义缺失`
+|===
+
+== 任务文件结构
 
 [source,text]
 ----
@@ -65,7 +283,7 @@ Task File（需求任务）
 
 == 需求任务定义规则
 
-=== Task Overview
+=== 任务总览
 
 必须包含：
 
@@ -74,7 +292,7 @@ Task File（需求任务）
 - 开发任务挂接关系
 - 需求任务完成/失败判定逻辑
 
-=== Task Meta
+=== 任务元信息
 
 必须字段：
 
@@ -84,13 +302,15 @@ Task File（需求任务）
 - `task.version`
 - `task.status`
 - `task.objective`
+- `task.session_id`
 
 约束：
 
 - `task.id` 全局唯一
 - `task.objective` 仅描述结果，不描述实现步骤
+- `task.session_id` 作为需求主会话ID，必须可追溯到实际会话
 
-=== Task Scope
+=== 任务范围
 
 必须字段：
 
@@ -101,7 +321,7 @@ Task File（需求任务）
 
 - 范围与排除必须可判定
 
-=== Task Completion Policy
+=== 任务完成判定
 
 必须字段：
 
@@ -119,25 +339,29 @@ Task File（需求任务）
 每个开发任务必须定义：
 
 - 工作目标（做什么）
-- 输入（依赖什么）
-- 输出（交付什么）
+- 预计修改范围（改哪里）
+- 预计修改内容（怎么改）
+- 完成证据（如何证明）
 - 验收（如何通过/失败）
 
-=== Development Task Blocks
+=== 开发任务区块
 
 [source,text]
 ----
 Development Task Blocks
 ├─ Development Task Overview
 ├─ Development Task Meta
-├─ Development Task Input
-├─ Development Task Output
+├─ Development Task Objective
+├─ Development Task Change Scope
+├─ Development Task Change Plan
+├─ Development Task Validation Proof
 ├─ Development Task Completion Policy
+├─ Development Task Communication Log
 ├─ Risks & Notes
 └─ Execute Report
 ----
 
-=== Development Task Meta
+=== 开发任务元信息
 
 必须字段：
 
@@ -146,29 +370,60 @@ Development Task Blocks
 - `dev_task.type`
 - `dev_task.status`
 - `dev_task.objective`
-- `dev_task.depends_on`（无依赖可写 `无`）
+- `dev_task.depends_on`（无依赖写 `[]`）
+- `dev_task.session_ids`
 
 约束：
 
 - `dev_task.id` 在所属需求任务内唯一
 - `dev_task.depends_on` 必须可解析且无循环依赖
+- `dev_task.depends_on` 仅允许结构化列表：`[]` 或 `[DEV-TASK-001, DEV-TASK-002]`
+- `dev_task.session_ids` 可为空或多个；若仅主会话推进，建议写 `[<task.session_id>]`
 
-=== Development Task Input
+=== 开发任务目标
+
+必须至少包含：
+
+- 至少 1 条可验证结果导向目标
+- 目标不得描述具体实现步骤
+
+=== 开发任务修改范围
 
 建议至少包含：
 
-- 前置开发任务产物
-- 外部依赖（接口/配置/权限）
-- 必需资源与边界条件
+- `dev_task.change.scope.modules`
+- `dev_task.change.scope.paths`
+- `dev_task.change.scope.cross_boundary`
 
-=== Development Task Output
+约束：
+
+- `modules` 与 `paths` 必须可判定，不得仅写“待定”
+- `cross_boundary` 仅允许 `是/否`
+
+=== 开发任务修改计划
 
 建议至少包含：
 
-- 交付结果（代码、文档、测试报告等）
-- 可验证证据（日志、测试结果、评审结论）
+- `dev_task.change.plan.types`（新增/重构/修复/删除）
+- `dev_task.change.plan.key_points`
+- `dev_task.change.plan.api_or_schema_changes`
+- `dev_task.change.plan.risks`
 
-=== Development Task Completion Policy
+=== 开发任务验证证据
+
+必须包含：
+
+- `dev_task.validation.proof.required_checks`
+- `dev_task.validation.proof.deliverables`
+- `dev_task.validation.proof.acceptance_criteria`
+
+约束：
+
+- `required_checks` 必须有可执行验证项
+- `deliverables` 至少包含一种可追溯证据（PR/commit/测试报告/日志）
+- `acceptance_criteria` 必须与 `dev_task.completion.success` 对齐
+
+=== 开发任务完成判定
 
 必须字段：
 
@@ -180,7 +435,22 @@ Development Task Blocks
 - 成功条件必须可验证
 - 失败条件必须具备明确触发器
 
-=== Execute Report
+=== 开发任务沟通记录
+
+建议字段：
+
+- 时间
+- 发起方（DEV/CODEX）
+- 问题/输入
+- 结论
+- 后续动作
+
+约束：
+
+- 按轮次追加，不覆盖历史
+- 若发生范围、目标、验收口径变化，必须同步更新对应字段
+
+=== 执行报告
 
 必须包含：
 
@@ -232,6 +502,12 @@ Development Task Blocks
 - 阻塞恢复路径：`READY -> BLOCKED`、`DOING -> BLOCKED`、`BLOCKED -> READY`
 - 取消路径：`TODO/READY/DOING/BLOCKED -> CANCELLED`
 
+=== 状态门禁规则
+
+- `READY` 前置：必须字段完整、依赖可解析、会话ID有效
+- `DOING` 前置：当前任务状态为 `READY`，且依赖任务已满足
+- `DONE` 前置：存在验证结果与交付证据，且满足 completion.success
+
 === 禁止流转
 
 - `TODO -> DOING`（禁止跳过准备）
@@ -240,7 +516,7 @@ Development Task Blocks
 - `DONE -> CANCELLED`（完成后不可取消）
 - `CANCELLED -> *`（默认不可恢复；如需恢复应新建任务）
 
-=== CANCELLED 记录要求
+=== 已取消状态记录要求
 
 当任务进入 `CANCELLED` 时，必须记录：
 
@@ -257,7 +533,7 @@ Development Task Blocks
 
 == 执行约束摘要
 
-- 进入前置：任务/开发任务处于 `READY`，依赖已满足。
+- 进入前置：任务/开发任务处于 `READY`，依赖已满足，字段通过结构校验。
 - 执行顺序：`ANALYZE -> PLAN -> EXECUTE -> VALIDATE -> REPORT`。
 - 执行边界：`EXECUTE` 仅允许修改 `PLAN` 声明文件。
 - 校验要求：`VALIDATE` 必须显式通过/不通过。
@@ -266,13 +542,19 @@ Development Task Blocks
 == 常见错误
 
 - 把实现步骤写进需求任务 Objective
-- 开发任务只有目标，没有输入输出
+- 开发任务只有目标，没有修改范围/修改内容/完成证据
 - 开发任务验收条件不可验证
 - 开发任务依赖缺失或循环依赖
 - 需求任务完成条件未与开发任务结果关联
 
-== 引用
+== 需求沟通记录规则（可重复执行）
 
-- 执行流程：`.codex/DSL/flows/task-execution-flow.adoc`
-- 日志规范：`.codex/DSL/rules/02-logs-rules.adoc`
-- 核心对象模型：`.codex/DSL/rules/04-core-model-rules.adoc`
+需求任务必须维护 `task.communication.inputs`，用于沉淀开发者关键输入并支持重复执行。
+
+每条输入建议包含：
+
+- `task.communication.inputs.content`
+
+约束：
+
+- 记录仅追加，不覆盖历史
