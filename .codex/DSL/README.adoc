@@ -30,9 +30,6 @@
 │   ├── 01-task-flows-rules.adoc
 │   ├── 02-logs-rules.adoc
 │   ├── 03-upgrade-rules.adoc
-│   ├── 04-core-model-rules.adoc
-│   ├── 04-state-and-gates-rules.adoc
-│   ├── 04-ssot-rules.adoc
 │   ├── 05-vue-rules.adoc
 │   ├── 06-standard-dev-flow-rules.adoc
 │   └── spec/
@@ -80,15 +77,12 @@
 
 .rules/
 * 说明: 执行约束（Execution Constraint）（唯一权威）。主要是约定一些规范问题.
-** 00-global-rules.adoc: 全局规则
-** 01-task-rules.adoc: 任务统一规范（唯一权威，融合定义/拆分/执行约束摘要）
+** 00-global-rules.adoc: 全局规则（含统一状态机与门禁）
+** 01-task-rules.adoc: 任务核心语义与最小契约（唯一权威，不承载任务文档形态）
 ** 01-task-gen-rules.adoc: 兼容占位（已并入 01-task-rules）
 ** 01-task-flows-rules.adoc: 兼容占位（已并入 01-task-rules）
 ** 02-logs-rules.adoc: 日志相关规则
 ** 03-upgrade-rules.adoc: 规则升级规范
-** 04-core-model-rules.adoc: 核心对象模型（Task/Sub Task/Execution Log）
-** 04-state-and-gates-rules.adoc: 统一状态机与执行门禁
-** 04-ssot-rules.adoc: 单一真相源（SSOT）映射与防重复维护规则
 ** 05-vue-rules.adoc: Vue 相关规范
 ** 06-standard-dev-flow-rules.adoc: 标准开发流程门禁与裁决规则
 ** spec/: 业务/前端专项规范

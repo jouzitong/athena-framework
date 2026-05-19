@@ -51,5 +51,5 @@
 == 强制约束
 
 - 具体门禁与失败条件以 `.codex/DSL/rules/06-standard-dev-flow-rules.adoc` 为准。
-- 状态流转以 `.codex/DSL/rules/04-state-and-gates-rules.adoc` 为准。
+- 状态流转以 `.codex/DSL/rules/00-global-rules.adoc` 为准。
 - Task 结构以 `.codex/DSL/rules/01-task-rules.adoc` 为准。

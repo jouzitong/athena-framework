@@ -4,8 +4,9 @@
 :toclevels: 3
 :sectnums:
 
-// 说明：本模板对齐 .codex/DSL/rules/01-task-rules.adoc
+// 说明：本模板是任务文件形态唯一来源；核心语义与最小契约以 .codex/DSL/rules/01-task-rules.adoc 为准
 // 用法：替换 <...> 占位内容，保留字段键名（task.* / dev_task.*）
+// 映射：字段完整性与状态门禁请按 01-task-rules 的“规则与模板映射”章节校验
 
 [preface]
 == 前言

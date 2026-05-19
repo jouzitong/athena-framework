@@ -155,7 +155,6 @@ Flow 权威定义：
 
 若与其他规则冲突，优先级如下：
 
-1. `.codex/DSL/rules/04-state-and-gates-rules.adoc`
+1. `.codex/DSL/rules/00-global-rules.adoc`
 2. 本文件（`06-standard-dev-flow-rules.adoc`）
 3. 其他流程摘要规则
-
