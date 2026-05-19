@@ -4,9 +4,10 @@
 
 ## 前言
 
-- 请遵循规范: [codex-spec.adoc](rules/codex-spec.adoc)
-- 项目上下文：[codex-context.adoc](rules/codex-context.adoc)
-- 需要执行的任务清单: [tasks](tasks) 目录
+- 请遵循规范: `.codex/DSL/rules/00-global-rules.adoc`、`.codex/DSL/rules/01-task-rules.adoc`、`.codex/DSL/rules/06-standard-dev-flow-rules.adoc`
+- 流程定义: `.codex/DSL/flows/standard-dev-flow.adoc`
+- 任务模板: `.codex/DSL/template/tasks/task.template.adoc`
+- 任务输出目录: `.codex/tasks/YYYYMM/`
 
 ## 任务描述
 
@@ -24,7 +25,7 @@
 - 其他说明：
   - 请确保代码风格和项目现有代码保持一致。
 - 任务目录/文件：
-  - 放在 tasks/platform/migration-jpa-from-mongo.md 文件中.
+  - 放在 .codex/tasks/202605/migration-jpa-from-mongo.md 文件中.
 
 ## 关键代码
 
@@ -32,4 +33,3 @@
 
 
 ### 参考代码
-

@@ -1,8 +1,8 @@
 你是 Codex。
 
-- 请遵循规范: [codex-spec.adoc](rules/codex-spec.adoc)
-- 项目上下文：[codex-context.adoc](rules/codex-context.adoc)
-- 需要执行的任务清单: [tasks](tasks) 目录
+- 请遵循规范: `.codex/DSL/rules/00-global-rules.adoc`、`.codex/DSL/rules/01-task-rules.adoc`、`.codex/DSL/rules/06-standard-dev-flow-rules.adoc`
+- 执行流程: `.codex/DSL/flows/task-execution-flow.adoc`
+- 需要执行的任务清单目录: `.codex/tasks/YYYYMM/`
 
 需要执行的任务文件包括：
-- active_task_file:: .codex/DSL/tasks/core/default-config.adoc[DefaultConfig.md](tasks/platform/core/DefaultConfig.md)
+- active_task_file:: .codex/tasks/202605/default-config.md
