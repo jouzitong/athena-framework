@@ -16,6 +16,7 @@ import java.util.List;
  */
 @Getter
 @ToString(callSuper = true)
+@Deprecated
 public class PageResultVO<T> extends R<List<T>> {
 
     @Serial
