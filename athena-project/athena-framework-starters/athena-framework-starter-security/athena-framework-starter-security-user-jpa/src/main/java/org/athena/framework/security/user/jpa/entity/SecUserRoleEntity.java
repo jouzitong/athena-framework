@@ -8,20 +8,37 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Comment;
 
+/**
+ * 用户角色关联实体。
+ */
 @Getter
 @Setter
 @Entity
 @Table(name = "sec_user_role")
+@Comment("用户角色关联表")
 public class SecUserRoleEntity {
 
+    /**
+     * 主键ID。
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("主键ID")
     private Long id;
 
+    /**
+     * 用户唯一标识。
+     */
     @Column(name = "user_id", nullable = false, length = 64)
+    @Comment("用户唯一标识")
     private String userId;
 
+    /**
+     * 角色编码。
+     */
     @Column(name = "role_code", nullable = false, length = 64)
+    @Comment("角色编码")
     private String roleCode;
 }

@@ -1,0 +1,4 @@
+org.athena.framework.security.user.mybatis.config.SecurityUserMybatisAutoConfiguration
+org.athena.framework.security.user.mybatis.config.SecurityRbacMybatisAutoConfiguration
+org.athena.framework.security.user.mybatis.config.SecurityMenuMybatisAutoConfiguration
+org.athena.framework.security.user.mybatis.config.SecurityAuditMybatisAutoConfiguration

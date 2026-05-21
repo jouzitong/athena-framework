@@ -101,11 +101,22 @@ public class SecurityProperties {
 
         private Jpa jpa = new Jpa();
 
+        private Mybatis mybatis = new Mybatis();
+
         @Data
         /**
          * JPA 用户子模块配置。
          */
         public static class Jpa {
+
+            private boolean enabled = false;
+        }
+
+        @Data
+        /**
+         * MyBatis 用户子模块配置。
+         */
+        public static class Mybatis {
 
             private boolean enabled = false;
         }

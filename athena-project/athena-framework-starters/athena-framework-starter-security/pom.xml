@@ -17,6 +17,7 @@
         <module>athena-framework-starter-security-auth-core</module>
         <module>athena-framework-starter-security</module>
         <module>athena-framework-starter-security-user-jpa</module>
+        <module>athena-framework-starter-security-user-mybatis</module>
         <module>athena-framework-starter-security-token-jwt</module>
         <module>athena-framework-starter-security-authorization</module>
     </modules>

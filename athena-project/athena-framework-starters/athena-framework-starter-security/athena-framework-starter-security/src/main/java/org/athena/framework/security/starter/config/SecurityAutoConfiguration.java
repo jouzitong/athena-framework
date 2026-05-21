@@ -36,6 +36,13 @@ public class SecurityAutoConfiguration {
         return new SecurityTokenTypeValidator(properties, tokenManager);
     }
 
+    @Bean
+    @ConditionalOnBean(SecurityCoreMarker.class)
+    @ConditionalOnMissingBean
+    public SecurityUserDataSourceValidator securityUserDataSourceValidator(SecurityProperties properties) {
+        return new SecurityUserDataSourceValidator(properties);
+    }
+
     /**
      * token 类型校验器。
      * 在容器启动时检测 local/jwt/redis 配置组合是否合法。
@@ -79,6 +86,25 @@ public class SecurityAutoConfiguration {
             }
 
             throw new IllegalStateException("Unsupported token type: " + tokenType);
+        }
+    }
+
+    /**
+     * 用户数据源配置校验器。
+     * 启动时检测 JPA/MyBatis 用户模块配置组合是否合法。
+     */
+    public static class SecurityUserDataSourceValidator {
+
+        public SecurityUserDataSourceValidator(SecurityProperties properties) {
+            validate(properties);
+        }
+
+        private void validate(SecurityProperties properties) {
+            boolean jpaEnabled = properties.getUser().getJpa().isEnabled();
+            boolean mybatisEnabled = properties.getUser().getMybatis().isEnabled();
+            if (jpaEnabled && mybatisEnabled) {
+                throw new IllegalStateException("athena.security.user.jpa.enabled and athena.security.user.mybatis.enabled cannot both be true");
+            }
         }
     }
 }
