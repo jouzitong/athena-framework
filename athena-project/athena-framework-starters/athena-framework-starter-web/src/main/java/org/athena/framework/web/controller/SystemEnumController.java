@@ -47,6 +47,19 @@ public class SystemEnumController {
         if (this.map != null) {
             return R.ok(this.map);
         }
+        this.map = getMap();
+        LOGGER.debug("build system enum: {}", map);
+        return R.ok(map);
+    }
+
+    @PostMapping("/clearCache")
+    public IR<Boolean> clearCache() {
+        LOGGER.info("clear system enum cache");
+        this.map = null;
+        return R.ok(true);
+    }
+
+    private Map<String, List<EnumDTO>> getMap() {
         List<Class<IEnum>> subClasses = PackageUtil.getSubClasses(IEnum.class, properties.getEnumPackages());
         Map<String, List<EnumDTO>> map = new HashMap<>();
         for (Class<IEnum> subClass : subClasses) {
@@ -76,16 +89,7 @@ public class SystemEnumController {
                 map.putAll(enums);
             }
         }
-        this.map = map;
-        LOGGER.info("build system enum: {}", map);
-        return R.ok(map);
-    }
-
-    @PostMapping("/clearCache")
-    public IR<Boolean> clearCache() {
-        LOGGER.info("clear system enum cache");
-        this.map = null;
-        return R.ok(true);
+        return map;
     }
 
 }

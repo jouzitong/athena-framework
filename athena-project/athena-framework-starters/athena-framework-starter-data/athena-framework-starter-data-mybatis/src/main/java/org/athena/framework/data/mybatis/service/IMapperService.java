@@ -3,7 +3,7 @@ package org.athena.framework.data.mybatis.service;
 import org.arthena.framework.common.exception.TodoException;
 import org.arthena.framework.common.utils.BeanUtils;
 import org.athena.framework.data.jdbc.entity.IEntity;
-import org.athena.framework.data.jdbc.entity.dto.IDTOV2;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity, DTO extends IDTOV2> {
+public interface IMapperService<Entity extends IEntity, DTO extends IDTO> {
 
     /**
      * 列表查询
@@ -109,11 +109,7 @@ public interface IMapperService<Entity extends IEntity, DTO extends IDTOV2> {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    default boolean remove(Long id) {
-        DTO dto = get(id);
-        dto.setDeleted(true);
-        return update(id, dto) != null;
-    }
+    boolean remove(Long id);
 
     /**
      * Entity转DTO

@@ -4,6 +4,7 @@ import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.jdbc.vo.PageResultVO_V2;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -35,6 +36,10 @@ public interface IMapperServiceV2<Entity extends IEntity, DTO extends IDTO> {
      */
     @Transactional(readOnly = true)
     <Query extends BaseRequest> PageResultVO<DTO> page(Query query);
+
+    default <Query extends BaseRequest> PageResultVO_V2<DTO> pageSearch(Query query){
+        return null;
+    }
 
     /**
      * 查询总数

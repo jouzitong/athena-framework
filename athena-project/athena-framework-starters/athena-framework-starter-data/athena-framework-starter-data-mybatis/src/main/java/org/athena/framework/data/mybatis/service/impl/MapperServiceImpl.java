@@ -103,6 +103,12 @@ public abstract class MapperServiceImpl<
         return toDTO(entity);
     }
 
+    @Override
+    public boolean remove(Long id) {
+        LOGGER.info("remove request: {}", id);
+        return this.removeById(id);
+    }
+
     /**
      * 实例化Query
      *

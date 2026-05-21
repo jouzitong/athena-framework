@@ -4,6 +4,7 @@ import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.jdbc.vo.PageResultVO_V2;
 import org.athena.framework.web.annotation.web.ApiDeleteMapping;
 import org.athena.framework.web.annotation.web.ApiGetMapping;
 import org.athena.framework.web.annotation.web.ApiPatchMapping;
@@ -84,7 +85,16 @@ public interface IController<
      */
     @ApiGetMapping
     @ApiResponseStatus(HttpStatus.OK)
+    @Deprecated
     PageResultVO<DTO> page(Query query);
+
+//    @ApiGetMapping
+//    @ApiResponseStatus(HttpStatus.OK)
+//    PageResultVO_V2<DTO> pageV2(Query query);
+
+    @ApiPostMapping("/_search")
+    @ApiResponseStatus(HttpStatus.OK)
+    PageResultVO_V2<DTO> pageSearch(@RequestBody Query query);
 
     /**
      * 根据提供的ID检索特定实体的DTO。

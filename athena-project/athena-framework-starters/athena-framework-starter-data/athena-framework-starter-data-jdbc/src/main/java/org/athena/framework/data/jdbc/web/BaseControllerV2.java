@@ -5,6 +5,7 @@ import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperServiceV2;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.jdbc.vo.PageResultVO_V2;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public abstract class BaseControllerV2<Entity extends IEntity,
@@ -43,6 +44,11 @@ public abstract class BaseControllerV2<Entity extends IEntity,
     @Override
     public PageResultVO<DTO> page(Query query) {
         return service().page(query);
+    }
+
+    @Override
+    public PageResultVO_V2<DTO> pageSearch(Query query) {
+        return service().pageSearch(query);
     }
 
     @Override

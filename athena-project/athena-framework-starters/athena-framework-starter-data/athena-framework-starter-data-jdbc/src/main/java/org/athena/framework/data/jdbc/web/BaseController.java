@@ -6,6 +6,7 @@ import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.jdbc.vo.PageResultVO_V2;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -51,6 +52,11 @@ public abstract class BaseController<Entity extends IEntity,
         List<Entity> data = page.getData();
         List<DTO> dtolist = data.stream().map(this::toDTO).toList();
         return PageResultVO.ok(dtolist, page.getPageInfo());
+    }
+
+    @Override
+    public PageResultVO_V2<DTO> pageSearch(Query query) {
+        return null;
     }
 
     @Override

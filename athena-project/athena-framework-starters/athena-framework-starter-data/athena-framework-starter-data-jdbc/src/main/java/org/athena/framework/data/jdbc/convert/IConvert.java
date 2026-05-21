@@ -7,7 +7,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-//@Mapper(componentModel = "spring")
 /**
  * 通用转换接口：用于在数据库实体（Entity）和数据传输对象（DTO）之间进行相互转换。
  *
@@ -19,6 +18,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
  * 通过注解定义字段映射和映射行为。接口中的部分方法使用了 MapStruct 的注解来控制合并策略，
  * 实现类无需手动编写重复的映射代码。
  */
+//@Mapper(componentModel = "spring")
 public interface IConvert<E extends IEntity, D extends IDTO> {
 
     /**
