@@ -1,0 +1,131 @@
+= Data 模块文档需求输入清单（DEV-TASK-001）
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 文档目的
+
+- 作为 `DEV-TASK-002`（快速开始）与 `DEV-TASK-003`（架构设计）的统一输入基线。
+- 仅描述当前仓库可验证现状，不引入未来态设计。
+
+== 模块清单与职责边界
+
+[cols="1,2,3",options="header"]
+|===
+|模块 |主要职责 |关键证据
+
+|`athena-framework-starter-data`
+|Data 聚合父模块，仅做子模块编排
+|`athena-framework-starter-data/pom.xml` 的 `<packaging>pom</packaging>` 与 `<modules>`
+
+|`athena-framework-starter-data-jdbc`
+|提供 Data 公共抽象与基础能力（通用 CRUD 接口、Controller 基类、拦截器链、请求模型）
+|`JdbcConfiguration`、`IMapperService`、`IMapperServiceV2`、`BaseController`、`CrudInterceptorChain`
+
+|`athena-framework-starter-data-mybatis`
+|基于 MyBatis/MyBatis-Plus 的实现层（自动配置、Mapper 能力、SQL 重写、DDL 生成）
+|`MybatisAutoConfig`、`MapperServiceImpl`、`SqlRewriteEngine`、`DefaultGenerateDdlEngine`
+
+|`athena-framework-starter-data-jpa`
+|基于 Spring Data JPA 的实现层（Repository/Service 基类、审计与软删模型）
+|`JpaConfiguration`、`BaseRepository`、`BaseMapperService`、`LogicalDeleteInterceptor`
+
+|`athena-framework-starter-data-mongo`
+|Mongo 依赖聚合入口，当前无独立源码实现
+|`athena-framework-starter-data-mongo/pom.xml`（仅依赖声明）
+|===
+
+== 依赖关系与推荐接入路径
+
+- 继承关系：`mybatis/jpa/mongo` 都依赖 `starter-data-jdbc`，`jdbc` 为基础抽象层。
+- 自动配置入口：
+- `jdbc`: `org.athena.framework.data.jdbc.JdbcConfiguration`
+- `mybatis`: `org.athena.framework.data.mybatis.MybatisAutoConfig`
+- `jpa`: `org.athena.framework.data.jpa.JpaConfiguration`
+- 推荐路径（文档写作默认）：
+- 快速开始优先给 `MyBatis` 与 `JPA` 两条主路径。
+- `Mongo` 当前仅说明“依赖接入点”，不承诺 CRUD 基础设施完整性。
+
+== 快速开始所需最小信息集合
+
+=== 依赖引入
+
+- 父模块：`athena-framework-starter-data`。
+- 实现模块二选一（或并存）：
+- `athena-framework-starter-data-mybatis`
+- `athena-framework-starter-data-jpa`
+- 通用抽象由 `athena-framework-starter-data-jdbc` 提供。
+
+=== 配置项（当前仓库可见）
+
+[cols="1,2,2",options="header"]
+|===
+|配置键 |默认值/示例 |来源
+
+|`spring.datasource.druid.initial-size`
+|`10`
+|`starter-data-jdbc/src/main/resources/jdbc.properties`
+
+|`spring.datasource.druid.max-active`
+|`5`
+|`starter-data-jdbc/src/main/resources/jdbc.properties`
+
+|`lib.jdbc.enable-event`
+|`true`
+|`starter-data-jdbc/src/main/resources/jdbc.properties`
+
+|`spring.jpa.hibernate.ddl-auto`
+|`update`（文件注释提示生产环境应为 `validate/none`）
+|`starter-data-jpa/src/main/resources/jpa.properties`
+
+|`spring.jpa.open-in-view`
+|`false`
+|`starter-data-jpa/src/main/resources/jpa.properties`
+|===
+
+=== 最小示例骨架（后续文档必须覆盖）
+
+- 定义 `Entity`（实现/继承对应模型）。
+- 定义 `Service`（实现 `IMapperService` 或复用 `BaseMapperService`）。
+- 暴露 `Controller`（继承 `BaseController`/`BaseControllerV2` 或实现等价接口）。
+- 提供基础查询请求对象（继承 `BaseRequest`，支持分页与过滤）。
+
+== 架构设计所需最小信息集合
+
+=== 分层建议（基于现状）
+
+- 抽象层（jdbc）：统一 CRUD 协议、请求/分页模型、拦截器 SPI。
+- 实现层（mybatis/jpa）：各自 ORM 实现与增强逻辑。
+- Web 适配层：基于 BaseController 对外提供标准 CRUD 入口。
+
+=== 核心主链路（用于 DEV-TASK-003）
+
+- 请求进入 `BaseController`。
+- 委托到 `IMapperService` / `IMapperServiceV2`。
+- 落到 MyBatis 或 JPA 具体 Service 实现。
+- 执行前后可经 `CrudInterceptorExecutor` + `CrudInterceptorChain`。
+
+=== 关键扩展点
+
+- CRUD 拦截器：`IJdbcCrudInterceptor`（`beforeCheck/before/after/onError`）。
+- 类型转换：`IConvert`、`FieldQueryConverter`。
+- JPA 领域模型：`AuditableEntity`、`LogicalDeleteEntity`。
+- MyBatis SQL 能力：`SqlRewriteEngine` 及 `*Enhancer`。
+
+== 术语与命名对齐
+
+- “软删除”在接口命名中同时存在 `delete` 与 `remove`（`IMapperService` vs `IMapperServiceV2`），后续文档需明确语义映射。
+- “DTO 版本”统一为 `IDTO`。
+- 包名存在历史拼写 `serivce`，文档按代码现状描述，不自行更名。
+
+== 已识别风险与写作约束
+
+- `starter-data-mongo` 当前缺少源码实现，架构文档需显式标注能力边界。
+- 多实现并存（MyBatis/JPA）时，快速开始不得默认二者配置完全一致。
+- 需避免给出仓库内不存在的注解/配置键/类名示例。
+
+== 验证记录（DEV-TASK-001）
+
+- 文档结构检查：已包含模块职责、边界、依赖、配置、主链路、扩展点、风险。
+- 信息完整性自检：关键信息均可追溯到 `pom.xml`、`AutoConfiguration.imports`、配置文件与核心类。
+- 可用性结论：可直接支撑 `DEV-TASK-002/003` 进入写作。

@@ -1,0 +1,150 @@
+= Data 模块维护与演进指南（DEV-TASK-004）
+:toc: left
+:toclevels: 4
+:sectnums:
+
+== 1. 目标与输入
+
+- 目标：给维护者提供稳定的排障路径、变更影响评估方法与扩展策略。
+- 输入文档：
+- `docs/detail/data-module-docs-input-inventory.adoc`
+- `docs/detail/data-module-quick-start.adoc`
+- `docs/detail/data-module-architecture-design.adoc`
+
+== 2. 维护场景快速入口
+
+=== 2.1 新成员 Onboarding（建议顺序）
+
+- 第 1 阶段（10 分钟）：阅读输入清单，建立模块地图。
+- 第 2 阶段（15 分钟）：按快速开始跑通 MyBatis 或 JPA 最小链路。
+- 第 3 阶段（5 分钟）：阅读架构文档的主链路与扩展点。
+
+=== 2.2 线上问题分类
+
+- 启动失败：优先检查依赖与自动配置加载。
+- 查询异常：优先检查 `BaseRequest` 参数与查询构建器。
+- 写入异常：优先检查 `CrudInterceptor` 链路与实现层保存逻辑。
+- 删除语义争议：优先核对 `delete/remove/physicalDelete` 的实现映射。
+
+== 3. 标准排障路径
+
+=== 3.1 启动期排障
+
+1. 确认依赖是否引入了目标 starter（`-mybatis` 或 `-jpa`）。
+2. 检查 `AutoConfiguration.imports` 是否声明对应配置类。
+3. 检查数据源与 JPA/MyBatis 必需配置是否齐全。
+
+=== 3.2 查询期排障
+
+1. 校验请求对象是否继承 `BaseRequest`。
+2. 校验分页参数 `page/size` 是否合理。
+3. MyBatis 路线排查 `filedQueries/sorts` 的结构。
+4. JPA 路线排查 `Specification` 构建逻辑。
+
+=== 3.3 写入期排障
+
+1. 确认调用了 `add/update/edit/remove/delete` 的哪个语义入口。
+2. 检查 `CrudInterceptorExecutor` 是否在 `beforeCheck/before` 阶段拦截。
+3. 确认实现层（MyBatis/JPA）是否实际落库并返回预期对象。
+4. 如需物理删除，确认是否实现了 `physicalDelete`。
+
+== 4. 变更影响评估矩阵
+
+[cols="2,2,3",options="header"]
+|===
+|变更类型 |影响面 |评估要点
+
+|调整 `BaseRequest` 字段/语义
+|高
+|影响 MyBatis/JPA 两条查询路径及所有 Controller 入参契约
+
+|调整 `IMapperService/IMapperServiceV2` 方法签名
+|高
+|影响控制器基类、实现层 Service、调用方编译兼容性
+
+|调整 `CrudInterceptor` 执行顺序/时机
+|中-高
+|影响审计、校验、副作用触发顺序，需回归写入链路
+
+|新增 MyBatis SQL rewrite 规则
+|中
+|影响 SQL 生成结果与性能，需覆盖关键查询回归
+
+|调整 JPA `ddl-auto` 与事务相关配置
+|中
+|影响启动行为与生产安全边界
+
+|新增 Mongo 功能实现
+|中-高
+|需定义与 JDBC 抽象层的契约对齐策略
+|===
+
+== 5. 常见扩展策略
+
+=== 5.1 新增领域实体（推荐流程）
+
+1. 选择实现路线（MyBatis 或 JPA）。
+2. 新建 Entity 与 Query（继承 `BaseRequest`）。
+3. 新建 Service（继承对应基类）。
+4. 新建 Controller（继承对应 BaseController）。
+5. 按最小 CRUD 路径完成验证。
+
+=== 5.2 新增跨实体审计/规则
+
+1. 实现 `IJdbcCrudInterceptor`，声明 `entityType()` 与 `order`。
+2. 在 `beforeCheck/before/after/onError` 中实现规则。
+3. 用写入链路验证是否按预期触发。
+
+=== 5.3 实现层切换（MyBatis <-> JPA）
+
+1. 保持上层请求与返回模型稳定。
+2. 对齐删除语义（`delete/remove`）与 DTO 契约。
+3. 对齐查询表达能力（`filedQueries` vs Specification）。
+
+== 6. 文档一致性校验记录
+
+=== 6.1 校验范围
+
+- `data-module-docs-input-inventory.adoc`
+- `data-module-quick-start.adoc`
+- `data-module-architecture-design.adoc`
+- 本文档
+
+=== 6.2 校验结果
+
+[cols="2,3,1",options="header"]
+|===
+|检查项 |结论 |状态
+
+|模块职责一致性
+|四份文档对 JDBC/MyBatis/JPA/Mongo 的边界描述一致
+|PASS
+
+|自动配置入口一致性
+|三处文档均使用相同入口类：`JdbcConfiguration`、`MybatisAutoConfig`、`JpaConfiguration`
+|PASS
+
+|删除语义一致性
+|均明确 `delete/remove/physicalDelete` 差异
+|PASS
+
+|示例与代码映射
+|快速开始示例与基类签名一致，映射路径完整
+|PASS
+
+|未来态隔离
+|演进建议集中在 Future Work 或扩展策略章节，未混入现状说明
+|PASS
+|===
+
+== 7. 残余风险清单
+
+- Mongo 路线仍无完整 CRUD 基础设施，若对外宣称“已支持 Mongo 统一接入”会产生偏差。
+- 历史命名拼写（`serivce`、`filedQueries`）仍是当前契约，后续重构需配套兼容策略。
+- `delete/remove` 双命名长期并存可能增加调用方误用概率。
+
+== 8. 交付结论
+
+- 结论：`DONE`。
+- 理由：文档可用于新成员 onboarding、最小接入、架构定位与维护排障。
+- 后续建议：进入增量维护阶段，按模块变更同步更新三份核心文档与本指南。

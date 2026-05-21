@@ -1,0 +1,224 @@
+= Data 模块系统架构设计（DEV-TASK-003）
+:toc: left
+:toclevels: 4
+:sectnums:
+
+== 1. 文档目标与边界
+
+=== 1.1 目标
+
+- 说明 Data 模块在框架中的架构位置与职责边界。
+- 提供可追溯的主链路说明，支持维护定位与扩展设计。
+- 沉淀实现差异（MyBatis/JPA/Mongo）与替换约束。
+
+=== 1.2 非目标
+
+- 不描述业务领域模型。
+- 不引入未在仓库实现的未来态机制。
+- 不变更运行时配置默认值。
+
+== 2. 模块架构总览
+
+=== 2.1 模块关系
+
+[source,text]
+----
+athena-framework-starter-data (pom)
+├── athena-framework-starter-data-jdbc    # 抽象层
+├── athena-framework-starter-data-mybatis # MyBatis 实现层
+├── athena-framework-starter-data-jpa     # JPA 实现层
+└── athena-framework-starter-data-mongo   # Mongo 依赖聚合入口
+----
+
+=== 2.2 自动配置入口
+
+- `org.athena.framework.data.jdbc.JdbcConfiguration`
+- `org.athena.framework.data.mybatis.MybatisAutoConfig`
+- `org.athena.framework.data.jpa.JpaConfiguration`
+
+这些入口由各模块 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 声明（JDBC/JPA/MyBatis）。
+
+== 3. 分层模型
+
+=== 3.1 抽象层（starter-data-jdbc）
+
+职责：
+- 定义统一 CRUD 契约：`IMapperService`、`IMapperServiceV2`。
+- 定义查询/分页模型：`BaseRequest`、`PageResultVO`、`PageInfo`。
+- 定义通用 Web 接口基类：`BaseController`、`BaseControllerV2`。
+- 定义可插拔拦截器：`IJdbcCrudInterceptor`、`CrudInterceptorChain`、`CrudInterceptorExecutor`。
+
+架构意义：
+- 将“控制器协议 + CRUD 契约 + 拦截器 SPI”从实现层解耦。
+- 为 MyBatis/JPA 提供统一上层调用模型。
+
+=== 3.2 实现层（starter-data-mybatis / starter-data-jpa）
+
+MyBatis：
+- 入口：`MybatisAutoConfig`
+- 核心 Service 基类：`MapperServiceImpl`
+- 查询构造：`MybatisPlusWrapperUtils`
+- SQL 增强：`SqlRewriteEngine`、`Select/Insert/Update/DeleteEnhancer`
+
+JPA：
+- 入口：`JpaConfiguration`
+- 仓储基类：`BaseRepository`
+- 核心 Service 基类：`BaseMapperService`、`BaseMapperServiceV2`
+- 查询构造：`JpaQueryEngineUtils` + `Specification`
+
+Mongo：
+- 当前仅声明 `spring-boot-starter-data-mongodb` 依赖。
+- 未提供与 JDBC 抽象层对齐的 Service/Controller/Repository 基础设施。
+
+=== 3.3 Web 适配层
+
+- MyBatis 路线常用 `org.athena.framework.data.mybatis.web.BaseController`。
+- JPA 路线常用 `org.athena.framework.data.jdbc.web.BaseController` 或 `BaseControllerV2`。
+- 控制器统一提供 CRUD 语义，但在删除命名上存在 `delete/remove` 差异。
+
+== 4. 核心对象与职责映射
+
+[cols="1,2,3",options="header"]
+|===
+|对象 |层级 |职责
+
+|`BaseRequest`
+|抽象层
+|承载分页、排序、字段查询条件（`sorts/filedQueries`）
+
+|`IMapperService` / `IMapperServiceV2`
+|抽象层
+|统一 CRUD 协议，约束 add/update/edit/get/delete 行为
+
+|`CrudInterceptorExecutor` + `CrudInterceptorChain`
+|抽象层
+|在 CRUD 前后执行扩展逻辑（校验、审计、事件触发）
+
+|`MapperServiceImpl`
+|MyBatis 实现层
+|将 `BaseRequest` 转为 MyBatis 查询并执行标准 CRUD
+
+|`BaseMapperService`
+|JPA 实现层
+|将 `BaseRequest` 转为 `Specification`，执行 JPA 仓储操作
+
+|`BaseController` / `BaseControllerV2`
+|Web 适配层
+|将 HTTP CRUD 请求适配到统一 Service 契约
+|===
+
+== 5. 执行链路
+
+=== 5.1 查询主链路
+
+[source,text]
+----
+HTTP Request
+  -> BaseController.page/get
+  -> IMapperService.page/get
+  -> (MyBatis) MapperServiceImpl / (JPA) BaseMapperService
+  -> ORM 查询执行
+  -> PageResultVO/DTO 返回
+----
+
+=== 5.2 写入主链路（新增/更新/删除）
+
+[source,text]
+----
+HTTP Request
+  -> BaseController.add/update/edit/delete
+  -> IMapperService 对应方法
+  -> CrudInterceptorExecutor.beforeCheck/before
+  -> 具体实现层执行持久化
+  -> CrudInterceptorExecutor.after/onError
+  -> 结果返回
+----
+
+== 6. 扩展机制
+
+=== 6.1 CRUD 拦截器 SPI
+
+扩展接口：`IJdbcCrudInterceptor`
+
+可扩展点：
+- `beforeCheck`：参数与状态前置校验。
+- `before`：执行前补充上下文或写入审计信息。
+- `after`：成功后副作用（事件、日志、统计）。
+- `onError`：失败补偿/告警。
+
+注册机制：
+- `CrudInterceptorChain` 启动后按 `entityType + order` 构建链。
+
+=== 6.2 查询表达扩展
+
+- MyBatis：通过 `MybatisPlusWrapperUtils` 与 `FiledQuery/Sort` 扩展查询表达。
+- JPA：通过 `JpaQueryEngineUtils` 生成 `Specification`。
+
+=== 6.3 实体能力扩展
+
+- JPA：`AuditableEntity`、`LogicalDeleteEntity` 等基类支持审计/软删能力。
+- MyBatis：通过实体基类与 handler/rewrite 扩展实现特性注入。
+
+== 7. 约束与边界
+
+- 包名中存在历史拼写 `serivce`，属于现状契约，不应在文档中“自动纠正”为新包名。
+- `IMapperService.delete` 与 `IMapperServiceV2.remove` 语义近似但命名不同，跨模块接入需显式映射。
+- Mongo 当前不是“完整实现路线”，仅可作为依赖入口。
+
+== 8. 维护关注点
+
+=== 8.1 性能
+
+- 大分页查询依赖 `BaseRequest.page/size`，需控制 size 上限。
+- MyBatis 查询复杂度主要受 Wrapper 条件组合影响。
+- JPA 查询复杂度主要受 Specification 与索引策略影响。
+
+=== 8.2 兼容性
+
+- `BaseRequest` 字段命名含历史拼写（`filedQueries`），外部调用方应按现有契约对接。
+- DTO 统一使用 `IDTO`。
+
+=== 8.3 可观测性
+
+- 关键 Service 与配置类使用 `Slf4j`，可通过日志观察主链路。
+- 拦截器是统一监控埋点入口，建议优先在 `IJdbcCrudInterceptor` 扩展。
+
+=== 8.4 可替换性
+
+- 上层控制器依赖 `IMapperService` 抽象，具备 MyBatis/JPA 互换基础。
+- 互换前需处理：DTO 结构、删除语义、查询表达差异。
+
+== 9. 故障定位建议
+
+- 启动期问题：先看 `AutoConfiguration.imports` 是否声明对应配置类。
+- 查询问题：先核对 `BaseRequest` 入参，再定位到 `MybatisPlusWrapperUtils` 或 `JpaQueryEngineUtils`。
+- 写入问题：优先检查 `CrudInterceptorExecutor/CrudInterceptorChain` 是否拦截或短路。
+
+== 10. Future Work（非现状）
+
+- 为 Mongo 提供与 JDBC 抽象层一致的 Repository/Service/Controller 模板。
+- 统一 `delete/remove` 命名语义并建立迁移策略。
+- 清理历史命名拼写（如 `serivce/filedQueries`）并提供兼容层。
+
+== 11. 代码映射清单
+
+- 聚合：`athena-framework-starter-data/pom.xml`
+- 抽象：
+- `.../jdbc/JdbcConfiguration.java`
+- `.../jdbc/serivce/IMapperService.java`
+- `.../jdbc/serivce/IMapperServiceV2.java`
+- `.../jdbc/chain/CrudInterceptorChain.java`
+- 实现（MyBatis）：
+- `.../mybatis/MybatisAutoConfig.java`
+- `.../mybatis/service/impl/MapperServiceImpl.java`
+- `.../mybatis/builder/rewrite/SqlRewriteEngine.java`
+- 实现（JPA）：
+- `.../jpa/JpaConfiguration.java`
+- `.../jpa/repository/BaseRepository.java`
+- `.../jpa/service/BaseMapperService.java`
+
+== 12. 验证记录（DEV-TASK-003）
+
+- 架构一致性检查：模块分层、主链路、扩展点均可映射到仓库真实类。
+- 术语一致性检查：统一使用 Data 模块现有命名（含历史拼写约束说明）。
+- 可用性结论：文档可支撑开发者快速定位职责边界与扩展入口。

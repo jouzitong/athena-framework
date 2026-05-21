@@ -1,0 +1,322 @@
+= Data 模块快速开始（开发者向）
+:toc: left
+:toclevels: 3
+:sectnums:
+
+== 适用范围
+
+- 仓库：`athena-framework`
+- 模块：`athena-framework-starter-data`
+- 本文基于当前代码现状，覆盖 `JDBC/MyBatis/JPA/Mongo` 的接入差异。
+
+== 1. 30 分钟接入路径
+
+- 第 1 步：选择实现路线（推荐 `MyBatis` 或 `JPA`）。
+- 第 2 步：引入对应 starter 依赖。
+- 第 3 步：补齐数据源与 Data 模块配置。
+- 第 4 步：按最小示例落地 `Entity + Service + Controller + Query`。
+- 第 5 步：调用基础 CRUD 接口验证。
+
+== 2. 模块选择建议
+
+[cols="1,2,2",options="header"]
+|===
+|实现 |适用场景 |当前状态
+
+|MyBatis (`athena-framework-starter-data-mybatis`)
+|需要较强 SQL 控制能力、MyBatis-Plus 生态
+|推荐，能力完整
+
+|JPA (`athena-framework-starter-data-jpa`)
+|偏领域建模、Specification 查询
+|推荐，能力完整
+
+|JDBC (`athena-framework-starter-data-jdbc`)
+|仅复用抽象接口与基础模型
+|通常由上层实现模块间接引入
+
+|Mongo (`athena-framework-starter-data-mongo`)
+|需要 Mongo 依赖入口
+|当前仅依赖聚合，无独立 CRUD 基础设施
+|===
+
+== 3. 依赖引入
+
+=== 3.1 MyBatis 路线
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.athena</groupId>
+  <artifactId>athena-framework-starter-data-mybatis</artifactId>
+</dependency>
+----
+
+=== 3.2 JPA 路线
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.athena</groupId>
+  <artifactId>athena-framework-starter-data-jpa</artifactId>
+</dependency>
+----
+
+=== 3.3 自动配置入口（便于排障）
+
+- JDBC：`org.athena.framework.data.jdbc.JdbcConfiguration`
+- MyBatis：`org.athena.framework.data.mybatis.MybatisAutoConfig`
+- JPA：`org.athena.framework.data.jpa.JpaConfiguration`
+
+== 4. 配置说明
+
+=== 4.1 JDBC 公共配置（`jdbc.properties`）
+
+[source,properties]
+----
+spring.datasource.druid.initial-size=10
+spring.datasource.druid.max-active=5
+lib.jdbc.enable-event=true
+----
+
+=== 4.2 JPA 配置（`jpa.properties`）
+
+[source,properties]
+----
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.open-in-view=false
+----
+
+注意：`jpa.properties` 注释中已标注生产环境 `ddl-auto` 建议为 `validate/none`。
+
+== 5. 最小可运行示例
+
+以下示例以“尽快跑通”为目标，字段与包名请按你的业务模块调整。
+
+=== 5.1 MyBatis 最小示例
+
+1. 实体与 DTO
+
+[source,java]
+----
+public class DemoEntity extends org.athena.framework.data.mybatis.entity.BaseEntity {
+}
+
+public class DemoDTO extends org.athena.framework.data.mybatis.entity.dto.BaseDTO {
+}
+----
+
+2. Mapper
+
+[source,java]
+----
+import org.athena.framework.data.mybatis.mapper.CrudMapper;
+
+public interface DemoMapper extends CrudMapper<DemoEntity> {
+}
+----
+
+3. Service
+
+[source,java]
+----
+import org.athena.framework.data.mybatis.service.impl.MapperServiceImpl;
+
+@Service
+public class DemoService extends MapperServiceImpl<
+        DemoEntity,
+        DemoMapper,
+        DemoDTO,
+        Long> {
+
+    @Override
+    public DemoDTO newDTO() {
+        return new DemoDTO();
+    }
+
+    @Override
+    public DemoEntity newEntity() {
+        return new DemoEntity();
+    }
+}
+----
+
+4. Query 对象
+
+[source,java]
+----
+public class DemoQuery extends org.athena.framework.data.jdbc.req.BaseRequest {
+}
+----
+
+5. Controller
+
+[source,java]
+----
+@RestController
+@RequestMapping("/demo")
+public class DemoController extends org.athena.framework.data.mybatis.web.BaseController<
+        DemoEntity,
+        DemoDTO,
+        DemoQuery,
+        DemoService> {
+}
+----
+
+=== 5.2 JPA 最小示例
+
+1. 实体
+
+[source,java]
+----
+@Entity
+@Table(name = "demo")
+public class DemoEntity extends org.athena.framework.data.jpa.domain.BaseEntity {
+}
+----
+
+2. Repository
+
+[source,java]
+----
+import org.athena.framework.data.jpa.repository.BaseRepository;
+
+public interface DemoRepository extends BaseRepository<DemoEntity> {
+}
+----
+
+3. Service
+
+[source,java]
+----
+@Service
+public class DemoService extends org.athena.framework.data.jpa.service.BaseMapperService<DemoEntity> {
+
+    @Resource
+    private DemoRepository repository;
+
+    @Override
+    protected BaseRepository<DemoEntity> repository() {
+        return repository;
+    }
+
+    @Override
+    public DemoEntity newEntity() {
+        return new DemoEntity();
+    }
+
+    @Override
+    public Class<?> entityType() {
+        return DemoEntity.class;
+    }
+}
+----
+
+4. DTO / Convert / Query
+
+[source,java]
+----
+public class DemoDTO implements org.athena.framework.data.jdbc.entity.dto.IDTO {
+}
+
+@Component
+public class DemoConvert implements org.athena.framework.data.jdbc.convert.IConvert<DemoEntity, DemoDTO> {
+    public DemoEntity toEntity(DemoDTO dto) { return new DemoEntity(); }
+    public DemoDTO toDTO(DemoEntity entity) { return new DemoDTO(); }
+}
+
+public class DemoQuery extends org.athena.framework.data.jdbc.req.BaseRequest {
+}
+----
+
+5. Controller
+
+[source,java]
+----
+@RestController
+@RequestMapping("/demo")
+public class DemoController extends org.athena.framework.data.jdbc.web.BaseController<
+        DemoEntity,
+        DemoDTO,
+        DemoQuery,
+        DemoService> {
+
+    @Resource
+    private DemoService service;
+    @Resource
+    private DemoConvert convert;
+
+    @Override
+    protected DemoService service() { return service; }
+
+    @Override
+    protected org.athena.framework.data.jdbc.convert.IConvert<DemoEntity, DemoDTO> convert() {
+        return convert;
+    }
+}
+----
+
+== 6. 默认接口行为
+
+- MyBatis `BaseController` 默认提供：
+- `GET /{resource}` 分页/列表
+- `GET /{resource}/{id}` 查询
+- `POST /{resource}` 新增
+- `PUT /{resource}/{id}` 全量更新
+- `PATCH /{resource}/{id}` 部分更新
+- `DELETE /{resource}/{id}` 软删
+
+- JDBC `BaseController` / `BaseControllerV2` 的 `delete` 语义分别映射到：
+- `IMapperService.delete`
+- `IMapperServiceV2.remove`
+
+== 7. 常见问题与排障
+
+=== 7.1 启动后没有加载 Data 自动配置
+
+排查：
+- 是否引入了正确 starter（`-mybatis` 或 `-jpa`）。
+- 是否能在依赖树看到对应模块。
+- 检查 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 是否包含目标配置类。
+
+=== 7.2 查询不生效或分页异常
+
+排查：
+- Query 是否继承 `BaseRequest`。
+- `page/size` 是否传入有效值。
+- MyBatis 路线是否正确使用 `MybatisPlusWrapperUtils` 支持的查询字段结构（`filedQueries/sorts`）。
+
+=== 7.3 删除行为与预期不一致
+
+排查：
+- 当前实现中“软删”接口命名存在 `delete/remove` 两套语义。
+- 若需要物理删除，需显式实现 `physicalDelete`，默认并非所有实现都支持。
+
+=== 7.4 JPA 生产配置风险
+
+排查：
+- `spring.jpa.hibernate.ddl-auto` 在生产环境不要使用 `update`。
+- 维持 `spring.jpa.open-in-view=false`，避免长事务与懒加载副作用。
+
+== 8. 与代码映射清单
+
+- 聚合模块：`athena-framework-starter-data/pom.xml`
+- JDBC 抽象：
+- `.../jdbc/JdbcConfiguration.java`
+- `.../jdbc/serivce/IMapperService.java`
+- `.../jdbc/web/BaseController.java`
+- MyBatis 实现：
+- `.../mybatis/MybatisAutoConfig.java`
+- `.../mybatis/service/impl/MapperServiceImpl.java`
+- `.../mybatis/web/BaseController.java`
+- JPA 实现：
+- `.../jpa/JpaConfiguration.java`
+- `.../jpa/repository/BaseRepository.java`
+- `.../jpa/service/BaseMapperService.java`
+
+== 9. 验证记录（DEV-TASK-002）
+
+- 示例可读性检查：示例按 `Entity/Service/Controller/Query` 最小链路组织。
+- 配置映射检查：配置键均可追溯到 `jdbc.properties`、`jpa.properties`。
+- 差异说明检查：已区分 MyBatis/JPA/Mongo 能力边界与接入建议。

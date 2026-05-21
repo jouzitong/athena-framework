@@ -1,0 +1,382 @@
+= 需求任务：Data 模块快速开始与架构设计文档建设
+:doctype: book
+:toc: left
+:toclevels: 3
+:sectnums:
+
+[preface]
+== 前言
+
+[cols="1,3",options="header"]
+|===
+|字段 |值
+
+|id
+|REQ-20260519-DATA-DOC-001
+
+|name
+|Data 模块快速开始与架构设计文档建设
+
+|type
+|DOCS
+
+|period
+|P1
+
+|version
+|V1.0.0
+
+|branch
+|codex/docs/REQ-20260519-DATA-DOC-001
+
+|task.session_id
+|SESSION-20260519-CODEX
+
+|status
+|READY
+|===
+
+== 需求核心信息
+
+=== 需求背景
+
+- 当前 `athena-framework-starter-data` 模块具备较完整代码能力，但缺少针对开发者的统一快速开始与系统架构说明。
+- 新成员接入、问题定位、后续演进评审时，需要在代码之外建立可复用、可维护、可裁决的文档资产。
+
+=== 核心需求内容
+
+- 为 Data 模块补充面向开发者的快速开始文档，覆盖依赖引入、配置、最小可运行示例与常见排障。
+- 为 Data 模块补充系统架构设计文档，说明分层、子模块职责、核心流程、扩展点与约束。
+- 明确对后期维护与二次开发最关键的信息，包括边界、兼容性风险、排查路径、演进建议。
+
+=== 边界定义
+
+==== 范围（task.scope.modules）
+
+- `athena-framework-starter-data`
+- `athena-framework-starter-data-jdbc`
+- `athena-framework-starter-data-mybatis`
+- `athena-framework-starter-data-jpa`
+- `athena-framework-starter-data-mongo`
+- `docs`（与 Data 模块相关文档目录）
+
+==== 排除（task.scope.excludes）
+
+- 不进行 Data 模块业务功能代码重构与逻辑变更。
+- 不调整数据库 schema 与运行时配置默认值。
+- 不新增与文档目标无关的 API 或公共抽象层。
+
+=== 依赖与约束
+
+- 必须遵循 `.codex/DSL/rules/00-global-rules.adoc`、`.codex/DSL/rules/01-task-rules.adoc`、`.codex/DSL/rules/06-standard-dev-flow-rules.adoc`。
+- 文档内容必须与当前仓库代码结构和实际能力一致，避免“未来态”描述混入“现状说明”。
+- 文档应优先复用现有风格（Asciidoc）与术语体系，降低维护成本。
+
+=== 验收标准
+
+- 产出至少 2 份文档：`快速开始` 与 `架构设计`，并具备可执行/可验证信息。
+- 文档覆盖模块职责、调用主链路、扩展点、常见维护场景，且能支撑新开发者在 30 分钟内完成最小接入理解。
+- 文档与代码映射关系明确（模块、关键类、关键配置均可追溯）。
+
+=== 风险与注意事项
+
+- 若代码与历史认知不一致，架构文档可能出现偏差，需要以代码现状为准进行修正。
+- 多子模块并存（JDBC/MyBatis/JPA/Mongo）可能导致职责重叠理解偏差，需要明确“推荐路径与适用场景”。
+- 文档一次性过度扩写会降低可维护性，应聚焦“高频使用 + 高频维护”信息。
+
+=== 需求任务完成条件
+
+task.completion.success::
+- 所有必须开发任务达到 `DONE`。
+- 快速开始与架构文档完成并通过内容自检（结构完整、信息可执行、代码可追溯）。
+- 文档包含维护与演进指导信息，能够支持后续开发理解与问题定位。
+
+task.completion.failure::
+- 核心文档缺失或关键内容不可验证。
+- 文档描述与代码现状存在明显冲突且无法在本任务内澄清。
+- 关键开发任务长期 `BLOCKED` 导致无法形成可交付结果。
+
+=== 需求沟通记录（task.communication.inputs）
+
+- 记录目标：沉淀“开发者关键输入”，确保该任务可被重复执行。
+- 记录规则：仅追加，不覆盖历史；每条输入都应可直接指导下一次执行。
+
+.需求沟通记录（按需追加）
+. 用户明确要求：根据既定规则创建任务，聚焦 data 模块，交付“开发者快速开始 + 系统架构设计”，并强调后续维护与开发理解价值。
+. 当前轮次策略：优先创建符合 DSL 最小契约的任务文档，后续按该任务进入文档实现阶段。
+
+== 开发任务
+
+.开发任务汇总表
+[cols="1,2,1,1,2",options="header"]
+|===
+|开发任务ID |开发任务名称 |类型 |状态 |依赖
+
+|DEV-TASK-001
+|Data 模块文档需求梳理与信息盘点
+|DOCS
+|DONE
+|无
+
+|DEV-TASK-002
+|Data 模块快速开始文档编写（开发者向）
+|DOCS
+|DONE
+|DEV-TASK-001
+
+|DEV-TASK-003
+|Data 模块系统架构设计文档编写
+|DOCS
+|DONE
+|DEV-TASK-001
+
+|DEV-TASK-004
+|维护与演进指南补充及文档一致性校验
+|TEST
+|DONE
+|DEV-TASK-002, DEV-TASK-003
+|===
+
+=== DEV-TASK-001
+
+.开发任务元信息
+[cols="1,3",options="header"]
+|===
+|字段 |值
+
+|dev_task.id
+|DEV-TASK-001
+
+|dev_task.name
+|Data 模块文档需求梳理与信息盘点
+
+|dev_task.type
+|DOCS
+
+|dev_task.status
+|DONE
+
+|dev_task.depends_on
+|无
+
+|dev_task.session_ids
+|[SESSION-20260519-CODEX]
+|===
+
+==== 开发任务概述
+
+- 子域：需求标准化与文档素材盘点
+- 目的：形成可直接驱动文档编写的结构化输入。
+
+==== 开发任务目标（dev_task.objective）
+
+- 明确 Data 模块各子模块职责、边界与关系。
+- 提取快速开始与架构设计所需最小信息集合（配置、入口、扩展点、主链路）。
+
+==== 预计修改范围（dev_task.change.scope）
+
+- 涉及模块（dev_task.change.scope.modules）：`athena-framework-starter-data`，`docs`
+- 涉及路径（dev_task.change.scope.paths）：`athena-project/athena-framework-starters/athena-framework-starter-data/**`，`docs/**`
+- 是否跨服务/跨仓（dev_task.change.scope.cross_boundary）：否
+
+==== 预计修改内容（dev_task.change.plan）
+
+- 改动类型（dev_task.change.plan.types）：新增
+- 关键改动点（dev_task.change.plan.key_points）：整理模块清单、术语对齐、核心流程与配置项归档
+- 数据/接口变更（dev_task.change.plan.api_or_schema_changes）：无
+- 高风险改动（dev_task.change.plan.risks）：低，主要风险为信息遗漏导致后续文档偏差
+
+==== 完成证据（dev_task.validation.proof）
+
+- 必要验证（dev_task.validation.proof.required_checks）：文档结构检查、信息完整性自检
+- 交付物（dev_task.validation.proof.deliverables）：需求输入清单、任务文档更新记录
+- 验收口径（dev_task.validation.proof.acceptance_criteria）：可支撑 DEV-TASK-002/003 直接进入写作
+
+==== 开发任务沟通记录（dev_task.communication.log）
+
+.开发任务沟通记录（按需追加）
+. 依据 DSL 规则补齐任务契约字段，确保后续执行可裁决。
+. 2026-05-20：完成 Data 模块代码与配置盘点，新增 `docs/detail/data-module-docs-input-inventory.adoc` 作为 DEV-TASK-002/003 的写作输入基线。
+
+=== DEV-TASK-002
+
+.开发任务元信息
+[cols="1,3",options="header"]
+|===
+|字段 |值
+
+|dev_task.id
+|DEV-TASK-002
+
+|dev_task.name
+|Data 模块快速开始文档编写（开发者向）
+
+|dev_task.type
+|DOCS
+
+|dev_task.status
+|DONE
+
+|dev_task.depends_on
+|DEV-TASK-001
+
+|dev_task.session_ids
+|[SESSION-20260519-CODEX]
+|===
+
+==== 开发任务概述
+
+- 子域：开发者快速接入
+- 目的：让开发者可在最短时间完成 Data 模块接入与基础使用。
+
+==== 开发任务目标（dev_task.objective）
+
+- 输出可执行的快速开始文档，包含依赖引入、配置说明、最小示例、调试与排障指引。
+- 明确不同数据实现（JDBC/MyBatis/JPA/Mongo）的接入差异与选择建议。
+
+==== 预计修改范围（dev_task.change.scope）
+
+- 涉及模块（dev_task.change.scope.modules）：`athena-framework-starter-data`，`docs`
+- 涉及路径（dev_task.change.scope.paths）：`docs/**`，`athena-project/athena-framework-starters/athena-framework-starter-data/**`
+- 是否跨服务/跨仓（dev_task.change.scope.cross_boundary）：否
+
+==== 预计修改内容（dev_task.change.plan）
+
+- 改动类型（dev_task.change.plan.types）：新增、重构
+- 关键改动点（dev_task.change.plan.key_points）：快速开始章节结构化、示例最小化、配置与常见问题标准化
+- 数据/接口变更（dev_task.change.plan.api_or_schema_changes）：无
+- 高风险改动（dev_task.change.plan.risks）：中，示例代码若与真实路径不一致会影响可用性
+
+==== 完成证据（dev_task.validation.proof）
+
+- 必要验证（dev_task.validation.proof.required_checks）：示例可读性检查、配置项与代码映射检查
+- 交付物（dev_task.validation.proof.deliverables）：快速开始文档、校验记录
+- 验收口径（dev_task.validation.proof.acceptance_criteria）：新开发者可按文档完成最小接入理解
+
+==== 开发任务沟通记录（dev_task.communication.log）
+
+.开发任务沟通记录（按需追加）
+. 文档默认以开发者“首次接入”视角组织，避免信息堆叠。
+. 2026-05-20：新增 `docs/detail/data-module-quick-start.adoc`，覆盖依赖、配置、MyBatis/JPA 最小示例、差异说明与排障指引。
+
+=== DEV-TASK-003
+
+.开发任务元信息
+[cols="1,3",options="header"]
+|===
+|字段 |值
+
+|dev_task.id
+|DEV-TASK-003
+
+|dev_task.name
+|Data 模块系统架构设计文档编写
+
+|dev_task.type
+|DOCS
+
+|dev_task.status
+|DONE
+
+|dev_task.depends_on
+|DEV-TASK-001
+
+|dev_task.session_ids
+|[SESSION-20260519-CODEX]
+|===
+
+==== 开发任务概述
+
+- 子域：系统架构建模
+- 目的：沉淀 Data 模块在框架中的架构位置、职责边界与演进路径。
+
+==== 开发任务目标（dev_task.objective）
+
+- 输出架构设计文档，覆盖分层结构、核心对象、执行链路、扩展机制与边界约束。
+- 明确维护关注点（性能、兼容性、可观测性、可替换性）与定位建议。
+
+==== 预计修改范围（dev_task.change.scope）
+
+- 涉及模块（dev_task.change.scope.modules）：`athena-framework-starter-data`，`docs`
+- 涉及路径（dev_task.change.scope.paths）：`docs/**`，`athena-project/athena-framework-starters/athena-framework-starter-data/**`
+- 是否跨服务/跨仓（dev_task.change.scope.cross_boundary）：否
+
+==== 预计修改内容（dev_task.change.plan）
+
+- 改动类型（dev_task.change.plan.types）：新增
+- 关键改动点（dev_task.change.plan.key_points）：架构图与文字模型对齐、核心流程可追溯、扩展点与限制明确
+- 数据/接口变更（dev_task.change.plan.api_or_schema_changes）：无
+- 高风险改动（dev_task.change.plan.risks）：中，跨子模块职责描述不清会影响维护判断
+
+==== 完成证据（dev_task.validation.proof）
+
+- 必要验证（dev_task.validation.proof.required_checks）：架构一致性检查、术语一致性检查
+- 交付物（dev_task.validation.proof.deliverables）：架构设计文档、模块映射说明
+- 验收口径（dev_task.validation.proof.acceptance_criteria）：文档可支撑开发者快速定位模块职责与扩展入口
+
+==== 开发任务沟通记录（dev_task.communication.log）
+
+.开发任务沟通记录（按需追加）
+. 架构文档以“代码现状”优先，演进建议单列并标注为 future work。
+. 2026-05-20：新增 `docs/detail/data-module-architecture-design.adoc`，完成分层结构、核心链路、扩展点、边界约束与维护关注点沉淀。
+
+=== DEV-TASK-004
+
+.开发任务元信息
+[cols="1,3",options="header"]
+|===
+|字段 |值
+
+|dev_task.id
+|DEV-TASK-004
+
+|dev_task.name
+|维护与演进指南补充及文档一致性校验
+
+|dev_task.type
+|TEST
+
+|dev_task.status
+|DONE
+
+|dev_task.depends_on
+|DEV-TASK-002, DEV-TASK-003
+
+|dev_task.session_ids
+|[SESSION-20260519-CODEX]
+|===
+
+==== 开发任务概述
+
+- 子域：文档质量验证与交付裁决
+- 目的：确保文档可维护、可执行、可追溯。
+
+==== 开发任务目标（dev_task.objective）
+
+- 补充面向维护场景的诊断路径、变更影响评估与常见扩展策略。
+- 完成快速开始与架构设计文档的交叉一致性验证并形成交付结论。
+
+==== 预计修改范围（dev_task.change.scope）
+
+- 涉及模块（dev_task.change.scope.modules）：`docs`
+- 涉及路径（dev_task.change.scope.paths）：`docs/**`
+- 是否跨服务/跨仓（dev_task.change.scope.cross_boundary）：否
+
+==== 预计修改内容（dev_task.change.plan）
+
+- 改动类型（dev_task.change.plan.types）：新增、修订
+- 关键改动点（dev_task.change.plan.key_points）：维护章节补充、术语统一、链接与索引校验
+- 数据/接口变更（dev_task.change.plan.api_or_schema_changes）：无
+- 高风险改动（dev_task.change.plan.risks）：低，主要风险为校验不充分导致交付后返工
+
+==== 完成证据（dev_task.validation.proof）
+
+- 必要验证（dev_task.validation.proof.required_checks）：文档一致性检查、可执行性检查、范围覆盖检查
+- 交付物（dev_task.validation.proof.deliverables）：最终文档清单、校验结论、风险清单
+- 验收口径（dev_task.validation.proof.acceptance_criteria）：文档可用于新成员 onboarding 与维护排障
+
+==== 开发任务沟通记录（dev_task.communication.log）
+
+.开发任务沟通记录（按需追加）
+. 交付结论需明确 DONE/BLOCKED 与残余风险，满足 DSL 裁决要求。
+. 2026-05-20：新增 `docs/detail/data-module-maintenance-and-evolution-guide.adoc`，完成维护诊断路径、变更影响评估、文档一致性校验与残余风险归档。
