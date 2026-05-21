@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.arthena.framework.common.constant.CodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
+import org.slf4j.MDC;
+import org.athena.framework.web.filter.TraceIdFilter;
 
 /**
  * @author zhouzhitong
@@ -25,6 +27,26 @@ public class R<D> implements IR<D> {
     private D data;
 
     /**
+     * 响应时间戳（毫秒）
+     */
+    private Long timestamp;
+
+    /**
+     * 链路追踪ID
+     */
+    private String traceId;
+
+    /**
+     * 响应签名
+     */
+    private String sign;
+
+    /**
+     * 签名密钥ID
+     */
+    private String signKeyId;
+
+    /**
      * 错误信息参数
      */
     @JsonIgnore
@@ -33,12 +55,19 @@ public class R<D> implements IR<D> {
     protected R(D data) {
         this.code = CodeConstant.SUCCESS;
         this.data = data;
+        initMeta();
     }
 
     protected R(int code, Object... errorMsgArgs) {
         this.code = code;
         this.errorMsgArgs = errorMsgArgs;
         this.data = null;
+        initMeta();
+    }
+
+    private void initMeta() {
+        this.timestamp = System.currentTimeMillis();
+        this.traceId = MDC.get(TraceIdFilter.MDC_KEY);
     }
 
     public String getMsg() {

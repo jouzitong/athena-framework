@@ -23,4 +23,28 @@ public class LibWebProperties {
      */
     private List<String> enumPackages;
 
+    /**
+     * 响应签名配置
+     */
+    private Sign sign = new Sign();
+
+    @Data
+    @NoArgsConstructor
+    public static class Sign {
+        /**
+         * 是否开启响应签名
+         */
+        private boolean enabled = false;
+
+        /**
+         * HMAC 签名密钥
+         */
+        private String secret;
+
+        /**
+         * 密钥标识（用于轮换）
+         */
+        private String keyId = "default";
+    }
+
 }

@@ -3,6 +3,8 @@ package org.athena.framework.web.Initializing;
 import jakarta.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.athena.framework.web.annotation.IgnoredResultWrapper;
+import org.athena.framework.web.properties.LibWebProperties;
+import org.athena.framework.web.util.ResponseSignUtils;
 import org.athena.framework.web.vo.R;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +34,12 @@ import java.util.Optional;
 public class InitializingAdviceDecorator implements InitializingBean {
 
     private final RequestMappingHandlerAdapter adapter;
+    private final LibWebProperties properties;
 
     @Autowired
-    public InitializingAdviceDecorator(RequestMappingHandlerAdapter adapter) {
+    public InitializingAdviceDecorator(RequestMappingHandlerAdapter adapter, LibWebProperties properties) {
         this.adapter = adapter;
+        this.properties = properties;
     }
 
     @Override
@@ -59,7 +63,7 @@ public class InitializingAdviceDecorator implements InitializingBean {
         for (HandlerMethodReturnValueHandler handler : handlers) {
             if (handler instanceof RequestResponseBodyMethodProcessor) {
                 //找到返回值的handler并将起包装成自定义的handler
-                ControllerReturnValueHandler decorator = new ControllerReturnValueHandler((RequestResponseBodyMethodProcessor) handler);
+                ControllerReturnValueHandler decorator = new ControllerReturnValueHandler((RequestResponseBodyMethodProcessor) handler, properties);
                 int index = handlers.indexOf(handler);
                 handlers.set(index, decorator);
                 break;
@@ -74,9 +78,11 @@ public class InitializingAdviceDecorator implements InitializingBean {
     private static class ControllerReturnValueHandler implements HandlerMethodReturnValueHandler {
         //持有一个被装饰者对象
         private final HandlerMethodReturnValueHandler handler;
+        private final LibWebProperties properties;
 
-        ControllerReturnValueHandler(RequestResponseBodyMethodProcessor handler) {
+        ControllerReturnValueHandler(RequestResponseBodyMethodProcessor handler, LibWebProperties properties) {
             this.handler = handler;
+            this.properties = properties;
         }
 
         @Override
@@ -116,12 +122,14 @@ public class InitializingAdviceDecorator implements InitializingBean {
                 }
             }
             //如果已经封装了结构体就直接放行
-            if (returnValue instanceof R) {
-                handler.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
+            if (returnValue instanceof R<?> response) {
+                ResponseSignUtils.sign(response, properties.getSign());
+                handler.handleReturnValue(response, returnType, mavContainer, webRequest);
                 return;
             }
             //正常返回success
             R<Object> success = R.ok(returnValue);
+            ResponseSignUtils.sign(success, properties.getSign());
             handler.handleReturnValue(success, returnType, mavContainer, webRequest);
         }
     }
