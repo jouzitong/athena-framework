@@ -86,7 +86,7 @@
 
 === 3) 错误码治理约定（建议）
 
-* `CodeConstant` 定义“框架保留码段”
+* `ErrCodeConstant` 定义“框架保留码段”
 * 业务方自定义错误码推荐在 `config/ErrorCode-*.properties` 覆盖或扩展
 * 错误码 message 中使用 `{}` 占位符时，参数按顺序替换（并保证不会触发 NPE）
 
@@ -276,7 +276,7 @@
 
 4) 错误码治理与发布流程（建议）
 
-* 引入 lint/校验脚本（可选）：检查 `CodeConstant` 中定义的错误码是否在 `ErrorCode-*.properties` 存在文案。
+* 引入 lint/校验脚本（可选）：检查 `ErrCodeConstant` 中定义的错误码是否在 `ErrorCode-*.properties` 存在文案。
 * 文案占位符规则：明确 `{}` 数量与 args 对齐方式。
 
 === 验收标准

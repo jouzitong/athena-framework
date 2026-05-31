@@ -1,6 +1,6 @@
 package org.arthena.framework.common.utils;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.context.SystemContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +32,11 @@ public class ErrorCodeUtils {
 
     public static String getMsg(Integer code, Object... args) {
         if (code == null) {
-            return CodeConstant.UN_KNOW_ERROR_MSG;
+            return ErrCodeConstant.UN_KNOW_ERROR_MSG;
         }
         String msg = getMsg(code);
         if (msg == null) {
-            msg = CodeConstant.UN_KNOW_ERROR_MSG;
+            msg = ErrCodeConstant.UN_KNOW_ERROR_MSG;
         }
         if (args == null || args.length == 0) {
             return msg;
@@ -94,13 +94,13 @@ public class ErrorCodeUtils {
         String name = ERROR_CODE_PREFIX + locale + FILE_TYPE;
         Properties properties = loadErrorCode(locale, name);
         if (properties == null) {
-            return CodeConstant.UN_KNOW_ERROR_MSG;
+            return ErrCodeConstant.UN_KNOW_ERROR_MSG;
         }
         String msg = properties.getProperty(code.toString());
         if (msg != null) {
             return msg;
         }
-        return CodeConstant.UN_KNOW_ERROR_MSG;
+        return ErrCodeConstant.UN_KNOW_ERROR_MSG;
     }
 
     /**

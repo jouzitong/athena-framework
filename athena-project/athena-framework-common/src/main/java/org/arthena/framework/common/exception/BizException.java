@@ -1,4 +1,4 @@
-package org.arthena.framework.common.exception.base;
+package org.arthena.framework.common.exception;
 
 import lombok.Getter;
 import org.arthena.framework.common.constant.ErrCodeConstant;
@@ -9,8 +9,7 @@ import org.arthena.framework.common.utils.ErrorCodeUtils;
  * @version 1.0
  * @since 2022/5/15 16:31
  */
-@Deprecated
-public class BaseException extends Exception {
+public class BizException extends RuntimeException {
 
     @Getter
     private final Integer code;
@@ -18,22 +17,32 @@ public class BaseException extends Exception {
     @Getter
     private final Object[] args;
 
-    public BaseException(Exception e) {
+    public BizException(Exception e) {
         super(e);
-        if (e instanceof BaseException baseException) {
+        if (e instanceof BizException baseException) {
             this.code = baseException.getCode();
             this.args = baseException.args;
         } else {
             this.code = ErrCodeConstant.UN_KNOW_ERROR;
             this.args = null;
-
         }
     }
 
-    public BaseException(Integer code,Object... args) {
-        super(ErrorCodeUtils.getMsg(code, args));
+    public BizException(Integer code, Object... args) {
         this.code = code;
         this.args = args;
+    }
+
+    public static BizException of() {
+        return new BizException(ErrCodeConstant.UN_KNOW_ERROR);
+    }
+
+    public static BizException of(Integer code, Object... args) {
+        return new BizException(code, args);
+    }
+
+    public static BizException illegalParam(Integer code, Object... args) {
+        return new BizException(code, args);
     }
 
     public Integer code() {

@@ -3,7 +3,7 @@ package org.athena.framework.security.auth.core.filter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.athena.framework.security.api.spi.SecurityAuthAttributes;
 import org.athena.framework.security.api.spi.TokenParseStatus;
 import org.athena.framework.security.api.model.UserContext;
@@ -36,13 +36,13 @@ public class RequireTokenSecurityRequestInterceptor implements SecurityRequestIn
         if (StringUtils.isBlank(token) || userContext == null) {
             int code;
             if (StringUtils.isBlank(token)) {
-                code = CodeConstant.UNAUTHORIZED;
+                code = ErrCodeConstant.UNAUTHORIZED;
             } else {
                 TokenParseStatus tokenParseStatus = (TokenParseStatus) request.getAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS);
                 if (tokenParseStatus == TokenParseStatus.EXPIRED) {
-                    code = CodeConstant.TOKEN_EXPIRED;
+                    code = ErrCodeConstant.TOKEN_EXPIRED;
                 } else {
-                    code = CodeConstant.TOKEN_INVALID;
+                    code = ErrCodeConstant.TOKEN_INVALID;
                 }
             }
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, org.arthena.framework.common.utils.ErrorCodeUtils.getMsg(code));

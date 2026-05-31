@@ -13,7 +13,7 @@ package org.arthena.framework.common.constant;
  * @version 1.0
  * @since 2022/5/19 23:11
  */
-public interface CodeConstant {
+public interface ErrCodeConstant {
 
     Integer SUCCESS = 0;
 

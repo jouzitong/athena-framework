@@ -1,6 +1,6 @@
 package org.athena.framework.security.api.exception;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
 
 /**
@@ -12,15 +12,15 @@ import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
 public class ForbiddenException extends BaseHttpRuntimeException {
 
     public ForbiddenException() {
-        super(403, CodeConstant.FORBIDDEN);
+        super(403, ErrCodeConstant.FORBIDDEN);
     }
 
     public ForbiddenException(Object... args) {
-        super(403, CodeConstant.FORBIDDEN, args);
+        super(403, ErrCodeConstant.FORBIDDEN, args);
     }
 
     public ForbiddenException(Throwable cause, Object... args) {
-        super(403, CodeConstant.FORBIDDEN, cause, args);
+        super(403, ErrCodeConstant.FORBIDDEN, cause, args);
     }
 }
 

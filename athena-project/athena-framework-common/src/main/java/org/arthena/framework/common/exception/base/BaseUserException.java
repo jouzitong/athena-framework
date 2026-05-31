@@ -1,6 +1,6 @@
 package org.arthena.framework.common.exception.base;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 
 import java.io.Serial;
 
@@ -20,7 +20,7 @@ public class BaseUserException extends BaseHttpRuntimeException {
     }
 
     public BaseUserException(Integer code, Object... args) {
-        super(401, code == null ? CodeConstant.UN_KNOW_ERROR : code, args);
+        super(401, code == null ? ErrCodeConstant.UN_KNOW_ERROR : code, args);
     }
 
 }

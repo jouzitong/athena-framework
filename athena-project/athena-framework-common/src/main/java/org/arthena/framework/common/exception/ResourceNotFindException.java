@@ -1,6 +1,6 @@
 package org.arthena.framework.common.exception;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
 /**
@@ -13,7 +13,7 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
 public class ResourceNotFindException extends BaseRuntimeException {
 
     public ResourceNotFindException() {
-        super(CodeConstant.RESOURCE_NOT_FOUND);
+        super(ErrCodeConstant.RESOURCE_NOT_FOUND);
     }
 
 }

@@ -1,7 +1,7 @@
 package org.arthena.framework.common.exception;
 
 import org.arthena.framework.common.enums.IEnum;
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
 /**
@@ -13,7 +13,7 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
 public class EnumNotFindException extends BaseRuntimeException {
 
     public EnumNotFindException() {
-        super(CodeConstant.ILLEGAL_PARAMETER_ERROR);
+        super(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR);
     }
 
     public static EnumNotFindException instant(Class<? extends IEnum> e, int code) {
