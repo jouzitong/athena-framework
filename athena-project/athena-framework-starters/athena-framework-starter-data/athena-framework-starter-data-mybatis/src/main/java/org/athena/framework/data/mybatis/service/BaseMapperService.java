@@ -1,20 +1,19 @@
-package org.athena.framework.data.mybatis.service.impl;
+package org.athena.framework.data.mybatis.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.arthena.framework.common.utils.BeanUtils;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageInfo;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
-import org.athena.framework.data.mybatis.entity.dto.BaseDTO;
 import org.athena.framework.data.mybatis.mapper.CrudMapper;
-import org.athena.framework.data.mybatis.service.IMapperService;
 import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
-
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -22,13 +21,12 @@ import java.util.List;
  * @since 2025/7/13
  **/
 @Slf4j
-public abstract class MapperServiceImpl<
+public abstract class BaseMapperService<
         Entity extends BaseEntity,
         Mapper extends CrudMapper<Entity>,
-        DTO extends BaseDTO,
-        ID extends Serializable>
+        DTO extends IDTO>
         extends ServiceImpl<Mapper, Entity>
-        implements IMapperService<Entity, DTO>, IService<Entity> {
+        implements IMapperService<DTO>, IService<Entity> {
 
     @Override
     public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
@@ -73,6 +71,17 @@ public abstract class MapperServiceImpl<
     }
 
     @Override
+    public int batchAdd(List<DTO> dtos) {
+        int affected = 0;
+        for (DTO dto : dtos) {
+            if (add(dto) != null) {
+                affected++;
+            }
+        }
+        return affected;
+    }
+
+    @Override
     public DTO update(Long id, DTO dto) {
         LOGGER.info("update request: {}", dto);
         Entity entity = getEntity(id);
@@ -103,10 +112,14 @@ public abstract class MapperServiceImpl<
         return toDTO(entity);
     }
 
-    @Override
     public boolean remove(Long id) {
         LOGGER.info("remove request: {}", id);
         return this.removeById(id);
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        return remove(id);
     }
 
     /**
@@ -123,5 +136,26 @@ public abstract class MapperServiceImpl<
     private Entity getEntity(Long id) {
         return this.getById(id);
     }
+
+    protected DTO toDTO(Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+        DTO dto = newDTO();
+        BeanUtils.copy(entity, dto);
+        return dto;
+    }
+
+    protected void copyProperties(DTO dto, Entity entity) {
+        BeanUtils.copy(dto, entity);
+    }
+
+    protected void copyAllowNullProperties(DTO dto, Entity entity) {
+        BeanUtils.copyForUpdate(dto, entity);
+    }
+
+    public abstract DTO newDTO();
+
+    public abstract Entity newEntity();
 
 }

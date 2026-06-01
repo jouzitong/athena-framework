@@ -3,7 +3,7 @@ package com.zhouzhitong.test.mybatis.controller.base;
 import org.athena.framework.data.mybatis.entity.dto.BaseDTO;
 import org.athena.framework.data.mybatis.entity.BaseEntity;
 import org.athena.framework.data.jdbc.req.BaseRequest;
-import org.athena.framework.data.mybatis.service.IMapperService;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,7 @@ public class BaseController
                 // 分页参数
                 , Query extends BaseRequest
                 // 操作service
-                , Service extends IMapperService<Entity, DTO>> {
+                , Service extends IMapperService<DTO>> {
 
     @Autowired
     private Service service;
@@ -127,7 +127,7 @@ public class BaseController
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Boolean delete(@PathVariable("id") Long id) {
-        return this.service().remove(id);
+        return this.service().delete(id);
     }
 
 }

@@ -5,7 +5,7 @@ import com.zhouzhitong.test.mybatis.dto.PersonDTO;
 import com.zhouzhitong.test.mybatis.mapper.PersonMapper;
 import com.zhouzhitong.test.mybatis.service.PersonService;
 import lombok.extern.slf4j.Slf4j;
-import org.athena.framework.data.mybatis.service.impl.MapperServiceImpl;
+import org.athena.framework.data.mybatis.service.BaseMapperService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,18 @@ import java.util.List;
 @Slf4j
 @Order()
 public class PersonServiceImpl
-        extends MapperServiceImpl<Person, PersonMapper, PersonDTO, Long>
+        extends BaseMapperService<Person, PersonMapper, PersonDTO>
         implements PersonService, CommandLineRunner {
+
+    @Override
+    public PersonDTO newDTO() {
+        return new PersonDTO();
+    }
+
+    @Override
+    public Person newEntity() {
+        return new Person();
+    }
 
     @Override
     public void run(String... args) throws Exception {
