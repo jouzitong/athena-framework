@@ -1,9 +1,14 @@
 package org.arthena.framework.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.arthena.framework.common.event.EventPublisher;
+import org.arthena.framework.common.event.SpringEventPublisher;
 import org.arthena.framework.common.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -21,4 +26,9 @@ public class CommonAutoConfig {
         LOGGER.info("project work dir: {}", FileUtils.getSystemWorkDir());
     }
 
+    @Bean
+    @ConditionalOnMissingBean(EventPublisher.class)
+    public EventPublisher defaultEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        return new SpringEventPublisher(applicationEventPublisher);
+    }
 }

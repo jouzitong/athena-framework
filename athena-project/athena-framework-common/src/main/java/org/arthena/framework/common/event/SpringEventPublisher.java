@@ -2,8 +2,6 @@ package org.arthena.framework.common.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.stereotype.Component;
 
 /**
  * 事件发布器
@@ -11,20 +9,18 @@ import org.springframework.stereotype.Component;
  * @author zhouzhitong
  */
 @Slf4j
-@Component("defaultSpringEventPublisher")
-public class SpringEventPublisher implements EventPublisher, ApplicationEventPublisherAware {
+public class SpringEventPublisher implements EventPublisher {
 
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Override
-    public void publish(Object event) {
-        LOGGER.debug("publish event: {}", event);
-        applicationEventPublisher.publishEvent(event);
-        LOGGER.trace("publish finish.");
+    public SpringEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
+    public void publish(IEvent event) {
+        LOGGER.debug("publish event: {}", event);
+        applicationEventPublisher.publishEvent(event);
+        LOGGER.trace("publish finish.");
     }
 }
