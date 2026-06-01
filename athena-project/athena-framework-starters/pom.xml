@@ -24,6 +24,7 @@
         <module>athena-framework-starter-minio</module>
         <module>athena-framework-starter-security</module>
         <module>athena-framework-starter-log</module>
+        <module>athena-framework-starter-kafka</module>
     </modules>
 
     <dependencies>

@@ -156,7 +156,17 @@
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-user-mybatis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-security-token-jwt</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-kafka</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
