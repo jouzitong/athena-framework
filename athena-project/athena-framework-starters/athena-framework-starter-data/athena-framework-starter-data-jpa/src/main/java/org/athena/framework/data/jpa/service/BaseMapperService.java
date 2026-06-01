@@ -2,16 +2,17 @@ package org.athena.framework.data.jpa.service;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.arthena.framework.common.utils.BeanUtils;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
 import org.athena.framework.data.jdbc.context.CrudContext;
+import org.athena.framework.data.jdbc.convert.IConvert;
+import org.athena.framework.data.jdbc.entity.IEntity;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.executor.CrudInterceptorExecutor;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.type.DbOpType;
 import org.athena.framework.data.jdbc.vo.PageInfo;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
-import org.athena.framework.data.jpa.domain.BaseEntity;
 import org.athena.framework.data.jpa.repository.BaseRepository;
 import org.athena.framework.data.jpa.utils.JpaQueryEngineUtils;
 import org.springframework.data.domain.Page;
@@ -25,14 +26,18 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public abstract class BaseMapperService<Entity extends BaseEntity>
-        implements IMapperService<Entity> {
+public abstract class BaseMapperService<Entity extends IEntity, DTO extends IDTO>
+        implements IMapperService<DTO> {
+
+    protected abstract Class<?> entityType();
+
+    protected abstract IConvert<Entity, DTO> convert();
 
     @Resource
     private CrudInterceptorExecutor interceptorExecutor;
 
     @Override
-    public <Query extends BaseRequest> List<Entity> queryAll(Query query) {
+    public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
         LOGGER.trace("[queryAll] request: {}", query);
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.SELECT)
@@ -41,7 +46,6 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
                 .build());
         Specification<Entity> spec = JpaQueryEngineUtils.build(query);
         Pageable pageable = PageRequest.of(query.getPage() - 1, query.getSize());
-
         Page<Entity> entities = repository().findAll(spec, pageable);
         interceptorExecutor.after(CrudContext.builder()
                 .dbOpType(DbOpType.SELECT)
@@ -49,12 +53,13 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
                 .entityType(entityType())
                 .result(entities)
                 .build());
-        LOGGER.trace("[queryAll] response: {}", entities.getContent());
-        return entities.getContent();
+        List<DTO> dtos = entities.getContent().stream().map(convert()::toDTO).toList();
+        LOGGER.trace("[queryAll] response: {}", dtos);
+        return dtos;
     }
 
     @Override
-    public <Query extends BaseRequest> PageResultVO<Entity> page(Query query) {
+    public <Query extends BaseRequest> PageResultVO<DTO> page(Query query) {
         LOGGER.trace("page request: {}", query);
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.SELECT)
@@ -70,9 +75,9 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
                 .entityType(entityType())
                 .result(page)
                 .build());
-        List<Entity> dtoList = page.getContent();
+        List<DTO> dtoList = page.getContent().stream().map(convert()::toDTO).toList();
         PageInfo pageInfo = new PageInfo(page.getTotalElements(), query.getSize(), query.getPage());
-        return PageResultVO.ok(dtoList, pageInfo);
+        return PageResultVO.of(dtoList, pageInfo);
     }
 
     @Override
@@ -96,17 +101,18 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
 
 
     @Override
-    public int batchAdd(List<Entity> entities) {
-        LOGGER.info("batch add request: {}", entities);
+    public int batchAdd(List<DTO> dtos) {
+        LOGGER.info("batch add request: {}", dtos);
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.INSERT)
-                .param(entities)
+                .param(dtos)
                 .entityType(entityType())
                 .build());
+        List<Entity> entities = dtos.stream().map(convert()::toEntity).toList();
         Iterable<Entity> savedEntities = repository().saveAll(entities);
         interceptorExecutor.after(CrudContext.builder()
                 .dbOpType(DbOpType.INSERT)
-                .param(entities)
+                .param(dtos)
                 .entityType(entityType())
                 .result(savedEntities)
                 .build());
@@ -121,26 +127,28 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
     }
 
     @Override
-    public Entity add(Entity entity) {
-        LOGGER.info("add data: {}", JacksonJsonUtils.toStr(entity));
+    public DTO add(DTO dto) {
+        LOGGER.info("add data: {}", JacksonJsonUtils.toStr(dto));
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.INSERT)
-                .param(entity)
+                .param(dto)
                 .entityType(entityType())
                 .build());
+        Entity entity = convert().toEntity(dto);
         entity = repository().save(entity);
+        DTO result = convert().toDTO(entity);
         interceptorExecutor.after(CrudContext.builder()
                 .dbOpType(DbOpType.INSERT)
-                .param(entity)
+                .param(dto)
                 .entityType(entityType())
-                .result(entity)
+                .result(result)
                 .build());
-        LOGGER.debug("add data success: {}", entity);
-        return entity;
+        LOGGER.debug("add data success: {}", result);
+        return result;
     }
 
     @Override
-    public Entity update(Long id, Entity dto) {
+    public DTO update(Long id, DTO dto) {
         LOGGER.info("update request: {}", dto);
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.UPDATE)
@@ -152,24 +160,25 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
         if (entity == null) {
             return null;
         }
-        BeanUtils.copy(dto, entity);
         interceptorExecutor.before(CrudContext.builder()
                 .dbOpType(DbOpType.UPDATE)
                 .param(dto)
                 .entityType(entityType())
                 .attributes(Map.of("oldEntity", entity))
                 .build());
+        convert().updateEntityFromDto(dto, entity);
         entity = repository().save(entity);
+        DTO result = convert().toDTO(entity);
 
         interceptorExecutor.after(CrudContext.builder()
                 .dbOpType(DbOpType.UPDATE)
                 .param(dto)
                 .entityType(entityType())
-                .result(entity)
+                .result(result)
                 .attributes(Map.of("id", id))
                 .build());
-        LOGGER.debug("update data success: {}", entity);
-        return entity;
+        LOGGER.debug("update data success: {}", result);
+        return result;
     }
 
     @Override
@@ -191,7 +200,7 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
     }
 
     @Override
-    public Entity edit(Long id, Entity dto) {
+    public DTO edit(Long id, DTO dto) {
         LOGGER.info("edit request: {}", dto);
         interceptorExecutor.beforeCheck(CrudContext.builder()
                 .dbOpType(DbOpType.UPDATE)
@@ -203,30 +212,30 @@ public abstract class BaseMapperService<Entity extends BaseEntity>
         if (entity == null) {
             return null;
         }
-        BeanUtils.copyForUpdate(dto, entity);
-
         interceptorExecutor.before(CrudContext.builder()
                 .dbOpType(DbOpType.UPDATE)
                 .param(dto)
                 .entityType(entityType())
                 .attributes(Map.of("oldEntity", entity))
                 .build());
+        convert().editEntityFromDto(dto, entity);
         entity = repository().save(entity);
+        DTO result = convert().toDTO(entity);
         interceptorExecutor.after(CrudContext.builder()
                 .dbOpType(DbOpType.UPDATE)
                 .param(dto)
                 .entityType(entityType())
-                .result(entity)
+                .result(result)
                 .attributes(Map.of("id", id))
                 .build());
-        LOGGER.debug("edit data success: {}", entity);
-        return entity;
+        LOGGER.debug("edit data success: {}", result);
+        return result;
     }
 
     @Override
-    public Entity get(Long id) {
+    public DTO get(Long id) {
         LOGGER.trace("get request: {}", id);
-        return repository().findById(id).orElse(null);
+        return repository().findById(id).map(convert()::toDTO).orElse(null);
     }
 
     protected abstract BaseRepository<Entity> repository();

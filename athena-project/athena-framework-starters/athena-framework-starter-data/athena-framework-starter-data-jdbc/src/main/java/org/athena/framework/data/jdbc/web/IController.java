@@ -1,10 +1,8 @@
 package org.athena.framework.data.jdbc.web;
 
-import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
-import org.athena.framework.data.jdbc.vo.PageResultVO_V2;
 import org.athena.framework.web.annotation.web.ApiDeleteMapping;
 import org.athena.framework.web.annotation.web.ApiGetMapping;
 import org.athena.framework.web.annotation.web.ApiPatchMapping;
@@ -20,10 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * 该接口的实现负责处理业务逻辑并协调模型和视图组件。
  * 它充当管理数据流、用户输入和用户界面更新的中介。
  */
-public interface IController<
-        Entity extends IEntity,
-        DTO extends IDTO,
-        Query extends BaseRequest> {
+public interface IController<DTO extends IDTO, Query extends BaseRequest> {
 
     /**
      * 根据提供的DTO向系统中添加一个新的实体。
@@ -85,16 +80,15 @@ public interface IController<
      */
     @ApiGetMapping
     @ApiResponseStatus(HttpStatus.OK)
-    @Deprecated
     PageResultVO<DTO> page(Query query);
 
 //    @ApiGetMapping
 //    @ApiResponseStatus(HttpStatus.OK)
-//    PageResultVO_V2<DTO> pageV2(Query query);
+//    PageResultVO<DTO> pageV2(Query query);
 
     @ApiPostMapping("/_search")
     @ApiResponseStatus(HttpStatus.OK)
-    PageResultVO_V2<DTO> pageSearch(@RequestBody Query query);
+    PageResultVO<DTO> pageSearch(@RequestBody Query query);
 
     /**
      * 根据提供的ID检索特定实体的DTO。

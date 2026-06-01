@@ -2,9 +2,9 @@ package org.athena.framework.data.jdbc.vo;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.athena.framework.web.vo.R;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,8 +16,7 @@ import java.util.List;
  */
 @Getter
 @ToString(callSuper = true)
-@Deprecated
-public class PageResultVO<T> extends R<List<T>> {
+public class PageResultVO<T> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,17 +26,15 @@ public class PageResultVO<T> extends R<List<T>> {
      */
     private final PageInfo pageInfo;
 
-    private PageResultVO(List<T> page, PageInfo pageInfo) {
-        super(page);
+    private final List<T> list;
+
+    private PageResultVO(List<T> list, PageInfo pageInfo) {
+        this.list = list;
         this.pageInfo = pageInfo;
     }
 
-    public static <T> PageResultVO<T> ok(List<T> dataList, PageInfo pageInfo) {
-        return success(dataList, pageInfo);
-    }
-
-    public static <T> PageResultVO<T> success(List<T> dataList, PageInfo pageInfo) {
-        return new PageResultVO<>(dataList, pageInfo);
+    public static <T> PageResultVO<T> of(List<T> list, PageInfo pageInfo) {
+        return new PageResultVO<>(list, pageInfo);
     }
 
 }

@@ -64,7 +64,7 @@ public class BaseController
                 page.setSize(sizeLimit);
             }
             List<DTO> resList = service().queryAll(page);
-            return PageResultVO.ok(resList, null);
+            return PageResultVO.of(resList, null);
         }
     }
 

@@ -45,7 +45,7 @@ public class MapperServiceV2Impl<
         records = objectPage.getRecords();
 
         PageInfo pageInfo = new PageInfo(objectPage.getTotal(), query.size(), query.page());
-        return PageResultVO.ok(records, pageInfo);
+        return PageResultVO.of(records, pageInfo);
     }
 
     @Override

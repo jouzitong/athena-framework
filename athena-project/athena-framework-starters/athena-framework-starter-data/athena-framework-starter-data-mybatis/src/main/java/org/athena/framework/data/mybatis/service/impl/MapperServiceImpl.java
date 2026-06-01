@@ -50,7 +50,7 @@ public abstract class MapperServiceImpl<
 
         PageInfo pageInfo = new PageInfo(objectPage.getTotal(), query.size(), query.page());
         List<DTO> dtoList = records.stream().map(this::toDTO).toList();
-        return PageResultVO.ok(dtoList, pageInfo);
+        return PageResultVO.of(dtoList, pageInfo);
     }
 
     @Override
