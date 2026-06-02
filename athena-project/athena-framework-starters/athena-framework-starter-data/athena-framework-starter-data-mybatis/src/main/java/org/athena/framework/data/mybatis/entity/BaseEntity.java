@@ -36,9 +36,9 @@ public abstract class BaseEntity implements IEntity {
     @TableField(value = "version")
     protected Long version = 1L;
 
-    /**
-     * 租户ID
-     */
-    @TableField(value = "tenant_id")
-    protected Long tenantId;
+//    /**
+//     * 租户ID
+//     */
+//    @TableField(value = "tenant_id")
+//    protected Long tenantId;
 }

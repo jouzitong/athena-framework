@@ -30,8 +30,8 @@ public abstract class BaseEntity implements IEntity {
     @Column(name = "version", nullable = false, columnDefinition = "bigint default 1 comment '版本'")
     private Long version;
 
-    @Getter
-    @Setter
-    @Column(name = "tenant_id", columnDefinition = "bigint comment '租户ID'")
-    private Long tenantId;
+//    @Getter
+//    @Setter
+//    @Column(name = "tenant_id", columnDefinition = "bigint comment '租户ID'")
+//    private Long tenantId;
 }
