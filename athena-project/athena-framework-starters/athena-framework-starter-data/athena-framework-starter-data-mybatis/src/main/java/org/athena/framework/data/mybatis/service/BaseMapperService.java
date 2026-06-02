@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.arthena.framework.common.utils.BeanUtils;
+import org.athena.framework.data.jdbc.convert.IConvert;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
@@ -28,6 +28,8 @@ public abstract class BaseMapperService<
         DTO extends IDTO>
         extends ServiceImpl<Mapper, Entity>
         implements IMapperService<DTO>, IService<Entity> {
+
+    protected abstract IConvert<Entity, DTO> convert();
 
     @Override
     public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
@@ -61,10 +63,7 @@ public abstract class BaseMapperService<
     @Override
     public DTO add(DTO dto) {
         LOGGER.info("add request: {}", dto);
-        // 创建一个实体
-        Entity entity = newEntity();
-        // 赋值
-        copyProperties(dto, entity);
+        Entity entity = convert().toEntity(dto);
         // 保存
         return save(entity)
                 ? toDTO(entity)
@@ -86,7 +85,7 @@ public abstract class BaseMapperService<
     public DTO update(Long id, DTO dto) {
         LOGGER.info("update request: {}", dto);
         Entity entity = getEntity(id);
-        copyAllowNullProperties(dto, entity);
+        convert().updateEntityFromDto(dto, entity);
 
         boolean update = this.updateById(entity);
         return update
@@ -98,7 +97,7 @@ public abstract class BaseMapperService<
     public DTO edit(Long id, DTO dto) {
         LOGGER.info("edit request: {}", dto);
         Entity entity = getEntity(id);
-        copyProperties(dto, entity);
+        convert().editEntityFromDto(dto, entity);
 
         boolean update = this.updateById(entity);
         return update
@@ -142,21 +141,7 @@ public abstract class BaseMapperService<
         if (entity == null) {
             return null;
         }
-        DTO dto = newDTO();
-        BeanUtils.copy(entity, dto);
-        return dto;
+        return convert().toDTO(entity);
     }
-
-    protected void copyProperties(DTO dto, Entity entity) {
-        BeanUtils.copy(dto, entity);
-    }
-
-    protected void copyAllowNullProperties(DTO dto, Entity entity) {
-        BeanUtils.copyForUpdate(dto, entity);
-    }
-
-    public abstract DTO newDTO();
-
-    public abstract Entity newEntity();
 
 }

@@ -1,10 +1,12 @@
 package com.zhouzhitong.test.mybatis.service.impl;
 
 import com.zhouzhitong.test.mybatis.bean.Person;
+import com.zhouzhitong.test.mybatis.convert.PersonConvert;
 import com.zhouzhitong.test.mybatis.dto.PersonDTO;
 import com.zhouzhitong.test.mybatis.mapper.PersonMapper;
 import com.zhouzhitong.test.mybatis.service.PersonService;
 import lombok.extern.slf4j.Slf4j;
+import org.athena.framework.data.jdbc.convert.IConvert;
 import org.athena.framework.data.mybatis.service.BaseMapperService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -23,14 +25,15 @@ public class PersonServiceImpl
         extends BaseMapperService<Person, PersonMapper, PersonDTO>
         implements PersonService, CommandLineRunner {
 
-    @Override
-    public PersonDTO newDTO() {
-        return new PersonDTO();
+    private final PersonConvert personConvert;
+
+    public PersonServiceImpl(PersonConvert personConvert) {
+        this.personConvert = personConvert;
     }
 
     @Override
-    public Person newEntity() {
-        return new Person();
+    protected IConvert<Person, PersonDTO> convert() {
+        return personConvert;
     }
 
     @Override
