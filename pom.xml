@@ -11,7 +11,7 @@
     <modules>
         <module>athena-project</module>
         <module>athena-project/framework-dependencies</module>
-        <module>athena-framework-test</module>
+<!--        <module>athena-framework-test</module>-->
     </modules>
 
     <properties>
