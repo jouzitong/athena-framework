@@ -154,6 +154,18 @@ public class SecurityAuthCoreAutoConfiguration {
             }
 
             @Override
+            public Long getTenantId() {
+                if (SecurityContextHolder.get() == null || SecurityContextHolder.get().subject() == null) {
+                    return 0L;
+                }
+                try {
+                    return Long.parseLong(SecurityContextHolder.get().subject().tenantId());
+                } catch (Exception ex) {
+                    return 0L;
+                }
+            }
+
+            @Override
             public String getLocale() {
                 return SystemContext.getLocale();
             }

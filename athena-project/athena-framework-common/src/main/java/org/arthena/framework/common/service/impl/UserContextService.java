@@ -21,6 +21,12 @@ public class UserContextService implements IUserContextService {
     }
 
     @Override
+    public Long getTenantId() {
+        LOGGER.trace("UserContextService tenantId is not configured, please configure it");
+        return 0L;
+    }
+
+    @Override
     public String getLocale() {
         LOGGER.trace("UserContextService local is not configured, please configure it");
         return SystemContext.getLocale();

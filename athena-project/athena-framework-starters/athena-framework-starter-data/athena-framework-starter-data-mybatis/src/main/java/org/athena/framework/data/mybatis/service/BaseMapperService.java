@@ -11,7 +11,7 @@ import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.serivce.IMapperService;
 import org.athena.framework.data.jdbc.vo.PageInfo;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
-import org.athena.framework.data.mybatis.entity.BaseEntity;
+import org.athena.framework.data.mybatis.entity.LogicalDeleteEntity;
 import org.athena.framework.data.mybatis.mapper.CrudMapper;
 import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
  **/
 @Slf4j
 public abstract class BaseMapperService<
-        Entity extends BaseEntity,
+        Entity extends LogicalDeleteEntity,
         Mapper extends CrudMapper<Entity>,
         DTO extends IDTO>
         extends ServiceImpl<Mapper, Entity>
