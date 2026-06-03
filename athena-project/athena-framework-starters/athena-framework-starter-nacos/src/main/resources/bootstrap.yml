@@ -25,6 +25,5 @@ spring:
         password: ${spring.cloud.nacos.discovery.password}
         group: ${spring.cloud.nacos.discovery.group}
 
-
-server:
-  ip: 192.168.31.31
+#server:
+#  ip: 192.168.31.31
