@@ -38,7 +38,8 @@ public class SecurityUserMybatisAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(SecurityUserRepository.class)
+//    @ConditionalOnMissingBean(SecurityUserRepository.class)
+//    @Primary
     public SecurityUserRepository securityUserRepository(SecUserMybatisMapper userMapper,
                                                          SecUserCredentialMybatisMapper credentialMapper) {
         return new MybatisSecurityUserRepository(userMapper, credentialMapper);

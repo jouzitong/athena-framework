@@ -12,18 +12,18 @@ import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.extractor.HeaderTokenCredentialExtractor;
+import org.athena.framework.security.auth.core.filter.RequireTokenJsonSecurityRequestInterceptor;
 import org.athena.framework.security.auth.core.filter.SecurityContextFilter;
 import org.athena.framework.security.auth.core.filter.SecurityRequestInterceptor;
-import org.athena.framework.security.auth.core.filter.RequireTokenJsonSecurityRequestInterceptor;
 import org.athena.framework.security.auth.core.service.DefaultAuthenticator;
 import org.athena.framework.security.auth.core.service.DefaultIdentityProvider;
-import org.athena.framework.security.auth.core.service.DefaultSecurityUserRepository;
 import org.athena.framework.security.auth.core.service.NoopUserContextEnricher;
 import org.athena.framework.security.auth.core.service.PlainCredentialVerifier;
 import org.athena.framework.security.auth.core.service.SecurityAuthenticationFacade;
 import org.athena.framework.security.auth.core.service.SecurityAuthenticationService;
 import org.athena.framework.security.auth.core.token.LocalTokenManager;
 import org.athena.framework.security.auth.core.web.SecurityAuthController;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -32,7 +32,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
@@ -48,11 +47,11 @@ import java.util.List;
 @EnableConfigurationProperties(SecurityAuthProperties.class)
 public class SecurityAuthCoreAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean
-    public SecurityUserRepository securityUserRepository() {
-        return new DefaultSecurityUserRepository();
-    }
+//    @Bean
+//    @ConditionalOnMissingBean
+//    public SecurityUserRepository securityUserRepository() {
+//        return new DefaultSecurityUserRepository();
+//    }
 
     @Bean
     @ConditionalOnMissingBean
