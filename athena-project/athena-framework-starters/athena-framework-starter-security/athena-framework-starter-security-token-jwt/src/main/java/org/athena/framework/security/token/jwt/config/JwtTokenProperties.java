@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "athena.security.token.jwt")
 public class JwtTokenProperties {
 
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 访问令牌过期时间（分钟）。

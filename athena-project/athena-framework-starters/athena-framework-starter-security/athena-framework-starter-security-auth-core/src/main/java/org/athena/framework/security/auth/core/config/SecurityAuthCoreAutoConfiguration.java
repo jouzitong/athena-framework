@@ -23,6 +23,8 @@ import org.athena.framework.security.auth.core.service.SecurityAuthenticationFac
 import org.athena.framework.security.auth.core.service.SecurityAuthenticationService;
 import org.athena.framework.security.auth.core.token.LocalTokenManager;
 import org.athena.framework.security.auth.core.web.SecurityAuthController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -46,6 +48,7 @@ import java.util.List;
 @ConditionalOnProperty(prefix = "athena.security.auth", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(SecurityAuthProperties.class)
 public class SecurityAuthCoreAutoConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(SecurityAuthCoreAutoConfiguration.class);
 
 //    @Bean
 //    @ConditionalOnMissingBean
@@ -78,10 +81,11 @@ public class SecurityAuthCoreAutoConfiguration {
         return new NoopUserContextEnricher();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "athena.security.token", name = "type", havingValue = "local", matchIfMissing = true)
+//    @Bean
+//    @ConditionalOnMissingBean
+//    @ConditionalOnProperty(prefix = "athena.security.token", name = "type", havingValue = "local", matchIfMissing = true)
     public TokenManager tokenManager() {
+        log.info("loading default LocalTokenManager");
         return new LocalTokenManager();
     }
 
