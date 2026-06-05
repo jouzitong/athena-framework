@@ -30,9 +30,9 @@ public interface AuthorizationProvider {
      * <p>返回结果通常为权限码（如 {@code order:read}、{@code user:delete}），
      * 上游可据此进行接口、资源或数据级鉴权。
      *
-     * @param userId   用户唯一标识
+     * @param userId   用户主键ID
      * @param tenantId 租户标识；单租户场景可为空或固定值（取决于具体实现约定）
      * @return 权限集合；建议永不返回 {@code null}
      */
-    Set<String> permissions(String userId, String tenantId);
+    Set<String> permissions(Long userId, String tenantId);
 }

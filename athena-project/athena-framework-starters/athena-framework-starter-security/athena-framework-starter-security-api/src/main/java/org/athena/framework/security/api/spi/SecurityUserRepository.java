@@ -12,5 +12,5 @@ public interface SecurityUserRepository {
 
     Optional<SecurityUser> findByUsername(String username);
 
-    Optional<SecurityUser> findByUserId(String userId);
+    Optional<SecurityUser> findByUserId(Long userId);
 }

@@ -158,11 +158,7 @@ public class SecurityAuthCoreAutoConfiguration {
                 if (SecurityContextHolder.get() == null || SecurityContextHolder.get().subject() == null) {
                     return 0L;
                 }
-                try {
-                    return Long.parseLong(SecurityContextHolder.get().subject().userId());
-                } catch (Exception ex) {
-                    return 0L;
-                }
+                return SecurityContextHolder.get().subject().userId();
             }
 
             @Override

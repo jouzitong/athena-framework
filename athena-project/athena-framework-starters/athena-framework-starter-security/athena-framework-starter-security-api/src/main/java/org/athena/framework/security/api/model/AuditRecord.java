@@ -16,7 +16,7 @@ public class AuditRecord {
 
     private String result;
 
-    private String userId;
+    private Long userId;
 
     private String username;
 
@@ -56,11 +56,11 @@ public class AuditRecord {
         this.result = result;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

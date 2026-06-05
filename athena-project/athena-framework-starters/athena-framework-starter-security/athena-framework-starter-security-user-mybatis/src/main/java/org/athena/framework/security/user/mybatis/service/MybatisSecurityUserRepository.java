@@ -33,17 +33,17 @@ public class MybatisSecurityUserRepository implements SecurityUserRepository {
     }
 
     @Override
-    public Optional<SecurityUser> findByUserId(String userId) {
+    public Optional<SecurityUser> findByUserId(Long userId) {
         return userRepository.findByUserId(userId).map(this::toSecurityUser);
     }
 
     private SecurityUser toSecurityUser(SecUserEntity userEntity) {
         SecUserCredentialEntity credential = credentialRepository
-            .findFirstByUserIdAndCredentialType(userEntity.getUserId(), CREDENTIAL_TYPE_PASSWORD)
+            .findFirstByUserIdAndCredentialType(userEntity.getId(), CREDENTIAL_TYPE_PASSWORD)
             .orElse(null);
 
         return new SecurityUser(
-            userEntity.getUserId(),
+            userEntity.getId(),
             userEntity.getUsername(),
             userEntity.getDisplayName(),
             userEntity.getTenantId(),

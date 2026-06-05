@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class SecUserCredentialEntity {
     private Long id;
-    private String userId;
+    private Long userId;
     private String credentialType;
     private String passwordHash;
     private String passwordAlgo;

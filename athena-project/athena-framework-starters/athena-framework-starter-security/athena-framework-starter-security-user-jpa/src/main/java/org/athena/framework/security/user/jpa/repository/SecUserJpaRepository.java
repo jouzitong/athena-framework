@@ -12,6 +12,4 @@ import java.util.Optional;
 public interface SecUserJpaRepository extends BaseRepository<SecUserEntity> {
 
     Optional<SecUserEntity> findByUsername(String username);
-
-    Optional<SecUserEntity> findByUserId(String userId);
 }

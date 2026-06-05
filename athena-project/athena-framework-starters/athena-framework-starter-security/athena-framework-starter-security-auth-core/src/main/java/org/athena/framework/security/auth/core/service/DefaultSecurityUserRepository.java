@@ -17,7 +17,7 @@ public class DefaultSecurityUserRepository implements SecurityUserRepository {
     }
 
     @Override
-    public Optional<SecurityUser> findByUserId(String userId) {
+    public Optional<SecurityUser> findByUserId(Long userId) {
         return Optional.empty();
     }
 }

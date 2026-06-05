@@ -6,20 +6,18 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 CREATE TABLE IF NOT EXISTS `sec_user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `user_id` VARCHAR(64) NOT NULL COMMENT '用户唯一标识',
   `username` VARCHAR(64) NOT NULL COMMENT '登录用户名',
   `display_name` VARCHAR(128) DEFAULT NULL COMMENT '展示名称',
   `status` VARCHAR(16) NOT NULL COMMENT '用户状态',
   `tenant_id` VARCHAR(64) DEFAULT NULL COMMENT '租户ID',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_sec_user_user_id` (`user_id`),
   KEY `idx_sec_user_username` (`username`),
   KEY `idx_sec_user_tenant_id` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户主表';
 
 CREATE TABLE IF NOT EXISTS `sec_user_credential` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `user_id` VARCHAR(64) NOT NULL COMMENT '用户唯一标识',
+  `user_id` BIGINT NOT NULL COMMENT '用户主键ID',
   `credential_type` VARCHAR(32) NOT NULL COMMENT '凭据类型',
   `password_hash` VARCHAR(255) NOT NULL COMMENT '密码哈希值',
   `password_algo` VARCHAR(32) DEFAULT NULL COMMENT '密码算法',
@@ -49,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `sec_permission` (
 
 CREATE TABLE IF NOT EXISTS `sec_user_role` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `user_id` VARCHAR(64) NOT NULL COMMENT '用户唯一标识',
+  `user_id` BIGINT NOT NULL COMMENT '用户主键ID',
   `role_code` VARCHAR(64) NOT NULL COMMENT '角色编码',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_sec_user_role_user_role` (`user_id`, `role_code`),
@@ -89,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `sec_audit_log` (
   `category` VARCHAR(32) NOT NULL COMMENT '日志分类',
   `action` VARCHAR(64) NOT NULL COMMENT '操作动作',
   `result` VARCHAR(16) NOT NULL COMMENT '操作结果',
-  `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户唯一标识',
+  `user_id` BIGINT DEFAULT NULL COMMENT '用户主键ID',
   `username` VARCHAR(64) DEFAULT NULL COMMENT '用户名',
   `tenant_id` VARCHAR(64) DEFAULT NULL COMMENT '租户ID',
   `resource` VARCHAR(255) DEFAULT NULL COMMENT '资源标识',

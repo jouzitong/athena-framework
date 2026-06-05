@@ -25,7 +25,7 @@ public class DefaultIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public Optional<IdentityPrincipal> loadByUserId(String userId) {
+    public Optional<IdentityPrincipal> loadByUserId(Long userId) {
         return securityUserRepository.findByUserId(userId).map(this::toPrincipal);
     }
 

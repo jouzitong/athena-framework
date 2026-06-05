@@ -52,11 +52,11 @@ public class SecAuditLogEntity {
     private String result;
 
     /**
-     * 用户唯一标识。
+     * 用户主键ID。
      */
-    @Column(name = "user_id", length = 64)
-    @Comment("用户唯一标识")
-    private String userId;
+    @Column(name = "user_id")
+    @Comment("用户主键ID")
+    private Long userId;
 
     /**
      * 用户名。

@@ -19,7 +19,7 @@ public class MybatisRbacAuthorizationProvider implements AuthorizationProvider {
     }
 
     @Override
-    public Set<String> permissions(String userId, String tenantId) {
+    public Set<String> permissions(Long userId, String tenantId) {
         Set<String> roles = roleProvider.roles(userId, tenantId);
         return rolePermissionResolver.permissions(roles, userId, tenantId);
     }

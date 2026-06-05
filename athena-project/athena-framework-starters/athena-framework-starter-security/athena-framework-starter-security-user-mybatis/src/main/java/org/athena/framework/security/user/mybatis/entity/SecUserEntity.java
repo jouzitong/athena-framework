@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class SecUserEntity {
     private Long id;
-    private String userId;
     private String username;
     private String displayName;
     private String status;

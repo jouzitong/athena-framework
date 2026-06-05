@@ -15,5 +15,5 @@ public interface SecUserRoleMybatisMapper {
         FROM sec_user_role
         WHERE user_id = #{userId}
         """)
-    List<SecUserRoleEntity> findByUserId(@Param("userId") String userId);
+    List<SecUserRoleEntity> findByUserId(@Param("userId") Long userId);
 }

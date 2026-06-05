@@ -24,7 +24,7 @@ public class MybatisRolePermissionResolver implements RolePermissionResolver {
     }
 
     @Override
-    public Set<String> permissions(Set<String> roles, String userId, String tenantId) {
+    public Set<String> permissions(Set<String> roles, Long userId, String tenantId) {
         if (roles == null || roles.isEmpty()) {
             return Set.of();
         }

@@ -42,7 +42,7 @@ public class DefaultPermissionEvaluator implements PermissionEvaluator {
     public static class EmptyAuthorizationProvider implements AuthorizationProvider {
 
         @Override
-        public Set<String> permissions(String userId, String tenantId) {
+        public Set<String> permissions(Long userId, String tenantId) {
             return Collections.emptySet();
         }
     }
