@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>athena-framework-starter-cloud-nacos</module>
         <module>athena-framework-starter-cloud-openfeign</module>
         <module>athena-framework-starter-cloud-seata</module>
     </modules>

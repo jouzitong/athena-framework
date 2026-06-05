@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.athena</groupId>
-        <artifactId>athena-framework-starters</artifactId>
+        <artifactId>athena-framework-starter-cloud</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>athena-framework-starter-nacos</artifactId>
+    <artifactId>athena-framework-starter-cloud-nacos</artifactId>
 
     <dependencies>
         <dependency>
@@ -37,15 +37,16 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.athena</groupId>
             <artifactId>athena-framework-common</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

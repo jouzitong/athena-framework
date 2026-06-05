@@ -13,13 +13,23 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.athena</groupId>
-            <artifactId>athena-framework-starter-seata</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.athena</groupId>
+            <artifactId>athena-framework-starter-data-mybatis</artifactId>
         </dependency>
 
         <dependency>
