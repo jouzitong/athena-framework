@@ -43,7 +43,8 @@ public abstract class BaseMapperService<
     public <Query extends BaseRequest> PageResultVO<DTO> page(Query query) {
         LOGGER.trace("page request: {}", query);
         QueryWrapper<Entity> wrapper = buildQuery(query);
-        Page<Entity> objectPage = query.buildPage();
+//        Page<Entity> objectPage = query.buildPage();
+        Page<Entity> objectPage = Page.of(query.page(), query.size());
         List<Entity> records;
         // 在查询之前调用 PageHelper.startPage() 方法设置分页参数
         page(objectPage, wrapper);

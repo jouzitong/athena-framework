@@ -101,4 +101,27 @@ CREATE TABLE IF NOT EXISTS `sec_audit_log` (
   KEY `idx_sec_audit_log_category_action` (`category`, `action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='审计日志表';
 
+-- 初始化第一个用户
+-- 默认账号：admin
+-- 默认密码：admin123
+-- 说明：这里使用明文密码作为初始化数据，MyBatis 凭据校验器兼容明文与 BCrypt。
+INSERT INTO `sec_user` (`username`, `display_name`, `status`, `tenant_id`)
+SELECT 'admin', '系统管理员', 'ENABLED', NULL
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM `sec_user`
+  WHERE `username` = 'admin'
+);
+
+INSERT INTO `sec_user_credential` (`user_id`, `credential_type`, `password_hash`, `password_algo`, `password_salt`)
+SELECT u.`id`, 'PASSWORD', 'admin123', 'PLAINTEXT', NULL
+FROM `sec_user` u
+WHERE u.`username` = 'admin'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `sec_user_credential` c
+    WHERE c.`user_id` = u.`id`
+      AND c.`credential_type` = 'PASSWORD'
+  );
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -86,8 +86,11 @@ public class MybatisPlusWrapperUtils {
                 field.setAccessible(true);
                 try {
                     Object value = field.get(query);
-                    String fieldName = CamelCaseUtils.firstLowerCase(field.getName());
-                    wrapper.eq(fieldName, value);
+                    if (value != null) {
+                        String fieldName = CamelCaseUtils.firstLowerCase(field.getName());
+                        wrapper.eq(fieldName, value);
+                    }
+
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
