@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.ObjectProvider;
 
 /**
  * 安全模块顶层自动配置。
@@ -32,8 +33,8 @@ public class SecurityAutoConfiguration {
     @Bean
     @ConditionalOnBean(SecurityCoreMarker.class)
     @ConditionalOnMissingBean
-    public SecurityTokenTypeValidator securityTokenTypeValidator(SecurityProperties properties, TokenManager tokenManager) {
-        return new SecurityTokenTypeValidator(properties, tokenManager);
+    public SecurityTokenTypeValidator securityTokenTypeValidator(SecurityProperties properties, ObjectProvider<TokenManager> tokenManagerProvider) {
+        return new SecurityTokenTypeValidator(properties, tokenManagerProvider);
     }
 
     @Bean
@@ -51,17 +52,21 @@ public class SecurityAutoConfiguration {
 
         private final SecurityProperties properties;
 
-        private final TokenManager tokenManager;
+        private final ObjectProvider<TokenManager> tokenManagerProvider;
 
-        public SecurityTokenTypeValidator(SecurityProperties properties, TokenManager tokenManager) {
+        public SecurityTokenTypeValidator(SecurityProperties properties, ObjectProvider<TokenManager> tokenManagerProvider) {
             this.properties = properties;
-            this.tokenManager = tokenManager;
+            this.tokenManagerProvider = tokenManagerProvider;
             validate();
         }
 
         private void validate() {
             String tokenType = properties.getToken().getType();
+            TokenManager tokenManager = tokenManagerProvider.getIfAvailable();
             if ("local".equalsIgnoreCase(tokenType)) {
+                if (!(tokenManager instanceof LocalTokenManager)) {
+                    throw new IllegalStateException("athena.security.token.type=local but local token module is not active");
+                }
                 return;
             }
 
@@ -69,7 +74,7 @@ public class SecurityAutoConfiguration {
                 if (!properties.getToken().getJwt().isEnabled()) {
                     throw new IllegalStateException("athena.security.token.type=jwt but athena.security.token.jwt.enabled=false");
                 }
-                if (tokenManager instanceof LocalTokenManager) {
+                if (tokenManager == null || tokenManager instanceof LocalTokenManager) {
                     throw new IllegalStateException("athena.security.token.type=jwt but JWT token module is not active");
                 }
                 return;
@@ -79,7 +84,7 @@ public class SecurityAutoConfiguration {
                 if (!properties.getToken().getRedis().isEnabled()) {
                     throw new IllegalStateException("athena.security.token.type=redis but athena.security.token.redis.enabled=false");
                 }
-                if (tokenManager instanceof LocalTokenManager) {
+                if (tokenManager == null || tokenManager instanceof LocalTokenManager) {
                     throw new IllegalStateException("athena.security.token.type=redis but redis token module is not active");
                 }
                 return;

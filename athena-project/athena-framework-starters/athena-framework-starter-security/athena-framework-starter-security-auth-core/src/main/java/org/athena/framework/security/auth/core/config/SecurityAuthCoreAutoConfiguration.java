@@ -29,6 +29,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -41,10 +42,14 @@ import java.util.List;
 
 /**
  * 认证核心自动配置。
- * 负责装配认证链路中的默认实现（用户仓储、认证器、令牌管理、过滤器与控制器）。
+ * 负责装配认证链路中的默认实现。
+ * 其中用户仓储、认证器、登录控制器只会在检测到用户模块时启用；请求过滤器和 token 管理器保持独立可用。
  */
 @AutoConfiguration
-@AutoConfigureAfter(name = "org.athena.framework.security.user.jpa.config.SecurityUserJpaAutoConfiguration")
+@AutoConfigureAfter(name = {
+    "org.athena.framework.security.user.jpa.config.SecurityUserJpaAutoConfiguration",
+    "org.athena.framework.security.user.mybatis.config.SecurityUserMybatisAutoConfiguration"
+})
 @ConditionalOnProperty(prefix = "athena.security.auth", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(SecurityAuthProperties.class)
 public class SecurityAuthCoreAutoConfiguration {
@@ -64,12 +69,14 @@ public class SecurityAuthCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(SecurityUserRepository.class)
     public IdentityProvider identityProvider(SecurityUserRepository securityUserRepository) {
         return new DefaultIdentityProvider(securityUserRepository);
     }
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(SecurityUserRepository.class)
     public Authenticator authenticator(SecurityUserRepository securityUserRepository,
                                        CredentialVerifier credentialVerifier) {
         return new DefaultAuthenticator(securityUserRepository, credentialVerifier);
@@ -81,9 +88,9 @@ public class SecurityAuthCoreAutoConfiguration {
         return new NoopUserContextEnricher();
     }
 
-//    @Bean
-//    @ConditionalOnMissingBean
-//    @ConditionalOnProperty(prefix = "athena.security.token", name = "type", havingValue = "local", matchIfMissing = true)
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "athena.security.token", name = "type", havingValue = "local")
     public TokenManager tokenManager() {
         log.info("loading default LocalTokenManager");
         return new LocalTokenManager();
@@ -97,6 +104,7 @@ public class SecurityAuthCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(SecurityUserRepository.class)
     public SecurityAuthenticationService securityAuthenticationService(Authenticator authenticator,
                                                                        TokenManager tokenManager,
                                                                        List<UserContextEnricher> enrichers,
@@ -106,6 +114,7 @@ public class SecurityAuthCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(SecurityUserRepository.class)
     public SecurityAuthController securityAuthController(SecurityAuthenticationFacade securityAuthenticationService,
                                                          CredentialExtractor credentialExtractor) {
         return new SecurityAuthController(securityAuthenticationService, credentialExtractor);

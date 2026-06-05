@@ -32,7 +32,7 @@ public class SecurityProperties {
      */
     public static class Token {
 
-        private String type = "local";
+        private String type = "jwt";
 
         private Jwt jwt = new Jwt();
 
@@ -45,7 +45,7 @@ public class SecurityProperties {
      */
     public static class Jwt {
 
-        private boolean enabled = false;
+        private boolean enabled = true;
     }
 
     @Data
