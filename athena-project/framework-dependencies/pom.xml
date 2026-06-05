@@ -116,6 +116,16 @@
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-cloud-openfeign</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-cloud-seata</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starters-ai</artifactId>
                 <version>${revision}</version>
             </dependency>

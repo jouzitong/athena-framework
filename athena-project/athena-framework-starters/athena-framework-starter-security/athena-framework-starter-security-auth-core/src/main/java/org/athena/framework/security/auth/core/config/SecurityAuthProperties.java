@@ -1,6 +1,7 @@
 package org.athena.framework.security.auth.core.config;
 
 import lombok.Data;
+import org.arthena.framework.common.constant.RequestHeaderConstant;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class SecurityAuthProperties {
 
     private boolean enabled = true;
 
-    private String tokenHeader = "Authorization";
+    private String tokenHeader = RequestHeaderConstant.AUTHORIZATION;
 
     private String tokenPrefix = "Bearer";
 
