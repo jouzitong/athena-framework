@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.model.MutableUserContext;
+import org.athena.framework.security.api.model.TokenContext;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.SecurityAuthAttributes;
 import org.athena.framework.security.api.spi.TokenManager;
@@ -16,6 +17,7 @@ import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
+import org.athena.framework.security.auth.core.gateway.GatewayRequestHeaderValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -42,18 +44,22 @@ public class SecurityContextFilter extends OncePerRequestFilter {
 
     private final List<SecurityRequestInterceptor> requestInterceptors;
 
+    private final GatewayRequestHeaderValidator gatewayRequestHeaderValidator;
+
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public SecurityContextFilter(CredentialExtractor credentialExtractor,
                                  TokenManager tokenManager,
                                  List<UserContextEnricher> enrichers,
                                  SecurityAuthProperties properties,
-                                 List<SecurityRequestInterceptor> requestInterceptors) {
+                                 List<SecurityRequestInterceptor> requestInterceptors,
+                                 GatewayRequestHeaderValidator gatewayRequestHeaderValidator) {
         this.credentialExtractor = credentialExtractor;
         this.tokenManager = tokenManager;
         this.enrichers = enrichers.stream().sorted(Comparator.comparingInt(UserContextEnricher::order)).toList();
         this.properties = properties;
         this.requestInterceptors = requestInterceptors.stream().sorted(Comparator.comparingInt(SecurityRequestInterceptor::order)).toList();
+        this.gatewayRequestHeaderValidator = gatewayRequestHeaderValidator;
     }
 
     @Override
@@ -65,14 +71,27 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             String token = ignored ? null : credentialExtractor.extractToken(request);
             UserContext userContext = null;
             TokenParseStatus tokenParseStatus = TokenParseStatus.EMPTY;
-            if (!ignored && StringUtils.isNotBlank(token)) {
+            if (StringUtils.isBlank(token)) {
+                GatewayRequestHeaderValidator.ValidationResult validationResult = parseUserInfo(request);
+                if (validationResult != null && validationResult.valid()) {
+                    userContext = validationResult.userContext();
+                    tokenParseStatus = TokenParseStatus.OK;
+                    LOGGER.debug("Security context restored from gateway headers, uri={}", request.getRequestURI());
+                } else if (validationResult != null) {
+                    tokenParseStatus = TokenParseStatus.INVALID_SIGNATURE;
+                    LOGGER.warn("Gateway user headers rejected, uri={}, reason={}",
+                            request.getRequestURI(), validationResult.reason());
+                }
+            }
+            if (userContext == null && StringUtils.isNotBlank(token)) {
                 if (tokenManager instanceof TokenManagerWithParseResult tokenManagerWithParseResult) {
                     TokenParseResult tokenParseResult = tokenManagerWithParseResult.parseWithResult(token);
                     userContext = tokenParseResult == null ? null : tokenParseResult.getUserContext();
                     tokenParseStatus = tokenParseResult == null ? TokenParseStatus.ERROR : tokenParseResult.getStatus();
                 } else {
                     userContext = tokenManager.parse(token);
-                    tokenParseStatus = userContext == null ? TokenParseStatus.ERROR : TokenParseStatus.OK;
+                    TokenContext tokenContext = tokenManager.parseV2(token);
+                    tokenParseStatus = tokenContext.status();
                 }
                 if (userContext != null) {
                     if (userContext instanceof MutableUserContext mutableUserContext) {
@@ -87,21 +106,24 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                 }
             }
             if (!ignored) {
-                LOGGER.trace("Security filter ignored uri={}", request.getRequestURI());
-                request.setAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS, tokenParseStatus);
-                for (SecurityRequestInterceptor requestInterceptor : requestInterceptors) {
-                    if (!requestInterceptor.preHandle(request, response, token, userContext, ignored)) {
-                        LOGGER.debug("Request blocked by interceptor={}, uri={}",
-                                requestInterceptor.getClass().getSimpleName(), request.getRequestURI());
-                        return;
-                    }
+                LOGGER.trace("Security filter active for uri={}", request.getRequestURI());
+            }
+            request.setAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS, tokenParseStatus);
+            for (SecurityRequestInterceptor requestInterceptor : requestInterceptors) {
+                if (!requestInterceptor.preHandle(request, response, token, userContext, ignored)) {
+                    LOGGER.debug("Request blocked by interceptor={}, uri={}",
+                            requestInterceptor.getClass().getSimpleName(), request.getRequestURI());
+                    return;
                 }
             }
-
             filterChain.doFilter(request, response);
         } finally {
             SecurityContextHolder.clear();
         }
+    }
+
+    private GatewayRequestHeaderValidator.ValidationResult parseUserInfo(HttpServletRequest request) {
+        return gatewayRequestHeaderValidator.validate(request);
     }
 
     private boolean isIgnored(String requestUri) {

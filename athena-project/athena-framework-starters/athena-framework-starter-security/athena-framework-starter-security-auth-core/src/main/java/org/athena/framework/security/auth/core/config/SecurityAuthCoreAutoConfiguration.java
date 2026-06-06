@@ -10,6 +10,7 @@ import org.athena.framework.security.api.spi.SecurityUserRepository;
 import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
+import org.athena.framework.security.auth.core.gateway.GatewayRequestHeaderValidator;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.extractor.HeaderTokenCredentialExtractor;
 import org.athena.framework.security.auth.core.filter.RequireTokenJsonSecurityRequestInterceptor;
@@ -104,6 +105,12 @@ public class SecurityAuthCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public GatewayRequestHeaderValidator gatewayRequestHeaderValidator(SecurityAuthProperties properties) {
+        return new GatewayRequestHeaderValidator(properties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     @ConditionalOnBean(SecurityUserRepository.class)
     public SecurityAuthenticationService securityAuthenticationService(Authenticator authenticator,
                                                                        TokenManager tokenManager,
@@ -127,14 +134,16 @@ public class SecurityAuthCoreAutoConfiguration {
                                                                                                TokenManager tokenManager,
                                                                                                List<UserContextEnricher> enrichers,
                                                                                                ObjectProvider<SecurityRequestInterceptor> requestInterceptors,
-                                                                                               SecurityAuthProperties properties) {
+                                                                                               SecurityAuthProperties properties,
+                                                                                               GatewayRequestHeaderValidator gatewayRequestHeaderValidator) {
         FilterRegistrationBean<SecurityContextFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new SecurityContextFilter(
             credentialExtractor,
             tokenManager,
             enrichers,
             properties,
-            requestInterceptors.orderedStream().toList()
+            requestInterceptors.orderedStream().toList(),
+            gatewayRequestHeaderValidator
         ));
         bean.setOrder(-110);
         bean.addUrlPatterns("/*");

@@ -1,5 +1,6 @@
 package org.athena.framework.security.auth.core.context;
 
+import org.athena.framework.security.api.model.Subject;
 import org.athena.framework.security.api.model.UserContext;
 
 /**
@@ -19,6 +20,10 @@ public final class SecurityContextHolder {
 
     public static UserContext get() {
         return CONTEXT.get();
+    }
+
+    public static Subject getSubject() {
+        return CONTEXT.get().subject();
     }
 
     public static void clear() {

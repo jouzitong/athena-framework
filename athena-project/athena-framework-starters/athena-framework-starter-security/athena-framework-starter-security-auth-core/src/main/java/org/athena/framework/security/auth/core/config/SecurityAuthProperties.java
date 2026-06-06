@@ -15,7 +15,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "athena.security.auth")
 public class SecurityAuthProperties {
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     private String tokenHeader = RequestHeaderConstant.AUTHORIZATION;
 

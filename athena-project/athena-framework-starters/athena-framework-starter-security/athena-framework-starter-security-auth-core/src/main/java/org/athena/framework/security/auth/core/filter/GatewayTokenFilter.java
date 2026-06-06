@@ -28,28 +28,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.*;
+
 //@Component
 @Order(-120)
 public class GatewayTokenFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayTokenFilter.class);
 
-    private static final String HEADER_USER_ID = "X-User-Id";
-
-    private static final String HEADER_USERNAME = "X-Username";
-
-    private static final String HEADER_TENANT_ID = "X-Tenant-Id";
-
-    private static final String HEADER_ROLES = "X-Roles";
-
-    private static final String HEADER_TIMESTAMP = "X-Timestamp";
-
-    private static final String HEADER_PATH = "path";
-
-    private static final String HEADER_SIGN = "X-Gateway-Sign";
-
-    private static final String SIGN_ALGORITHM = "HmacSHA256";
-
-    private static final String SIGN_SEPARATOR = "\n";
 
     private final SecurityAuthProperties properties;
 
@@ -125,6 +110,8 @@ public class GatewayTokenFilter extends OncePerRequestFilter {
         extraHeaders.put(HEADER_TIMESTAMP, List.of(timestamp));
         extraHeaders.put(HEADER_PATH, List.of(path));
         extraHeaders.put(HEADER_SIGN, List.of(sign));
+//        String authorization = request.getHeader(properties.getTokenHeader());
+//        extraHeaders.put(properties.getTokenHeader(), List.of(authorization));
 
         return new HeaderAugmentingRequestWrapper(request, extraHeaders);
     }
