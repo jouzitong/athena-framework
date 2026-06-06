@@ -136,6 +136,7 @@ public class SecurityAuthCoreAutoConfiguration {
                                                                                                ObjectProvider<SecurityRequestInterceptor> requestInterceptors,
                                                                                                SecurityAuthProperties properties,
                                                                                                GatewayRequestHeaderValidator gatewayRequestHeaderValidator) {
+        log.info("loading SecurityContextFilter");
         FilterRegistrationBean<SecurityContextFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new SecurityContextFilter(
             credentialExtractor,

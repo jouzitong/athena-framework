@@ -31,8 +31,14 @@ public class MybatisCredentialVerifier implements CredentialVerifier {
             return CredentialVerifyResult.failed("CREDENTIAL_NOT_FOUND", "password hash is empty");
         }
 
-        boolean matched = passwordEncoder.matches(input.password(), user.passwordHash())
-            || StringUtils.equals(user.passwordHash(), input.password());
+        String passwordAlgo = user.passwordAlgo();
+        boolean matched = false;
+
+        if (StringUtils.equals(passwordAlgo, "PLAINTEXT")){
+            matched = StringUtils.equals(input.password(), user.passwordHash());
+        }else if (StringUtils.equals(passwordAlgo, "BCRYPT")){
+            matched = passwordEncoder.matches(input.password(), user.passwordHash());
+        }
         return matched ? CredentialVerifyResult.ok() : CredentialVerifyResult.failed("BAD_CREDENTIAL", "bad credential");
     }
 }

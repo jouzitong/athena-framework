@@ -10,7 +10,6 @@ import org.athena.framework.security.api.model.TokenContext;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
-import org.athena.framework.security.auth.core.http.HeaderAugmentingRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -28,7 +27,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.*;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_PATH;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_ROLES;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_SIGN;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_TENANT_ID;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_TIMESTAMP;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_USERNAME;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.HEADER_USER_ID;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.SIGN_ALGORITHM;
+import static org.athena.framework.security.auth.core.contant.SecurityHeaderConstants.SIGN_SEPARATOR;
 
 //@Component
 @Order(-120)
@@ -72,7 +79,7 @@ public class GatewayTokenFilter extends OncePerRequestFilter {
             }
         }
 
-        filterChain.doFilter(enrichRequest(request, tokenContext.userContext()), response);
+        filterChain.doFilter(request, enrichRequest(response, request.getRequestURI(), tokenContext.userContext()));
     }
 
     private boolean isOptions(HttpServletRequest request) {
@@ -86,13 +93,12 @@ public class GatewayTokenFilter extends OncePerRequestFilter {
         return properties.getIgnoreUrls().stream().anyMatch(pattern -> antPathMatcher.match(pattern, requestUri));
     }
 
-    private HttpServletRequest enrichRequest(HttpServletRequest request, UserContext userContext) {
+    private HttpServletResponse enrichRequest(HttpServletResponse request, String path, UserContext userContext) {
         if (userContext == null) {
             return request;
         }
 
         String timestamp = String.valueOf(System.currentTimeMillis());
-        String path = request.getRequestURI();
         Subject subject = userContext.subject();
         AuthorizationSnapshot authorizationSnapshot = userContext.authorization();
 
@@ -112,8 +118,11 @@ public class GatewayTokenFilter extends OncePerRequestFilter {
         extraHeaders.put(HEADER_SIGN, List.of(sign));
 //        String authorization = request.getHeader(properties.getTokenHeader());
 //        extraHeaders.put(properties.getTokenHeader(), List.of(authorization));
+        extraHeaders.forEach((key, values) -> {
+            request.setHeader(key, values.toString());
+        });
 
-        return new HeaderAugmentingRequestWrapper(request, extraHeaders);
+        return request;
     }
 
     private String resolveUserId(Subject subject) {

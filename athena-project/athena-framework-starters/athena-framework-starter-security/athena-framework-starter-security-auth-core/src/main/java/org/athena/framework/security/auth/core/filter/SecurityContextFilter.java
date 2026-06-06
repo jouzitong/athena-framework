@@ -68,7 +68,8 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             boolean ignored = isIgnored(request.getRequestURI());
-            String token = ignored ? null : credentialExtractor.extractToken(request);
+//            String token = ignored ? null : credentialExtractor.extractToken(request);
+            String token = credentialExtractor.extractToken(request);
             UserContext userContext = null;
             TokenParseStatus tokenParseStatus = TokenParseStatus.EMPTY;
             if (StringUtils.isBlank(token)) {
@@ -99,7 +100,6 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                             enricher.enrich(mutableUserContext);
                         }
                     }
-                    SecurityContextHolder.set(userContext);
                     LOGGER.debug("Security context set for uri={}", request.getRequestURI());
                 } else {
                     LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
@@ -116,7 +116,10 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                     return;
                 }
             }
+            SecurityContextHolder.set(userContext);
             filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            LOGGER.error("未知异常: ", e);
         } finally {
             SecurityContextHolder.clear();
         }

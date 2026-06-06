@@ -15,7 +15,9 @@ public final class SecurityContextHolder {
     }
 
     public static void set(UserContext userContext) {
-        CONTEXT.set(userContext);
+        if (userContext != null) {
+            CONTEXT.set(userContext);
+        }
     }
 
     public static UserContext get() {

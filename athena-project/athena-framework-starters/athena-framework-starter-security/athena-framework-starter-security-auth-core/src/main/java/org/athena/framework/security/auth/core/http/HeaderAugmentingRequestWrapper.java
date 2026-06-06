@@ -22,6 +22,7 @@ public class HeaderAugmentingRequestWrapper extends HttpServletRequestWrapper {
     public HeaderAugmentingRequestWrapper(HttpServletRequest request, Map<String, List<String>> extraHeaders) {
         super(request);
         this.extraHeaders = extraHeaders;
+
     }
 
     @Override
