@@ -87,7 +87,7 @@ public class MybatisPlusWrapperUtils {
                 try {
                     Object value = field.get(query);
                     if (value != null) {
-                        String fieldName = CamelCaseUtils.firstLowerCase(field.getName());
+                        String fieldName = CamelCaseUtils.toSnakeCase(field.getName());
                         wrapper.eq(fieldName, value);
                     }
 
