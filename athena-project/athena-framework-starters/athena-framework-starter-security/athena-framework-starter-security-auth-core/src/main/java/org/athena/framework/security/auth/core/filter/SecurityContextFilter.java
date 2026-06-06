@@ -72,19 +72,19 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             String token = credentialExtractor.extractToken(request);
             UserContext userContext = null;
             TokenParseStatus tokenParseStatus = TokenParseStatus.EMPTY;
-            if (StringUtils.isBlank(token)) {
-                GatewayRequestHeaderValidator.ValidationResult validationResult = parseUserInfo(request);
-                if (validationResult != null && validationResult.valid()) {
-                    userContext = validationResult.userContext();
-                    tokenParseStatus = TokenParseStatus.OK;
-                    LOGGER.debug("Security context restored from gateway headers, uri={}", request.getRequestURI());
-                } else if (validationResult != null) {
-                    tokenParseStatus = TokenParseStatus.INVALID_SIGNATURE;
-                    LOGGER.warn("Gateway user headers rejected, uri={}, reason={}",
-                            request.getRequestURI(), validationResult.reason());
-                }
-            }
-            if (userContext == null && StringUtils.isNotBlank(token)) {
+//            if (StringUtils.isBlank(token)) {
+//                GatewayRequestHeaderValidator.ValidationResult validationResult = parseUserInfo(request);
+//                if (validationResult != null && validationResult.valid()) {
+//                    userContext = validationResult.userContext();
+//                    tokenParseStatus = TokenParseStatus.OK;
+//                    LOGGER.debug("Security context restored from gateway headers, uri={}", request.getRequestURI());
+//                } else if (validationResult != null) {
+//                    tokenParseStatus = TokenParseStatus.INVALID_SIGNATURE;
+//                    LOGGER.warn("Gateway user headers rejected, uri={}, reason={}",
+//                            request.getRequestURI(), validationResult.reason());
+//                }
+//            }
+            if (StringUtils.isNotBlank(token)) {
                 if (tokenManager instanceof TokenManagerWithParseResult tokenManagerWithParseResult) {
                     TokenParseResult tokenParseResult = tokenManagerWithParseResult.parseWithResult(token);
                     userContext = tokenParseResult == null ? null : tokenParseResult.getUserContext();
@@ -101,6 +101,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                         }
                     }
                     LOGGER.debug("Security context set for uri={}", request.getRequestURI());
+                    SecurityContextHolder.set(userContext);
                 } else {
                     LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
                 }
@@ -116,7 +117,6 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                     return;
                 }
             }
-            SecurityContextHolder.set(userContext);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             LOGGER.error("未知异常: ", e);
