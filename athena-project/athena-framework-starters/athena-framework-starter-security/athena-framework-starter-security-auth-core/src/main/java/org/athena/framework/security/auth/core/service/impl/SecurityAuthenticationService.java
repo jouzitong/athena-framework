@@ -1,4 +1,4 @@
-package org.athena.framework.security.auth.core.service;
+package org.athena.framework.security.auth.core.service.impl;
 
 import org.athena.framework.security.api.auth.AuthenticationRequest;
 import org.athena.framework.security.api.auth.AuthenticationResult;
@@ -13,6 +13,7 @@ import org.athena.framework.security.api.spi.TokenManagerWithParseResult;
 import org.athena.framework.security.api.spi.TokenParseResult;
 import org.athena.framework.security.api.spi.TokenParseStatus;
 import org.athena.framework.security.api.spi.UserContextEnricher;
+import org.athena.framework.security.auth.core.service.SecurityAuthenticationFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

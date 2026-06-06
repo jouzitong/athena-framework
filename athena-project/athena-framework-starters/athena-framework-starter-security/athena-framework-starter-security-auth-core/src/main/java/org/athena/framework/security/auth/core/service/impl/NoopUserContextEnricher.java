@@ -1,4 +1,4 @@
-package org.athena.framework.security.auth.core.service;
+package org.athena.framework.security.auth.core.service.impl;
 
 import org.athena.framework.security.api.model.MutableUserContext;
 import org.athena.framework.security.api.spi.UserContextEnricher;

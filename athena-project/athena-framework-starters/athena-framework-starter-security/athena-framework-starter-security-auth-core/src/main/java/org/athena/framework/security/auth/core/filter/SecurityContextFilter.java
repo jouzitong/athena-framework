@@ -7,11 +7,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.model.MutableUserContext;
 import org.athena.framework.security.api.model.UserContext;
+import org.athena.framework.security.api.spi.SecurityAuthAttributes;
 import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.api.spi.TokenManagerWithParseResult;
 import org.athena.framework.security.api.spi.TokenParseResult;
 import org.athena.framework.security.api.spi.TokenParseStatus;
-import org.athena.framework.security.api.spi.SecurityAuthAttributes;
 import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
 import org.athena.framework.security.auth.core.context.SecurityContextHolder;
@@ -86,18 +86,18 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                     LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
                 }
             }
-            if (ignored) {
-                LOGGER.debug("Security filter ignored uri={}", request.getRequestURI());
-            }
-            request.setAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS, tokenParseStatus);
-
-            for (SecurityRequestInterceptor requestInterceptor : requestInterceptors) {
-                if (!requestInterceptor.preHandle(request, response, token, userContext, ignored)) {
-                    LOGGER.debug("Request blocked by interceptor={}, uri={}",
-                        requestInterceptor.getClass().getSimpleName(), request.getRequestURI());
-                    return;
+            if (!ignored) {
+                LOGGER.trace("Security filter ignored uri={}", request.getRequestURI());
+                request.setAttribute(SecurityAuthAttributes.TOKEN_PARSE_STATUS, tokenParseStatus);
+                for (SecurityRequestInterceptor requestInterceptor : requestInterceptors) {
+                    if (!requestInterceptor.preHandle(request, response, token, userContext, ignored)) {
+                        LOGGER.debug("Request blocked by interceptor={}, uri={}",
+                                requestInterceptor.getClass().getSimpleName(), request.getRequestURI());
+                        return;
+                    }
                 }
             }
+
             filterChain.doFilter(request, response);
         } finally {
             SecurityContextHolder.clear();
@@ -105,6 +105,9 @@ public class SecurityContextFilter extends OncePerRequestFilter {
     }
 
     private boolean isIgnored(String requestUri) {
+        if (!properties.isEnabled()) {
+            return true;
+        }
         if (properties.getIgnoreUrls() == null || properties.getIgnoreUrls().isEmpty()) {
             return false;
         }

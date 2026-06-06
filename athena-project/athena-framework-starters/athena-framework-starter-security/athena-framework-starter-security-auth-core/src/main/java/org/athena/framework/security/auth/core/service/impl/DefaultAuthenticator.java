@@ -1,4 +1,4 @@
-package org.athena.framework.security.auth.core.service;
+package org.athena.framework.security.auth.core.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.auth.AuthenticationRequest;

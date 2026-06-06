@@ -31,9 +31,26 @@ public class SecurityAuthProperties {
     private boolean requireToken = false;
 
     /**
+     * 标识当前应用是否作为网关运行。
+     * <p>
+     * 当设置为 true 时，表示该应用正在以网关的身份运作，可能需要处理额外的路由、过滤或安全检查逻辑。
+     * <p>
+     * 默认值为 false。
+     */
+    private boolean isGateway = false;
+
+    /**
      * 是否使用统一的 JSON 错误响应输出（与框架 HTTP 返回模型对齐）。
      * <p>
      * 当关闭时，仍可采用 servlet 容器默认的 sendError 行为。
      */
     private boolean jsonErrorResponse = true;
+
+    private Signing signing = new Signing();
+
+    @Data
+    public static class Signing {
+
+        private String secret = "asdasdioquweoisdkadoquwop";
+    }
 }

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.security.api.model.MutableUserContext;
+import org.athena.framework.security.api.model.TokenContext;
 import org.athena.framework.security.api.model.UserContext;
-import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.api.spi.TokenManagerWithParseResult;
 import org.athena.framework.security.api.spi.TokenParseResult;
 import org.athena.framework.security.api.spi.TokenParseStatus;
@@ -53,7 +53,7 @@ public class JwtTokenManager implements TokenManagerWithParseResult {
             String encodedPayload = encode(objectMapper.writeValueAsBytes(payload));
             String signature = sign(encodedHeader + "." + encodedPayload);
             LOGGER.debug("JWT token created, userId={}",
-                context == null || context.subject() == null ? null : context.subject().userId());
+                    context == null || context.subject() == null ? null : context.subject().userId());
             return encodedHeader + "." + encodedPayload + "." + signature;
         } catch (Exception ex) {
             throw new IllegalStateException("Failed to create jwt token", ex);
@@ -63,6 +63,12 @@ public class JwtTokenManager implements TokenManagerWithParseResult {
     @Override
     public UserContext parse(String token) {
         return parseWithResult(token).getUserContext();
+    }
+
+    @Override
+    public TokenContext parseV2(String token) {
+        TokenParseResult res = parseWithResult(token);
+        return new TokenContext(token, res.getStatus(), res.getUserContext());
     }
 
     @Override
@@ -136,7 +142,7 @@ public class JwtTokenManager implements TokenManagerWithParseResult {
         contextPayload.put("authorization", context.authorization());
         contextPayload.put("session", context.session());
         contextPayload.put("attributes",
-            context.attributes() == null ? Map.of() : new LinkedHashMap<>(context.attributes()));
+                context.attributes() == null ? Map.of() : new LinkedHashMap<>(context.attributes()));
         return contextPayload;
     }
 }
