@@ -74,6 +74,12 @@
 
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-data-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-data-jdbc</artifactId>
                 <version>${revision}</version>
             </dependency>
