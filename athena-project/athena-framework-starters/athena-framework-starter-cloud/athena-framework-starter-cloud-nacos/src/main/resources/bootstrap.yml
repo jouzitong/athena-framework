@@ -1,29 +1,29 @@
 dubbo:
   provider:
     filter: dubboExceptionFilter,-exception
-spring:
-#  profiles:
-#    active: dev
-  cloud:
-    nacos:
-      discovery:
-        enabled: true
-        namespace: ''
-        register-enabled: true
-        server-addr: ${server.ip}:8848
-        username: ''
-        password: ''
-        group: 'DEFAULT_GROUP'
-      config:
-        server-addr: ${spring.cloud.nacos.discovery.server-addr}
-        enabled: true
-        file-extension: yml
-        namespace: ${spring.cloud.nacos.discovery.namespace}
-        refresh-enabled: true
-        shared-configs: common-feign.yml,common-sentinel.yml,common-db.yml,common-dubbo.yml,common-redis.yml,common-job.yml,common-seata.yml,common-mq.yml
-        username: ${spring.cloud.nacos.discovery.username}
-        password: ${spring.cloud.nacos.discovery.password}
-        group: ${spring.cloud.nacos.discovery.group}
+#spring:
+##  profiles:
+##    active: dev
+#  cloud:
+#    nacos:
+#      discovery:
+#        enabled: true
+#        namespace: ''
+#        register-enabled: true
+#        server-addr: ${server.ip}:8848
+#        username: ''
+#        password: ''
+#        group: 'DEFAULT_GROUP'
+#      config:
+#        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+#        enabled: true
+#        file-extension: yml
+#        namespace: ${spring.cloud.nacos.discovery.namespace}
+#        refresh-enabled: true
+#        shared-configs: common-feign.yml,common-sentinel.yml,common-db.yml,common-dubbo.yml,common-redis.yml,common-job.yml,common-seata.yml,common-mq.yml
+#        username: ${spring.cloud.nacos.discovery.username}
+#        password: ${spring.cloud.nacos.discovery.password}
+#        group: ${spring.cloud.nacos.discovery.group}
 
 #server:
 #  ip: 192.168.31.31
