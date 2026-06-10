@@ -62,8 +62,6 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
             // 最后完成工作
             finish();
         }
-
-
     }
 
     protected void startProcess() throws SQLException, IOException {
