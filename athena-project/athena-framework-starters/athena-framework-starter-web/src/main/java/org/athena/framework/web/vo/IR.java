@@ -46,5 +46,9 @@ public interface IR<T> extends Serializable {
         return getCode() == 0 ? 200 : 500;
     }
 
+    default boolean isOk() {
+        return getCode() == 0;
+    }
+
 
 }
