@@ -1,8 +1,5 @@
 package org.athena.framework.cloud.openfeign;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
@@ -10,6 +7,9 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 提供 OpenFeign 的通用默认值。
@@ -27,13 +27,13 @@ public final class OpenFeignDefaultsEnvironmentPostProcessor implements Environm
 
         Map<String, Object> props = new HashMap<>();
         putIfMissing(environment, props, "athena.cloud.openfeign.base-packages", "org.athena");
-        putIfMissing(environment, props, "spring.cloud.openfeign.client.config.default.connectTimeout", "3000");
-        putIfMissing(environment, props, "spring.cloud.openfeign.client.config.default.readTimeout", "5000");
+        putIfMissing(environment, props, "spring.cloud.openfeign.client.config.default.connectTimeout", "30000");
+        putIfMissing(environment, props, "spring.cloud.openfeign.client.config.default.readTimeout", "60000");
         putIfMissing(environment, props, "spring.cloud.openfeign.client.config.default.loggerLevel", "basic");
         putIfMissing(environment, props, "spring.cloud.openfeign.client.config.default.micrometer.enabled", "true");
         putIfMissing(environment, props, "spring.cloud.openfeign.micrometer.enabled", "true");
-        putIfMissing(environment, props, "spring.cloud.openfeign.compression.request.enabled", "true");
-        putIfMissing(environment, props, "spring.cloud.openfeign.compression.response.enabled", "true");
+        putIfMissing(environment, props, "spring.cloud.openfeign.compression.request.enabled", "false");
+        putIfMissing(environment, props, "spring.cloud.openfeign.compression.response.enabled", "false");
 
         if (!props.isEmpty()) {
             environment.getPropertySources().addFirst(new MapPropertySource(PROPERTY_SOURCE_NAME, props));
