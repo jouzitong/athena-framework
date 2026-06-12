@@ -3,12 +3,12 @@ package org.athena.framework.data.mybatis.utils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.exception.TodoException;
-import org.athena.framework.data.jdbc.constant.BaseEntityConstant;
+import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
 import org.athena.framework.data.jdbc.type.QueryType;
-import org.arthena.framework.common.utils.CamelCaseUtils;
+import org.athena.framework.data.mybatis.annotations.IgnoredQuery;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -24,7 +24,7 @@ public class MybatisPlusWrapperUtils {
 
     public static <T> QueryWrapper<T> simpleQuery() {
         QueryWrapper<T> wrapper = new QueryWrapper<>();
-        wrapper.eq(BaseEntityConstant.DELETED, 0);
+//        wrapper.eq(BaseEntityConstant.DELETED, 0);
         return wrapper;
     }
 
@@ -84,6 +84,12 @@ public class MybatisPlusWrapperUtils {
                     continue;
                 }
                 field.setAccessible(true);
+
+                // Check for IgnoreQuery annotation
+                if (field.isAnnotationPresent(IgnoredQuery.class)) {
+                    continue;
+                }
+
                 try {
                     Object value = field.get(query);
                     if (value != null) {
