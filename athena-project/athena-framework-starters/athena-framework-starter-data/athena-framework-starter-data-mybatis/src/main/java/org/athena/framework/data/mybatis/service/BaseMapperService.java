@@ -15,6 +15,7 @@ import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.athena.framework.data.mybatis.mapper.CrudMapper;
 import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -92,6 +93,21 @@ public abstract class BaseMapperService<
         return update
                 ? toDTO(entity)
                 : null;
+    }
+
+    @Override
+    public int saveOrUpdate(DTO entity) {
+        LOGGER.info("saveOrUpdate request: {}", entity);
+        Entity target = convert().toEntity(entity);
+        return super.saveOrUpdate(target)
+                ? 1
+                : 0;
+    }
+
+    @Override
+    public boolean saveOrUpdateBatch(Collection<Entity> entityList) {
+        LOGGER.info("saveOrUpdateBatch request size: {}", entityList == null ? 0 : entityList.size());
+        return super.saveOrUpdateBatch(entityList);
     }
 
     @Override
