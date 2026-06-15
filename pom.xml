@@ -11,7 +11,7 @@
     <modules>
         <module>athena-project</module>
         <module>athena-project/framework-dependencies</module>
-        <module>athena-framework-test</module>
+<!--        <module>athena-framework-test</module>-->
     </modules>
 
     <properties>
@@ -19,7 +19,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <revision>1.3.0</revision>
+        <revision>1.4.1-SNAPSHOT</revision>
     </properties>
 
 

@@ -18,6 +18,6 @@ public interface SecUserCredentialMybatisMapper {
         ORDER BY id ASC
         LIMIT 1
         """)
-    Optional<SecUserCredentialEntity> findFirstByUserIdAndCredentialType(@Param("userId") String userId,
+    Optional<SecUserCredentialEntity> findFirstByUserIdAndCredentialType(@Param("userId") Long userId,
                                                                           @Param("credentialType") String credentialType);
 }

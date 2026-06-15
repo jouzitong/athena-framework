@@ -24,7 +24,7 @@ public class JpaRoleProvider implements RoleProvider {
     }
 
     @Override
-    public Set<String> roles(String userId, String tenantId) {
+    public Set<String> roles(Long userId, String tenantId) {
         Set<String> roleCodes = userRoleRepository.findByUserId(userId)
             .stream()
             .map(SecUserRoleEntity::getRoleCode)

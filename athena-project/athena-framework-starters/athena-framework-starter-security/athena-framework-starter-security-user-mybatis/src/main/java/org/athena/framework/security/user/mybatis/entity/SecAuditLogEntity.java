@@ -12,7 +12,7 @@ public class SecAuditLogEntity {
     private String category;
     private String action;
     private String result;
-    private String userId;
+    private Long userId;
     private String username;
     private String tenantId;
     private String resource;

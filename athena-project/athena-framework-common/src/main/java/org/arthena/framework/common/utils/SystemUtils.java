@@ -10,4 +10,16 @@ public class SystemUtils {
         return System.getProperty("user.dir");
     }
 
+    public static String resolveServiceName() {
+        String springAppName = System.getProperty("spring.application.name");
+        if (springAppName != null && !springAppName.isBlank()) {
+            return springAppName;
+        }
+        String envAppName = System.getenv("SPRING_APPLICATION_NAME");
+        if (envAppName != null && !envAppName.isBlank()) {
+            return envAppName;
+        }
+        return "unknown-service";
+    }
+
 }

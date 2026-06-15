@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface SecUserMybatisMapper {
 
     @Select("""
-        SELECT id, user_id AS userId, username, display_name AS displayName, status, tenant_id AS tenantId
+        SELECT id, username, display_name AS displayName, status, tenant_id AS tenantId
         FROM sec_user
         WHERE username = #{username}
         LIMIT 1
@@ -19,10 +19,10 @@ public interface SecUserMybatisMapper {
     Optional<SecUserEntity> findByUsername(@Param("username") String username);
 
     @Select("""
-        SELECT id, user_id AS userId, username, display_name AS displayName, status, tenant_id AS tenantId
+        SELECT id, username, display_name AS displayName, status, tenant_id AS tenantId
         FROM sec_user
-        WHERE user_id = #{userId}
+        WHERE id = #{userId}
         LIMIT 1
         """)
-    Optional<SecUserEntity> findByUserId(@Param("userId") String userId);
+    Optional<SecUserEntity> findByUserId(@Param("userId") Long userId);
 }

@@ -11,5 +11,5 @@ import java.util.Optional;
  */
 public interface SecUserCredentialJpaRepository extends BaseRepository<SecUserCredentialEntity> {
 
-    Optional<SecUserCredentialEntity> findFirstByUserIdAndCredentialType(String userId, String credentialType);
+    Optional<SecUserCredentialEntity> findFirstByUserIdAndCredentialType(Long userId, String credentialType);
 }

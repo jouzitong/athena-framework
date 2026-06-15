@@ -5,7 +5,7 @@ package org.athena.framework.security.api.principal;
  * 汇总用户主数据和认证凭据，是认证链路中的核心用户模型。
  */
 public record SecurityUser(
-    String userId,
+    Long userId,
     String username,
     String displayName,
     String tenantId,

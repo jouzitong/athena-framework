@@ -12,5 +12,5 @@ public interface IdentityProvider {
 
     Optional<IdentityPrincipal> loadByUsername(String username);
 
-    Optional<IdentityPrincipal> loadByUserId(String userId);
+    Optional<IdentityPrincipal> loadByUserId(Long userId);
 }

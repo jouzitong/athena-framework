@@ -3,7 +3,7 @@ package org.athena.framework.web.vo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
 import org.slf4j.MDC;
 import org.athena.framework.web.filter.TraceIdFilter;
@@ -53,7 +53,7 @@ public class R<D> implements IR<D> {
     private Object[] errorMsgArgs;
 
     protected R(D data) {
-        this.code = CodeConstant.SUCCESS;
+        this.code = ErrCodeConstant.SUCCESS;
         this.data = data;
         initMeta();
     }
@@ -76,7 +76,7 @@ public class R<D> implements IR<D> {
 
     @JsonIgnore
     public boolean isOk() {
-        return code == CodeConstant.SUCCESS;
+        return code == ErrCodeConstant.SUCCESS;
     }
 
     @JsonIgnore
@@ -90,7 +90,7 @@ public class R<D> implements IR<D> {
     }
 
     public static R<Void> ok() {
-        return new R<Void>(CodeConstant.SUCCESS);
+        return new R<Void>(ErrCodeConstant.SUCCESS);
     }
 
     public static <D> R<D> ok(D data) {

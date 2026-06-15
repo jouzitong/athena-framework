@@ -1,0 +1,164 @@
+package org.athena.framework.data.mybatis.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.athena.framework.data.jdbc.convert.IConvert;
+import org.athena.framework.data.jdbc.entity.IEntity;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
+import org.athena.framework.data.jdbc.req.BaseRequest;
+import org.athena.framework.data.jdbc.serivce.IMapperService;
+import org.athena.framework.data.jdbc.vo.PageInfo;
+import org.athena.framework.data.jdbc.vo.PageResultVO;
+import org.athena.framework.data.mybatis.mapper.CrudMapper;
+import org.athena.framework.data.mybatis.utils.MybatisPlusWrapperUtils;
+
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * @author zhouzhitong
+ * @since 2025/7/13
+ **/
+@Slf4j
+public abstract class BaseMapperService<
+        Entity extends IEntity,
+        Mapper extends CrudMapper<Entity>,
+        DTO extends IDTO>
+        extends ServiceImpl<Mapper, Entity>
+        implements IMapperService<DTO>, IService<Entity> {
+
+    protected abstract IConvert<Entity, DTO> convert();
+
+    @Override
+    public <Query extends BaseRequest> List<DTO> queryAll(Query query) {
+        LOGGER.trace("queryAll request: {}", query);
+        QueryWrapper<Entity> wrapper = buildQuery(query);
+        List<Entity> list = this.list(wrapper);
+        return list.stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    public <Query extends BaseRequest> PageResultVO<DTO> page(Query query) {
+        LOGGER.trace("page request: {}", query);
+        QueryWrapper<Entity> wrapper = buildQuery(query);
+//        Page<Entity> objectPage = query.buildPage();
+        Page<Entity> objectPage = Page.of(query.page(), query.size());
+        List<Entity> records;
+        // 在查询之前调用 PageHelper.startPage() 方法设置分页参数
+        page(objectPage, wrapper);
+        records = objectPage.getRecords();
+
+        PageInfo pageInfo = new PageInfo(objectPage.getTotal(), query.size(), query.page());
+        List<DTO> dtoList = records.stream().map(this::toDTO).toList();
+        return PageResultVO.of(dtoList, pageInfo);
+    }
+
+    @Override
+    public <Query extends BaseRequest> long count(Query query) {
+        LOGGER.trace("count request: {}", query);
+        return this.count(buildQuery(query));
+    }
+
+    @Override
+    public DTO add(DTO dto) {
+        LOGGER.info("add request: {}", dto);
+        Entity entity = convert().toEntity(dto);
+        // 保存
+        return save(entity)
+                ? toDTO(entity)
+                : null;
+    }
+
+    @Override
+    public int batchAdd(List<DTO> dtos) {
+        int affected = 0;
+        for (DTO dto : dtos) {
+            if (add(dto) != null) {
+                affected++;
+            }
+        }
+        return affected;
+    }
+
+    @Override
+    public DTO update(Long id, DTO dto) {
+        LOGGER.info("update request: {}", dto);
+        Entity entity = getEntity(id);
+        convert().updateEntityFromDto(dto, entity);
+
+        boolean update = this.updateById(entity);
+        return update
+                ? toDTO(entity)
+                : null;
+    }
+
+    @Override
+    public int saveOrUpdate(DTO entity) {
+        LOGGER.info("saveOrUpdate request: {}", entity);
+        Entity target = convert().toEntity(entity);
+        return super.saveOrUpdate(target)
+                ? 1
+                : 0;
+    }
+
+    @Override
+    public boolean saveOrUpdateBatch(Collection<Entity> entityList) {
+        LOGGER.info("saveOrUpdateBatch request size: {}", entityList == null ? 0 : entityList.size());
+        return super.saveOrUpdateBatch(entityList);
+    }
+
+    @Override
+    public DTO edit(Long id, DTO dto) {
+        LOGGER.info("edit request: {}", dto);
+        Entity entity = getEntity(id);
+        convert().editEntityFromDto(dto, entity);
+
+        boolean update = this.updateById(entity);
+        return update
+                ? toDTO(entity)
+                : null;
+    }
+
+    @Override
+    public DTO get(Long id) {
+        LOGGER.trace("get request: {}", id);
+        Entity entity = getEntity(id);
+        return toDTO(entity);
+    }
+
+    public boolean remove(Long id) {
+        LOGGER.info("remove request: {}", id);
+        return this.removeById(id);
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        return remove(id);
+    }
+
+    /**
+     * 实例化Query
+     *
+     * @param query   查询条件
+     * @param <Query> 查询条件类型
+     * @return Query对象
+     */
+    protected <Query extends BaseRequest> QueryWrapper<Entity> buildQuery(Query query) {
+        return MybatisPlusWrapperUtils.simpleQuery(query);
+    }
+
+    private Entity getEntity(Long id) {
+        return this.getById(id);
+    }
+
+    protected DTO toDTO(Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return convert().toDTO(entity);
+    }
+
+}

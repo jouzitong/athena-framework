@@ -12,6 +12,13 @@ public interface IUserContextService {
      */
     Long getUserId();
 
+    /**
+     * 当前租户ID
+     *
+     * @return tenantId
+     */
+    Long getTenantId();
+
     String getLocale();
 
 }

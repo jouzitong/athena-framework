@@ -14,8 +14,7 @@
 
     <modules>
         <module>athena-framework-starter-web</module>
-        <module>athena-framework-starter-nacos</module>
-        <module>athena-framework-starter-seata</module>
+        <module>athena-framework-starter-cloud</module>
         <module>athena-framework-data-starter-mongo</module>
         <module>athena-framework-starters-ai</module>
         <module>athena-framework-starter-es</module>
@@ -24,6 +23,7 @@
         <module>athena-framework-starter-minio</module>
         <module>athena-framework-starter-security</module>
         <module>athena-framework-starter-log</module>
+        <module>athena-framework-starter-kafka</module>
     </modules>
 
     <dependencies>

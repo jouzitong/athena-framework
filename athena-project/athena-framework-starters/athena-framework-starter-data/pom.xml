@@ -12,10 +12,12 @@
     <artifactId>athena-framework-starter-data</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>athena-framework-starter-data-api</module>
         <module>athena-framework-starter-data-jdbc</module>
         <module>athena-framework-starter-data-mybatis</module>
         <module>athena-framework-starter-data-mongo</module>
         <module>athena-framework-starter-data-jpa</module>
+        <module>athena-framework-starter-dynamic-datasource</module>
     </modules>
 
 </project>

@@ -1,6 +1,6 @@
 package org.arthena.framework.common.exception;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import lombok.Getter;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
@@ -12,10 +12,11 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
  * @since 2022/5/15 15:55
  */
 @Getter
+@Deprecated
 public class IllegalArgumentsException extends BaseRuntimeException {
 
     public IllegalArgumentsException() {
-        super(CodeConstant.ILLEGAL_PARAMETER_ERROR);
+        super(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR);
     }
 
 }

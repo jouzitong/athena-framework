@@ -3,25 +3,26 @@ package org.athena.framework.web.advice;
 import com.google.common.collect.Lists;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.arthena.framework.common.constant.CodeConstant;
-import org.arthena.framework.common.exception.base.BaseRuntimeException;
-import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
+import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.exception.BizException;
 import org.arthena.framework.common.exception.ResourceNotFindException;
+import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
+import org.arthena.framework.common.exception.base.BaseRuntimeException;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
-import org.athena.framework.web.vo.R;
 import org.athena.framework.web.vo.ErrorParamVO;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.athena.framework.web.vo.R;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class BaseControllerAdvice {
     @ExceptionHandler(Exception.class)
     public R<Void> exception(Exception e) {
         LOGGER.error("", e);
-        return R.fail(CodeConstant.UN_KNOW_ERROR);
+        return R.fail(ErrCodeConstant.UN_KNOW_ERROR);
     }
 
     /**
@@ -58,11 +59,17 @@ public class BaseControllerAdvice {
         return R.fail(e.getCode(), e.getArgs());
     }
 
+    @ExceptionHandler(BizException.class)
+    public R<Void> bizException(BizException e, HttpServletResponse response) {
+        LOGGER.error("", e);
+        return R.fail(e.getCode(), e.getArgs());
+    }
+
     @ExceptionHandler(ResourceNotFindException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public R<Void> resourceNotFindException(ResourceNotFindException e) {
         LOGGER.warn("", e);
-        return R.fail(CodeConstant.RESOURCE_NOT_FOUND, e.getArgs());
+        return R.fail(ErrCodeConstant.RESOURCE_NOT_FOUND, e.getArgs());
     }
 
     /**
@@ -82,7 +89,7 @@ public class BaseControllerAdvice {
             vo.setMessage(error.getDefaultMessage());
             res.add(vo);
         }
-        return R.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, JacksonJsonUtils.writeValueAsString(res));
+        return R.fail(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR, JacksonJsonUtils.writeValueAsString(res));
     }
 
     @ExceptionHandler(BindException.class)
@@ -98,7 +105,7 @@ public class BaseControllerAdvice {
             vo.setMessage(error.getDefaultMessage());
             res.add(vo);
         }
-        return R.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, JacksonJsonUtils.writeValueAsString(res));
+        return R.fail(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR, JacksonJsonUtils.writeValueAsString(res));
     }
 
     @ExceptionHandler({
@@ -109,21 +116,21 @@ public class BaseControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R<Void> badRequest(Exception e) {
         LOGGER.warn("badRequest: {}", e.getClass().getSimpleName(), e);
-        return R.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, e.getMessage());
+        return R.fail(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public R<Void> methodNotAllowed(HttpRequestMethodNotSupportedException e) {
         LOGGER.warn("methodNotAllowed", e);
-        return R.fail(CodeConstant.NOT_SUPPORT_ERROR, e.getMethod());
+        return R.fail(ErrCodeConstant.NOT_SUPPORT_ERROR, e.getMethod());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     public R<Void> unsupportedMediaType(HttpMediaTypeNotSupportedException e) {
         LOGGER.warn("unsupportedMediaType", e);
-        return R.fail(CodeConstant.ILLEGAL_PARAMETER_ERROR, e.getContentType());
+        return R.fail(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR, e.getContentType());
     }
 
 }

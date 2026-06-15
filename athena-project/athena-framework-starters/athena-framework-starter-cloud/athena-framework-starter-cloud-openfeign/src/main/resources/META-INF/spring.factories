@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+org.athena.framework.cloud.openfeign.OpenFeignDefaultsEnvironmentPostProcessor

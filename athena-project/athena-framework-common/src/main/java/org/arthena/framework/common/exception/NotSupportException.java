@@ -1,7 +1,7 @@
 package org.arthena.framework.common.exception;
 
 import lombok.Getter;
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
 /**
@@ -19,6 +19,6 @@ public class NotSupportException extends BaseRuntimeException {
     }
 
     public NotSupportException() {
-        super(CodeConstant.NOT_SUPPORT_ERROR);
+        super(ErrCodeConstant.NOT_SUPPORT_ERROR);
     }
 }

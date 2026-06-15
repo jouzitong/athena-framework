@@ -30,13 +30,6 @@ public class SecUserEntity {
     private Long id;
 
     /**
-     * 用户唯一标识。
-     */
-    @Column(name = "user_id", nullable = false, unique = true, length = 64)
-    @Comment("用户唯一标识")
-    private String userId;
-
-    /**
      * 登录用户名。
      */
     @Column(name = "username", nullable = false, length = 64)

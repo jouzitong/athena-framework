@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class SecUserRoleEntity {
     private Long id;
-    private String userId;
+    private Long userId;
     private String roleCode;
 }

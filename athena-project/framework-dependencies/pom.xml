@@ -74,6 +74,12 @@
 
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-data-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-data-jdbc</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -106,12 +112,22 @@
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
-                <artifactId>athena-framework-starter-nacos</artifactId>
+                <artifactId>athena-framework-starter-cloud-nacos</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
-                <artifactId>athena-framework-starter-seata</artifactId>
+                <artifactId>athena-framework-starter-cloud-seata</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-cloud-openfeign</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-cloud-seata</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -156,7 +172,17 @@
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-security-user-mybatis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-security-token-jwt</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-kafka</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -373,7 +399,30 @@
                     <artifactId>appassembler-maven-plugin</artifactId>
                     <version>1.10</version>
                 </plugin>
-
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <compilerArgs>
+                            <arg>--enable-preview</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>1.18.24</version>
+                            </path>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>1.5.5.Final</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
                 <!-- spring boot jar 打包方式 -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>

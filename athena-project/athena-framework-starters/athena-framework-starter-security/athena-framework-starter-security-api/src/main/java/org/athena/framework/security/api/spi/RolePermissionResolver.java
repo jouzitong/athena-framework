@@ -8,5 +8,5 @@ import java.util.Set;
  */
 public interface RolePermissionResolver {
 
-    Set<String> permissions(Set<String> roles, String userId, String tenantId);
+    Set<String> permissions(Set<String> roles, Long userId, String tenantId);
 }

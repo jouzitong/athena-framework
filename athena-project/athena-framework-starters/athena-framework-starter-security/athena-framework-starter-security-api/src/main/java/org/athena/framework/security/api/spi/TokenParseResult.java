@@ -1,10 +1,12 @@
 package org.athena.framework.security.api.spi;
 
+import lombok.Getter;
 import org.athena.framework.security.api.model.UserContext;
 
 /**
  * token 解析结果。
  */
+@Getter
 public class TokenParseResult {
 
     private final UserContext userContext;
@@ -16,12 +18,5 @@ public class TokenParseResult {
         this.status = status == null ? TokenParseStatus.ERROR : status;
     }
 
-    public UserContext getUserContext() {
-        return userContext;
-    }
-
-    public TokenParseStatus getStatus() {
-        return status;
-    }
 }
 

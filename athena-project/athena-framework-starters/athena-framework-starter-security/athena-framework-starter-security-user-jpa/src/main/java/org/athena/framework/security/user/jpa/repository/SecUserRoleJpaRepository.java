@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SecUserRoleJpaRepository extends BaseRepository<SecUserRoleEntity> {
 
-    List<SecUserRoleEntity> findByUserId(String userId);
+    List<SecUserRoleEntity> findByUserId(Long userId);
 }

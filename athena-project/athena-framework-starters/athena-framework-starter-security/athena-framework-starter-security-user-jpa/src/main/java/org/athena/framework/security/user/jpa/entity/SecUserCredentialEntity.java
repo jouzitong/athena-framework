@@ -30,11 +30,11 @@ public class SecUserCredentialEntity {
     private Long id;
 
     /**
-     * 用户唯一标识。
+     * 用户主键ID。
      */
-    @Column(name = "user_id", nullable = false, length = 64)
-    @Comment("用户唯一标识")
-    private String userId;
+    @Column(name = "user_id", nullable = false)
+    @Comment("用户主键ID")
+    private Long userId;
 
     /**
      * 凭据类型。

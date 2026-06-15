@@ -1,8 +1,8 @@
 package org.athena.framework.security.auth.core.extractor;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.arthena.framework.common.constant.RequestHeaderConstant;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpHeaders;
 
 /**
  * 基于请求头的 token 提取器。
@@ -22,11 +22,11 @@ public class HeaderTokenCredentialExtractor implements CredentialExtractor {
     @Override
     public String extractToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
-        if (StringUtils.isBlank(token) && !HttpHeaders.AUTHORIZATION.equalsIgnoreCase(tokenHeader)) {
-            token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.isBlank(token) && !RequestHeaderConstant.AUTHORIZATION.equalsIgnoreCase(tokenHeader)) {
+            token = request.getHeader(RequestHeaderConstant.AUTHORIZATION);
         }
         if (StringUtils.isBlank(token)) {
-            token = request.getParameter("token");
+            token = request.getParameter(RequestHeaderConstant.TOKEN);
         }
         if (StringUtils.isBlank(token)) {
             return null;

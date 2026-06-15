@@ -3,7 +3,7 @@ package org.athena.framework.security.auth.core.web;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
 import org.athena.framework.security.api.auth.AuthenticationRequest;
 import org.athena.framework.security.api.auth.AuthenticationResult;
@@ -51,7 +51,7 @@ public class SecurityAuthController {
         );
         AuthenticationResult result = securityAuthenticationService.authenticate(authenticationRequest);
         if (!result.success() || result.context() == null || result.context().session() == null) {
-            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), CodeConstant.LOGIN_FAILED);
+            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), ErrCodeConstant.LOGIN_FAILED);
         }
 
         return Map.of(
@@ -77,13 +77,13 @@ public class SecurityAuthController {
         if (!result.success() || result.context() == null || result.context().session() == null) {
             int code;
             if ("TOKEN_EMPTY".equals(result.code())) {
-                code = CodeConstant.UNAUTHORIZED;
+                code = ErrCodeConstant.UNAUTHORIZED;
             } else if ("TOKEN_EXPIRED".equals(result.code())) {
-                code = CodeConstant.TOKEN_EXPIRED;
+                code = ErrCodeConstant.TOKEN_EXPIRED;
             } else if ("TOKEN_INVALID".equals(result.code())) {
-                code = CodeConstant.TOKEN_INVALID;
+                code = ErrCodeConstant.TOKEN_INVALID;
             } else {
-                code = CodeConstant.UNAUTHORIZED;
+                code = ErrCodeConstant.UNAUTHORIZED;
             }
             throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), code);
         }
@@ -99,7 +99,7 @@ public class SecurityAuthController {
     public Map<String, Object> me() {
         UserContext userContext = SecurityContextHolder.get();
         if (userContext == null || userContext.subject() == null) {
-            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), CodeConstant.UNAUTHORIZED);
+            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), ErrCodeConstant.UNAUTHORIZED);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();

@@ -1,11 +1,13 @@
 package com.zhouzhitong.test.mybatis.service.impl;
 
 import com.zhouzhitong.test.mybatis.bean.Person;
+import com.zhouzhitong.test.mybatis.convert.PersonConvert;
 import com.zhouzhitong.test.mybatis.dto.PersonDTO;
 import com.zhouzhitong.test.mybatis.mapper.PersonMapper;
 import com.zhouzhitong.test.mybatis.service.PersonService;
 import lombok.extern.slf4j.Slf4j;
-import org.athena.framework.data.mybatis.service.impl.MapperServiceImpl;
+import org.athena.framework.data.jdbc.convert.IConvert;
+import org.athena.framework.data.mybatis.service.BaseMapperService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
@@ -20,8 +22,19 @@ import java.util.List;
 @Slf4j
 @Order()
 public class PersonServiceImpl
-        extends MapperServiceImpl<Person, PersonMapper, PersonDTO, Long>
+        extends BaseMapperService<Person, PersonMapper, PersonDTO>
         implements PersonService, CommandLineRunner {
+
+    private final PersonConvert personConvert;
+
+    public PersonServiceImpl(PersonConvert personConvert) {
+        this.personConvert = personConvert;
+    }
+
+    @Override
+    protected IConvert<Person, PersonDTO> convert() {
+        return personConvert;
+    }
 
     @Override
     public void run(String... args) throws Exception {

@@ -33,17 +33,17 @@ public class JpaSecurityUserRepository implements SecurityUserRepository {
     }
 
     @Override
-    public Optional<SecurityUser> findByUserId(String userId) {
-        return userRepository.findByUserId(userId).map(this::toSecurityUser);
+    public Optional<SecurityUser> findByUserId(Long userId) {
+        return userRepository.findById(userId).map(this::toSecurityUser);
     }
 
     private SecurityUser toSecurityUser(SecUserEntity userEntity) {
         SecUserCredentialEntity credential = credentialRepository
-            .findFirstByUserIdAndCredentialType(userEntity.getUserId(), CREDENTIAL_TYPE_PASSWORD)
+            .findFirstByUserIdAndCredentialType(userEntity.getId(), CREDENTIAL_TYPE_PASSWORD)
             .orElse(null);
 
         return new SecurityUser(
-            userEntity.getUserId(),
+            userEntity.getId(),
             userEntity.getUsername(),
             userEntity.getDisplayName(),
             userEntity.getTenantId(),

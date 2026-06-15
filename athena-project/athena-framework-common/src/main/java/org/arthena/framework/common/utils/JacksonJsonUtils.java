@@ -29,7 +29,7 @@ import java.util.Set;
  * @version 1.0
  * @since 2022/5/21 1:40
  */
-//@Component
+@Component
 @Slf4j
 public class JacksonJsonUtils {
 

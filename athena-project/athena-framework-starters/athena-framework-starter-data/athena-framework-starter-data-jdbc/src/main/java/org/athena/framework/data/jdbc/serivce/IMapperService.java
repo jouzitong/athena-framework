@@ -2,7 +2,7 @@ package org.athena.framework.data.jdbc.serivce;
 
 import org.arthena.framework.common.exception.NotSupportException;
 import org.arthena.framework.common.exception.TodoException;
-import org.athena.framework.data.jdbc.entity.IEntity;
+import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author zhouzhitong
  * @since 2022/9/28
  */
-public interface IMapperService<Entity extends IEntity> {
+public interface IMapperService<DTO extends IDTO> {
 
     /**
      * 列表查询
@@ -24,7 +24,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param <Query> 查询条件类型
      * @return 查询结果
      */
-    <Query extends BaseRequest> List<Entity> queryAll(Query query);
+    <Query extends BaseRequest> List<DTO> queryAll(Query query);
 
     /**
      * 分页查询
@@ -33,7 +33,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param <Query> 查询条件类型
      * @return 分页结果
      */
-    <Query extends BaseRequest> PageResultVO<Entity> page(Query query);
+    <Query extends BaseRequest> PageResultVO<DTO> page(Query query);
 
     /**
      * 查询总数
@@ -44,7 +44,6 @@ public interface IMapperService<Entity extends IEntity> {
      */
     <Query extends BaseRequest> long count(Query query);
 
-
     /**
      * 新增
      *
@@ -52,7 +51,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return entity
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity add(Entity entity);
+    DTO add(DTO entity);
 
     /**
      * 批量添加实体
@@ -60,7 +59,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param entities 待添加的实体列表
      * @return 成功添加的实体数量
      */
-    int batchAdd(List<Entity> entities);
+    int batchAdd(List<DTO> entities);
 
     /**
      * 保存或更新实体。
@@ -70,7 +69,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return 返回影响的行数，对于新增通常是1，对于更新则取决于实际更新了多少条记录
      * @throws TodoException 当该功能尚未实现时抛出此异常
      */
-    default int saveOrUpdate(Entity entity) {
+    default int saveOrUpdate(DTO entity) {
         throw new TodoException();
     }
 
@@ -81,7 +80,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return 更新成功, 则返回DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity update(Long id, Entity dto);
+    DTO update(Long id, DTO dto);
 
     /**
      * 批量更新实体列表
@@ -89,7 +88,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param entities 待更新的实体列表
      * @return 成功更新的实体数量
      */
-    default int batchUpdate(List<Entity> entities) {
+    default int batchUpdate(List<DTO> entities) {
         throw new TodoException();
     }
 
@@ -101,7 +100,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @return DTO
      */
     @Transactional(rollbackFor = Exception.class)
-    Entity edit(Long id, Entity dto);
+    DTO edit(Long id, DTO dto);
 
     /**
      * 根据ID查询
@@ -109,7 +108,7 @@ public interface IMapperService<Entity extends IEntity> {
      * @param id 主键ID
      * @return DTO
      */
-    Entity get(Long id);
+    DTO get(Long id);
 
     /**
      * 根据 query 查询
@@ -120,9 +119,9 @@ public interface IMapperService<Entity extends IEntity> {
      * @param <Query> 查询条件类型
      * @return 单个DTO
      */
-    default <Query extends BaseRequest> Entity get(Query query) {
+    default <Query extends BaseRequest> DTO get(Query query) {
         query.setSize(2);
-        List<Entity> dtos = queryAll(query);
+        List<DTO> dtos = queryAll(query);
         if (dtos.isEmpty()) {
             return null;
         }
@@ -149,17 +148,6 @@ public interface IMapperService<Entity extends IEntity> {
      */
     default boolean physicalDelete(Long id) {
         throw new NotSupportException();
-    }
-
-    /**
-     * 实例化Entity
-     *
-     * @return Entity对象
-     */
-    Entity newEntity();
-
-    default Class<?> entityType() {
-        return null;
     }
 
 }

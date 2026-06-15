@@ -1,5 +1,6 @@
 package org.athena.framework.security.auth.core.token;
 
+import org.athena.framework.security.api.model.TokenContext;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.TokenManager;
 
@@ -25,6 +26,11 @@ public class LocalTokenManager implements TokenManager {
     @Override
     public UserContext parse(String token) {
         return tokenStore.get(token);
+    }
+
+    @Override
+    public TokenContext parseV2(String token) {
+        return null;
     }
 
     @Override

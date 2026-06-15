@@ -1,6 +1,6 @@
 package org.arthena.framework.common.exception;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import lombok.Getter;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
@@ -15,7 +15,7 @@ import org.arthena.framework.common.exception.base.BaseRuntimeException;
 public class IllegalParameterMethodException extends BaseRuntimeException {
 
     public IllegalParameterMethodException() {
-        super(CodeConstant.ILLEGAL_PARAMETER_ERROR);
+        super(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR);
     }
 
 }

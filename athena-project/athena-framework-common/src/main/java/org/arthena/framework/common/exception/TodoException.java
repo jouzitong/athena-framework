@@ -1,6 +1,6 @@
 package org.arthena.framework.common.exception;
 
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import lombok.Getter;
 import org.arthena.framework.common.exception.base.BaseRuntimeException;
 
@@ -19,6 +19,6 @@ public class TodoException extends BaseRuntimeException {
     }
 
     public TodoException() {
-        super(CodeConstant.TODO_ERROR);
+        super(ErrCodeConstant.TODO_ERROR);
     }
 }

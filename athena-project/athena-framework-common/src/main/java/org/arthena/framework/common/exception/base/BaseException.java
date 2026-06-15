@@ -1,7 +1,7 @@
 package org.arthena.framework.common.exception.base;
 
 import lombok.Getter;
-import org.arthena.framework.common.constant.CodeConstant;
+import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
 
 /**
@@ -9,6 +9,7 @@ import org.arthena.framework.common.utils.ErrorCodeUtils;
  * @version 1.0
  * @since 2022/5/15 16:31
  */
+@Deprecated
 public class BaseException extends Exception {
 
     @Getter
@@ -23,7 +24,7 @@ public class BaseException extends Exception {
             this.code = baseException.getCode();
             this.args = baseException.args;
         } else {
-            this.code = CodeConstant.UN_KNOW_ERROR;
+            this.code = ErrCodeConstant.UN_KNOW_ERROR;
             this.args = null;
 
         }
