@@ -162,6 +162,7 @@ public class SecurityAuthCoreAutoConfiguration {
     @Primary
     @ConditionalOnMissingBean(name = "securityIUserContextService")
     public IUserContextService securityIUserContextService() {
+        log.info("loading DefaultIUserContextService");
         return new IUserContextService() {
             @Override
             public Long getUserId() {

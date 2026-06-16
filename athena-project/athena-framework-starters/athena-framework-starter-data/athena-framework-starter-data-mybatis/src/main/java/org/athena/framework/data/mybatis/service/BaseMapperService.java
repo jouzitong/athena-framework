@@ -96,6 +96,24 @@ public abstract class BaseMapperService<
     }
 
     @Override
+    public int batchUpdate(List<DTO> entities) {
+        LOGGER.info("batchUpdate request size: {}", entities == null ? 0 : entities.size());
+        if (entities == null || entities.isEmpty()) {
+            return 0;
+        }
+        int affected = 0;
+        for (DTO dto : entities) {
+            if (dto == null || dto.getId() == null) {
+                continue;
+            }
+            if (update(dto.getId(), dto) != null) {
+                affected++;
+            }
+        }
+        return affected;
+    }
+
+    @Override
     public int saveOrUpdate(DTO entity) {
         LOGGER.info("saveOrUpdate request: {}", entity);
         Entity target = convert().toEntity(entity);

@@ -3,7 +3,6 @@ package org.athena.framework.data.mybatis.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.Version;
 import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public abstract class BaseEntity implements IEntity {
     /**
      * 版本
      */
-    @Version
+//    @Version
     @TableField(value = "version")
     protected Long version = 1L;
 

@@ -14,7 +14,7 @@ public interface BaseEntityConstant {
 
     String UPDATE_TIME = "updateTime";
 
-    String LAST_MODIFIED_BY = "lastModifiedBy";
+    String LAST_MODIFIED_BY = "updatedBy";
 
     String DELETED = "deleted";
 

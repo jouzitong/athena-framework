@@ -8,4 +8,13 @@ public interface IDTO {
 
     Long getId();
 
+    /**
+     * 业务ID
+     *
+     * @return 业务ID
+     */
+    default String getBizId() {
+        return null;
+    }
+
 }

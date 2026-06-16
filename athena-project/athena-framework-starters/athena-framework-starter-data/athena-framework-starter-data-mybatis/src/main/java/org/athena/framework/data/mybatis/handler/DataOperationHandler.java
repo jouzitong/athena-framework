@@ -31,6 +31,7 @@ public class DataOperationHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, CREATE_TIME, LocalDateTime::now, LocalDateTime.class);
         this.strictInsertFill(metaObject, UPDATE_TIME, LocalDateTime::now, LocalDateTime.class);
         this.strictInsertFill(metaObject, CREATE_BY, this::getCurrentUserId, Long.class);
+        this.strictInsertFill(metaObject, LAST_MODIFIED_BY, this::getCurrentUserId, Long.class);
         this.strictInsertFill(metaObject, DELETED, () -> 0, Integer.class);
         checkTableField(metaObject);
     }

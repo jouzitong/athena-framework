@@ -88,6 +88,7 @@ public interface IMapperService<DTO extends IDTO> {
      * @param entities 待更新的实体列表
      * @return 成功更新的实体数量
      */
+    @Transactional(rollbackFor = Exception.class)
     default int batchUpdate(List<DTO> entities) {
         throw new TodoException();
     }
