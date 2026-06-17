@@ -9,13 +9,12 @@ import org.arthena.framework.common.utils.PackageUtil;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.properties.DefaultJdbcProperties;
 import org.athena.framework.data.mybatis.bean.TableMeta;
+import org.athena.framework.data.mybatis.create.IGenerateDdlEngine;
 import org.athena.framework.data.mybatis.create.builder.ITableMetaBuilder;
 import org.athena.framework.data.mybatis.create.builder.impl.DefaultTableMetaBuilder;
-import org.athena.framework.data.mybatis.create.IGenerateDdlEngine;
 import org.athena.framework.data.mybatis.utils.MysqlJdbcDdlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.BufferedWriter;
@@ -24,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-@Service
+//@Service
 @Slf4j
 public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLineRunner {
 
