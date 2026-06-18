@@ -18,22 +18,22 @@ public abstract class BaseController<DTO extends IDTO, Query extends BaseRequest
     }
 
     @Override
-    public DTO update(@PathVariable Long id, @RequestBody DTO dto) {
+    public DTO update(@PathVariable("id") Long id, @RequestBody DTO dto) {
         return service().update(id, dto);
     }
 
     @Override
-    public DTO edit(@PathVariable Long id, @RequestBody DTO dto) {
+    public DTO edit(@PathVariable("id") Long id, @RequestBody DTO dto) {
         return service().edit(id, dto);
     }
 
     @Override
-    public Boolean delete(@PathVariable Long id) {
+    public Boolean delete(@PathVariable("id") Long id) {
         return service().delete(id);
     }
 
     @Override
-    public Boolean physicalDelete(@PathVariable Long id) {
+    public Boolean physicalDelete(@PathVariable("id") Long id) {
         return service().physicalDelete(id);
     }
 
