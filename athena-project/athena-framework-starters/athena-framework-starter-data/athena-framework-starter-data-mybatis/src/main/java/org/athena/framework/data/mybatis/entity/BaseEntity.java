@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 import org.athena.framework.data.jdbc.entity.IEntity;
+import org.athena.framework.data.mybatis.annotations.DdlIgnoreTable;
 
 import java.io.Serial;
 
@@ -18,6 +19,7 @@ import java.io.Serial;
  */
 @Getter
 @Setter
+@DdlIgnoreTable
 public abstract class BaseEntity implements IEntity {
 
     @Serial

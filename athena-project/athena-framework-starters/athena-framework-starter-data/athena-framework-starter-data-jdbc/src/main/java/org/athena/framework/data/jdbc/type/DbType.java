@@ -29,7 +29,7 @@ public enum DbType {
                 || ObjectUtils.isDateType(clazz)) {
             return typeMap.get(clazz);
         }
-        if (IEnum.class.isAssignableFrom(clazz)) {
+        if (IEnum.class.isAssignableFrom(clazz) || clazz.isEnum()) {
             return typeMap.get(IEnum.class);
         }
         return typeMap.get(Object.class);
@@ -40,14 +40,15 @@ public enum DbType {
                 || ObjectUtils.isDateType(clazz)) {
             String s = typeMap.get(clazz);
             if (s == null) {
-                return length > 0 ? s + "(" + length + ")" : s;
+                return typeMap.get(Object.class);
             }
             if (s.equals("VARCHAR")) {
-                return s + "(" + length + ")";
+                int varcharLength = length > 0 ? length : 255;
+                return s + "(" + varcharLength + ")";
             }
             return s;
         }
-        if (IEnum.class.isAssignableFrom(clazz)) {
+        if (IEnum.class.isAssignableFrom(clazz) || clazz.isEnum()) {
             return typeMap.get(IEnum.class);
         }
         return typeMap.get(Object.class);
@@ -63,7 +64,7 @@ public enum DbType {
         map.put(Boolean.class, "BOOLEAN");
         map.put(Byte.class, "TINYINT");
         map.put(Short.class, "SMALLINT");
-        map.put(IEnum.class, "SMALLINT");
+        map.put(IEnum.class, "INT");
         map.put(Byte[].class, "BLOB");
         map.put(java.util.Date.class, "TIMESTAMP");
         map.put(LocalDate.class, "TIMESTAMP");
@@ -82,6 +83,7 @@ public enum DbType {
         map.put(Boolean.class, "BOOLEAN");
         map.put(Byte.class, "TINYINT");
         map.put(Short.class, "SMALLINT");
+        map.put(IEnum.class, "INT");
         map.put(Byte[].class, "BLOB");
         map.put(java.util.Date.class, "TIMESTAMP");
         map.put(LocalDate.class, "TIMESTAMP");
@@ -100,6 +102,7 @@ public enum DbType {
         map.put(Boolean.class, "NUMBER");
         map.put(Byte.class, "NUMBER");
         map.put(Short.class, "NUMBER");
+        map.put(IEnum.class, "NUMBER");
         map.put(Byte[].class, "BLOB");
         map.put(java.util.Date.class, "TIMESTAMP");
         map.put(LocalDate.class, "TIMESTAMP");

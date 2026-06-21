@@ -1,12 +1,13 @@
 package org.athena.framework.data.mybatis.create.parser.impl;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import jakarta.persistence.Id;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.IndexMeta;
 import org.athena.framework.data.mybatis.create.parser.ITableMetaParser;
+import org.athena.framework.data.mybatis.utils.TableFieldParseUtils;
 import org.springframework.core.Ordered;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +37,12 @@ public class IndexMetaParser implements ITableMetaParser {
                 if (field.isSynthetic() || field.getName().contains("serialVersionUID")) {
                     continue;
                 }
-                Annotation id = field.getAnnotation(Id.class);
-                if (id != null) {
+                Id id = field.getAnnotation(Id.class);
+                TableId tableId = field.getAnnotation(TableId.class);
+                if (id != null || tableId != null) {
                     indexMetas.add(IndexMeta.builder()
                             .type("PRIMARY")
-                            .columnNames(List.of(field.getName()))
+                            .columnNames(List.of(TableFieldParseUtils.getColumnName(field)))
                             .build());
                 }
             }
@@ -50,4 +52,3 @@ public class IndexMetaParser implements ITableMetaParser {
     }
 
 }
-

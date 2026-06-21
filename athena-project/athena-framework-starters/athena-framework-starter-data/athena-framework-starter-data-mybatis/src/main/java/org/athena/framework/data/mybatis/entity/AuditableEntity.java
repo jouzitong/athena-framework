@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.athena.framework.data.mybatis.annotations.DdlIgnoreTable;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@DdlIgnoreTable
 public abstract class AuditableEntity extends BaseEntity {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

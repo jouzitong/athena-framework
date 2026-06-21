@@ -1,6 +1,5 @@
 package org.athena.framework.data.mybatis.create.parser.impl;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
@@ -53,8 +52,7 @@ public class ColumnMetaParser implements ITableMetaParser {
      * Extracts column metadata from field annotations
      */
     private List<ColumnMeta> parseField(Field field) {
-        Column column = field.getAnnotation(Column.class);
-        if (column != null) {
+        if (TableFieldParseUtils.isPersistentField(field)) {
             return Collections.singletonList(TableFieldParseUtils.parseField(field));
         }
         Embedded embedded = field.getAnnotation(Embedded.class);

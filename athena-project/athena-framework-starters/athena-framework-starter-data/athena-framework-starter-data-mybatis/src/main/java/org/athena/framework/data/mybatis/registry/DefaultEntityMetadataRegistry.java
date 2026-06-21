@@ -6,6 +6,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.arthena.framework.common.utils.PackageUtil;
 import org.athena.framework.data.jdbc.entity.IEntity;
 import org.athena.framework.data.jdbc.properties.DefaultJdbcProperties;
+import org.athena.framework.data.mybatis.annotations.DdlIgnoreTable;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.create.builder.ITableMetaBuilder;
 import org.athena.framework.data.mybatis.create.builder.impl.DefaultTableMetaBuilder;
@@ -41,6 +42,9 @@ public class DefaultEntityMetadataRegistry implements IEntityMetadataRegistry, C
         }
         List<Class<IEntity>> subClasses = getSubClasses(IEntity.class);
         for (Class<?> clazz : subClasses) {
+            if (isDdlIgnored(clazz)) {
+                continue;
+            }
             register(clazz);
         }
     }
@@ -60,5 +64,9 @@ public class DefaultEntityMetadataRegistry implements IEntityMetadataRegistry, C
 
     protected <T> List<Class<T>> getSubClasses(Class<T> clazz) {
         return PackageUtil.getSubClasses(clazz, jdbcProperties.getBaseEntityPackages());
+    }
+
+    private boolean isDdlIgnored(Class<?> clazz) {
+        return clazz.isAnnotationPresent(DdlIgnoreTable.class);
     }
 }

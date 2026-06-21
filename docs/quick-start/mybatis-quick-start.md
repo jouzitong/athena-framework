@@ -75,8 +75,12 @@ lib:
       - com.example.demo
     # 当前默认 true，但 DDL 执行引擎不是默认 Spring Bean，见“DDL 与实体元数据”
     enable-create-table-ddl: false
-    # 生产环境不要开启自动更新表
+    # 兼容旧配置：开启后等价于允许自动新增字段；下一个大版本移除
     auto-update-table: false
+    # 字段级自动变更开关：默认只允许新增字段
+    auto-add-column: true
+    auto-update-column: false
+    auto-drop-column: false
     # DDL 文件输出根目录
     table-ddl-path-file: config
 ```
@@ -318,14 +322,24 @@ mybatis-plus:
 解析规则主要来自：
 
 - `TableInfoParser`：读取 `@Table` 或 `@TableName` 的表名。
-- `ColumnMetaParser`：读取字段上的 `jakarta.persistence.Column`，也支持 `@Embedded` 字段的递归解析。
-- `IndexMetaParser`：解析索引元数据。
+- `ColumnMetaParser`：读取字段上的 `jakarta.persistence.Column`、MyBatis-Plus `@TableField`、`@TableId`，也支持 `@Embedded` 字段的递归解析。
+- `IndexMetaParser`：解析索引元数据，`@Id` 和 `@TableId` 都会生成主键索引。
+
+字段类型推断规则：
+
+- `@Column(columnDefinition = "...")` 会作为显式 DDL 类型优先使用。
+- `String` 默认生成 `VARCHAR(255)`。
+- 实现 `IEnum` 或普通 Java `enum` 的字段默认生成 `INT`。
+- 可使用 `@DdlColumnLength(128)` 覆盖字符串等带长度类型的生成长度。
+- 可在实体类上使用 `@DdlIgnoreTable` 跳过 DDL 表生成；框架内置的 `BaseEntity`、`AuditableEntity`、`LogicalDeleteEntity` 已标记该注解。
 
 `DefaultGenerateDdlEngine` 当前类上 `@Service` 是注释状态，所以不是默认 Spring Bean。它代表一个可复用的 DDL 生成执行引擎：
 
 - 扫描 `lib.jdbc.base-entity-packages` 下的 `IEntity` 子类。
 - 基于实体元数据生成 MySQL 建表 SQL。
-- 输出到 `lib.jdbc.table-ddl-path-file/${common.version}/create_table_ddl.sql`。
+- 输出到 `lib.jdbc.table-ddl-path-file/${spring.application.name}/${common.version}/create_table_ddl.sql`。
+- `update_table_ddl.sql` 会读取当前数据库表字段，按 `auto-add-column` / `auto-update-column` / `auto-drop-column` 控制字段级变更；默认只生成新增字段 `ADD COLUMN`，字段类型变化暂不处理。
+- `auto-update-table` 是兼容旧配置的总开关，当前 `true` 等价于允许 `auto-add-column=true`，下一个大版本会移除。
 - 当 `lib.jdbc.auto-update-table=true` 时尝试执行建表 SQL。
 
 因此，快速开发时可以先手写初始化 SQL；如果要使用自动 DDL 能力，需要在业务侧显式注册或封装该引擎，并谨慎开启生产环境自动更新表。

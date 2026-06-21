@@ -1,5 +1,6 @@
 package org.athena.framework.data.mybatis.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.athena.framework.data.jdbc.type.DbType;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
@@ -64,69 +65,71 @@ public class MysqlJdbcDdlUtils {
      * @return DDL SQL
      */
     public static String genUpdateDdlSql(TableMeta newTableMeta, TableMeta oldTableMeta) {
+        return genUpdateDdlSql(newTableMeta, oldTableMeta, true, false, false);
+    }
+
+    public static String genUpdateDdlSql(TableMeta newTableMeta,
+                                         TableMeta oldTableMeta,
+                                         boolean autoAddColumn,
+                                         boolean autoUpdateColumn,
+                                         boolean autoDropColumn) {
         if (newTableMeta == null || oldTableMeta == null || newTableMeta.equals(oldTableMeta)) {
             return null;
         }
 
         StringBuilder sb = new StringBuilder();
         sb.append("ALTER TABLE ").append(newTableMeta.getName()).append("\n");
+        int beforeLength = sb.length();
 
-        // 添加新列
-        addNewColumns(sb, newTableMeta, oldTableMeta);
-
-        // 修改现有列
-        modifyExistingColumns(sb, newTableMeta, oldTableMeta);
-
-        // 删除移除的列
-        dropRemovedColumns(sb, newTableMeta, oldTableMeta);
-
-        // 添加新索引
-        addNewIndexes(sb, newTableMeta, oldTableMeta);
-
-        // 修改现有索引
-        modifyExistingIndexes(sb, newTableMeta, oldTableMeta);
-
-        // 删除移除的索引
-        dropRemovedIndexes(sb, newTableMeta, oldTableMeta);
-
-        // 移除最后一个逗号和换行
-        if (sb.charAt(sb.length() - 1) == ',') {
-            sb.setLength(sb.length() - 2);
+        if (autoAddColumn) {
+            addNewColumns(sb, newTableMeta, oldTableMeta);
         }
+
+        if (autoUpdateColumn) {
+            // 字段类型/定义变化暂不处理。
+        }
+
+        if (autoDropColumn) {
+            dropRemovedColumns(sb, newTableMeta, oldTableMeta);
+        }
+
+        if (sb.length() == beforeLength) {
+            return null;
+        }
+
+        removeTrailingComma(sb);
 
         sb.append(";");
 
         return sb.toString();
     }
 
-    private static void addNewColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
-        List<ColumnMeta> newColumns = newTableMeta.getColumns().stream()
-                .filter(column -> !oldTableMeta.getColumns().contains(column))
-                .collect(Collectors.toList());
-        if (!newColumns.isEmpty()) {
-            sb.append(COMMENT_SYMBOL).append(" 新增字段\n");
-            sb.append("ADD (").append(String.join(",\n", newColumns.stream()
-                    .map(column -> buildColumnDefinition(column, DbType.MYSQL))
-                    .collect(Collectors.toList()))).append("),\n");
+    private static void removeTrailingComma(StringBuilder sb) {
+        int index = sb.length() - 1;
+        while (index >= 0 && Character.isWhitespace(sb.charAt(index))) {
+            index--;
+        }
+        if (index >= 0 && sb.charAt(index) == ',') {
+            sb.delete(index, sb.length());
+            sb.append("\n");
         }
     }
 
-    private static void modifyExistingColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
-        List<ColumnMeta> modifiedColumns = newTableMeta.getColumns().stream()
-                .filter(newColumn -> oldTableMeta.getColumns().stream()
-                        .anyMatch(oldColumn -> !newColumn.equals(oldColumn) && newColumn.getName().equals(oldColumn.getName())))
+    private static void addNewColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<ColumnMeta> newColumns = newTableMeta.getColumns().stream()
+                .filter(column -> findColumn(oldTableMeta, column.getName()) == null)
                 .collect(Collectors.toList());
-        if (!modifiedColumns.isEmpty()) {
-            sb.append(COMMENT_SYMBOL).append(" 修改字段\n");
-            for (ColumnMeta column : modifiedColumns) {
-                sb.append(buildColumnAlterDefinition(column, DbType.MYSQL)).append(",\n");
+        if (!newColumns.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 新增字段\n");
+            for (ColumnMeta column : newColumns) {
+                sb.append("ADD COLUMN ").append(buildColumnDefinition(column, DbType.MYSQL).trim()).append(",\n");
             }
         }
     }
 
     private static void dropRemovedColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
         List<ColumnMeta> removedColumns = oldTableMeta.getColumns().stream()
-                .filter(column -> !newTableMeta.getColumns().contains(column))
+                .filter(column -> findColumn(newTableMeta, column.getName()) == null)
                 .collect(Collectors.toList());
         if (!removedColumns.isEmpty()) {
             sb.append(COMMENT_SYMBOL).append(" 删除字段\n");
@@ -136,48 +139,11 @@ public class MysqlJdbcDdlUtils {
         }
     }
 
-    private static void addNewIndexes(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
-        List<IndexMeta> newIndexes = newTableMeta.getIndexes().stream()
-                .filter(index -> !oldTableMeta.getIndexes().contains(index))
-                .collect(Collectors.toList());
-        if (!newIndexes.isEmpty()) {
-            sb.append(COMMENT_SYMBOL).append(" 新增索引\n");
-            for (IndexMeta index : newIndexes) {
-                sb.append(buildIndexAlterDefinition(index, "ADD")).append(",\n");
-            }
-        }
-    }
-
-    private static void modifyExistingIndexes(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
-        List<IndexMeta> modifiedIndexes = newTableMeta.getIndexes().stream()
-                .filter(newIndex -> oldTableMeta.getIndexes().stream()
-                        .anyMatch(oldIndex -> !newIndex.equals(oldIndex) && newIndex.getName().equals(oldIndex.getName())))
-                .collect(Collectors.toList());
-        if (!modifiedIndexes.isEmpty()) {
-            sb.append(COMMENT_SYMBOL).append(" 修改索引\n");
-            for (IndexMeta index : modifiedIndexes) {
-                sb.append(buildIndexAlterDefinition(index, "ALTER")).append(",\n");
-            }
-        }
-    }
-
-    private static void dropRemovedIndexes(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
-        List<IndexMeta> removedIndexes = oldTableMeta.getIndexes().stream()
-                .filter(index -> !newTableMeta.getIndexes().contains(index))
-                .collect(Collectors.toList());
-        if (!removedIndexes.isEmpty()) {
-            sb.append(COMMENT_SYMBOL).append(" 删除索引\n");
-            for (IndexMeta index : removedIndexes) {
-                sb.append("DROP INDEX ").append(index.getName()).append(",\n");
-            }
-        }
-    }
-
     private static String buildColumnDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  ");
         columnDef
                 .append("`").append(column.getName()).append("` ")
-                .append(dbType.getType(column.getJavaType(), column.getLength()));
+                .append(resolveColumnType(column, dbType));
 
         if (column.isNullable()) {
             columnDef.append(" NULL");
@@ -185,20 +151,34 @@ public class MysqlJdbcDdlUtils {
             columnDef.append(" NOT NULL");
         }
 
+        if (column.isAutoIncrement()) {
+            columnDef.append(" AUTO_INCREMENT");
+        }
+
         if (column.getDefaultValue() != null) {
             columnDef.append(" DEFAULT ").append(column.getDefaultValue());
         }
         // comment
-        if (column.getComment() != null) {
-            columnDef.append(" COMMENT ").append(column.getComment());
+        if (StringUtils.isNotBlank(column.getComment())) {
+            columnDef.append(" COMMENT '").append(column.getComment()).append("'");
         }
 
         return columnDef.toString();
     }
 
+    private static ColumnMeta findColumn(TableMeta tableMeta, String columnName) {
+        if (tableMeta == null || tableMeta.getColumns() == null || StringUtils.isBlank(columnName)) {
+            return null;
+        }
+        return tableMeta.getColumns().stream()
+                .filter(column -> columnName.equalsIgnoreCase(column.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
     private static String buildColumnAlterDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  MODIFY COLUMN ");
-        columnDef.append("`").append(column.getName()).append("` ").append(dbType.getType(column.getJavaType(), column.getLength()));
+        columnDef.append("`").append(column.getName()).append("` ").append(resolveColumnType(column, dbType));
 
         if (column.isNullable()) {
             columnDef.append(" NULL");
@@ -210,11 +190,18 @@ public class MysqlJdbcDdlUtils {
             columnDef.append(" DEFAULT ").append(column.getDefaultValue());
         }
         // comment
-        if (column.getComment() != null) {
+        if (StringUtils.isNotBlank(column.getComment())) {
             columnDef.append(" COMMENT '").append(column.getComment()).append("'");
         }
 
         return columnDef.toString();
+    }
+
+    private static String resolveColumnType(ColumnMeta column, DbType dbType) {
+        if (StringUtils.isNotBlank(column.getDataType())) {
+            return column.getDataType();
+        }
+        return dbType.getType(column.getJavaType(), column.getLength());
     }
 
     private static String buildIndexAlterDefinition(IndexMeta index, String action) {
@@ -305,4 +292,3 @@ public class MysqlJdbcDdlUtils {
     }
 
 }
-

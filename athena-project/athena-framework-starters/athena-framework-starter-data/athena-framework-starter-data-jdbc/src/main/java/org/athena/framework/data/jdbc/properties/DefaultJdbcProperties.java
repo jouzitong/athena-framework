@@ -45,8 +45,27 @@ public class DefaultJdbcProperties {
      * 是否开启自动更新表
      * <p>
      * 生产环境不建议开启
+     *
+     * @deprecated 兼容旧配置使用。下一个大版本移除，请改用 autoAddColumn、autoUpdateColumn、autoDropColumn。
      */
+    @Deprecated(since = "1.4.2", forRemoval = true)
     private boolean autoUpdateTable = false;
+
+    /**
+     * 是否自动添加实体新增字段。
+     */
+    private boolean autoAddColumn = true;
+
+    /**
+     * 是否自动更新实体字段定义。
+     * 当前 MyBatis DDL 生成暂未实现字段类型变更。
+     */
+    private boolean autoUpdateColumn = false;
+
+    /**
+     * 是否自动删除实体已移除字段。
+     */
+    private boolean autoDropColumn = false;
 
     /**
      * 实体扫描包
