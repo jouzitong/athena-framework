@@ -36,24 +36,36 @@ public final class DefaultEnumTypeHandler extends BaseTypeHandler<IEnum> {
 
     @Override
     public IEnum getNullableResult(ResultSet rs, String columnName) throws SQLException {
-        int code = rs.getInt(columnName);
-        return getBaseEnum(code);
+        return getBaseEnum(getNullableCode(rs, columnName));
     }
 
     @Override
     public IEnum getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-        int code = rs.getInt(columnIndex);
-        return getBaseEnum(code);
+        return getBaseEnum(getNullableCode(rs, columnIndex));
     }
 
     @Override
     public IEnum getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-        int code = cs.getInt(columnIndex);
-        return getBaseEnum(code);
+        return getBaseEnum(getNullableCode(cs, columnIndex));
     }
 
-    private IEnum getBaseEnum(int code) {
+    private IEnum getBaseEnum(Integer code) {
         return EnumUtils.codeOf(type, code);
+    }
+
+    private Integer getNullableCode(ResultSet rs, String columnName) throws SQLException {
+        int code = rs.getInt(columnName);
+        return rs.wasNull() ? null : code;
+    }
+
+    private Integer getNullableCode(ResultSet rs, int columnIndex) throws SQLException {
+        int code = rs.getInt(columnIndex);
+        return rs.wasNull() ? null : code;
+    }
+
+    private Integer getNullableCode(CallableStatement cs, int columnIndex) throws SQLException {
+        int code = cs.getInt(columnIndex);
+        return cs.wasNull() ? null : code;
     }
 
 }
