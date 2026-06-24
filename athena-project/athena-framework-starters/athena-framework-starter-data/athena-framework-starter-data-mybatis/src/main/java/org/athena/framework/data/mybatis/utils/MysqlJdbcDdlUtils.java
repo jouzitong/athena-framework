@@ -22,7 +22,7 @@ public class MysqlJdbcDdlUtils {
      */
     public static String genCreateDdlSql(TableMeta tableMeta) {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE TABLE IF NOT EXISTS ").append(tableMeta.getName()).append(" (\n");
+        sb.append("CREATE TABLE IF NOT EXISTS ").append(quoteIdentifier(tableMeta.getName())).append(" (\n");
 
         // 列定义
         List<String> columnDefs = tableMeta.getColumns().stream()
@@ -34,7 +34,7 @@ public class MysqlJdbcDdlUtils {
         if (tableMeta.getIndexes() != null && !tableMeta.getIndexes().isEmpty()) {
             for (IndexMeta index : tableMeta.getIndexes()) {
                 if ("PRIMARY".equalsIgnoreCase(index.getType())) {
-                    sb.append(",\n  PRIMARY KEY (").append(String.join(", ", index.getColumnNames())).append(")");
+                    sb.append(",\n  PRIMARY KEY (").append(joinColumnNames(index.getColumnNames())).append(")");
                     break; // 假设只有一个主键
                 }
             }
@@ -44,8 +44,8 @@ public class MysqlJdbcDdlUtils {
         if (tableMeta.getIndexes() != null && !tableMeta.getIndexes().isEmpty()) {
             for (IndexMeta index : tableMeta.getIndexes()) {
                 if (!"PRIMARY".equalsIgnoreCase(index.getType())) {
-                    sb.append(",\n  ").append(index.getType()).append(" ").append(index.getName())
-                            .append(" (").append(String.join(", ", index.getColumnNames()))
+                    sb.append(",\n  ").append(index.getType()).append(" ").append(quoteIdentifier(index.getName()))
+                            .append(" (").append(joinColumnNames(index.getColumnNames()))
                             .append(")").append(index.isUnique() ? " UNIQUE" : "");
                 }
             }
@@ -78,7 +78,7 @@ public class MysqlJdbcDdlUtils {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ").append(newTableMeta.getName()).append("\n");
+        sb.append("ALTER TABLE ").append(quoteIdentifier(newTableMeta.getName())).append("\n");
         int beforeLength = sb.length();
 
         if (autoAddColumn) {
@@ -134,7 +134,7 @@ public class MysqlJdbcDdlUtils {
         if (!removedColumns.isEmpty()) {
             sb.append(COMMENT_SYMBOL).append(" 删除字段\n");
             for (ColumnMeta column : removedColumns) {
-                sb.append("DROP COLUMN `").append(column.getName()).append("`,\n");
+                sb.append("DROP COLUMN ").append(quoteIdentifier(column.getName())).append(",\n");
             }
         }
     }
@@ -142,7 +142,7 @@ public class MysqlJdbcDdlUtils {
     private static String buildColumnDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  ");
         columnDef
-                .append("`").append(column.getName()).append("` ")
+                .append(quoteIdentifier(column.getName())).append(" ")
                 .append(resolveColumnType(column, dbType));
 
         if (column.isNullable()) {
@@ -170,15 +170,16 @@ public class MysqlJdbcDdlUtils {
         if (tableMeta == null || tableMeta.getColumns() == null || StringUtils.isBlank(columnName)) {
             return null;
         }
+        String normalizedColumnName = normalizeIdentifier(columnName);
         return tableMeta.getColumns().stream()
-                .filter(column -> columnName.equalsIgnoreCase(column.getName()))
+                .filter(column -> normalizedColumnName.equalsIgnoreCase(normalizeIdentifier(column.getName())))
                 .findFirst()
                 .orElse(null);
     }
 
     private static String buildColumnAlterDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  MODIFY COLUMN ");
-        columnDef.append("`").append(column.getName()).append("` ").append(resolveColumnType(column, dbType));
+        columnDef.append(quoteIdentifier(column.getName())).append(" ").append(resolveColumnType(column, dbType));
 
         if (column.isNullable()) {
             columnDef.append(" NULL");
@@ -206,11 +207,39 @@ public class MysqlJdbcDdlUtils {
 
     private static String buildIndexAlterDefinition(IndexMeta index, String action) {
         StringBuilder indexDef = new StringBuilder("  ").append(action).append(" INDEX ");
-        indexDef.append("`").append(index.getName()).append("` (");
-        indexDef.append(String.join(", ", index.getColumnNames()));
+        indexDef.append(quoteIdentifier(index.getName())).append(" (");
+        indexDef.append(joinColumnNames(index.getColumnNames()));
         indexDef.append(")");
 
         return indexDef.toString();
+    }
+
+    private static String joinColumnNames(List<String> columnNames) {
+        return columnNames.stream()
+                .map(MysqlJdbcDdlUtils::quoteIdentifier)
+                .collect(Collectors.joining(", "));
+    }
+
+    private static String quoteIdentifier(String identifier) {
+        if (StringUtils.isBlank(identifier)) {
+            return identifier;
+        }
+        String value = identifier.trim();
+        if (value.startsWith("`") && value.endsWith("`")) {
+            return value;
+        }
+        return "`" + value + "`";
+    }
+
+    private static String normalizeIdentifier(String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+        String value = identifier.trim();
+        if (value.startsWith("`") && value.endsWith("`") && value.length() > 1) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     public static void main(String[] args) {
