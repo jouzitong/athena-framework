@@ -69,6 +69,26 @@ public interface ErrCodeConstant {
      */
     Integer OBJECT_STORAGE_CONFIG_ERROR = 31007;
 
+    /**
+     * 通信模块配置非法
+     */
+    Integer COMMUNICATION_CONFIG_ERROR = 31101;
+
+    /**
+     * 未找到可用的通信渠道实现
+     */
+    Integer COMMUNICATION_CHANNEL_NOT_FOUND = 31102;
+
+    /**
+     * 通信发送失败
+     */
+    Integer COMMUNICATION_SEND_ERROR = 31103;
+
+    /**
+     * 通信请求参数非法
+     */
+    Integer COMMUNICATION_INVALID_REQUEST = 31104;
+
     Integer ILLEGAL_PARAMETER_ERROR = 10101;
 
     /**

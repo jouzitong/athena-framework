@@ -107,6 +107,26 @@
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-communication-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-communication</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-communication-email</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-communication-wecom</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-websocket</artifactId>
                 <version>${revision}</version>
             </dependency>
