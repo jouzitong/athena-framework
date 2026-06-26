@@ -101,7 +101,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                         }
                     }
                     LOGGER.debug("Security context set user id = {} for uri={}",
-                            userContext.subject().userId(), request.getRequestURI());
+                            userContext.subject().username(), request.getRequestURI());
                     SecurityContextHolder.set(userContext);
                 } else {
                     LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
