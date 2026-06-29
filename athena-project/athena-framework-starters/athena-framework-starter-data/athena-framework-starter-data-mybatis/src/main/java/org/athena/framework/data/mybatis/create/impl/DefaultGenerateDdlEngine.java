@@ -12,8 +12,7 @@ import org.athena.framework.data.mybatis.annotations.DdlIgnoreTable;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 import org.athena.framework.data.mybatis.create.IGenerateDdlEngine;
-import org.athena.framework.data.mybatis.create.builder.ITableMetaBuilder;
-import org.athena.framework.data.mybatis.create.builder.impl.DefaultTableMetaBuilder;
+import org.athena.framework.data.mybatis.registry.IEntityMetadataRegistry;
 import org.athena.framework.data.mybatis.utils.MysqlJdbcDdlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -46,6 +45,9 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
 
     @Autowired
     protected DataSource dataSource;
+
+    @Autowired
+    protected IEntityMetadataRegistry entityMetadataRegistry;
 
     /**
      * 数据库注释符号
@@ -83,16 +85,14 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
 
         // 更新表结构
         StringBuilder updateDdlSql = new StringBuilder();
-        List<Class<IEntity>> subClasses = getSubClasses(IEntity.class);
-        ITableMetaBuilder tableBuilder = new DefaultTableMetaBuilder();
         for (Class<?> clazz : subClasses) {
             if (isDdlIgnored(clazz)) {
                 continue;
             }
-            // TODO 应该获取自定义解析器, 从spring ioc 中获取
-//            tableBuilder.addParser(null);
-            tableBuilder.clazz(clazz);
-            TableMeta tableMeta = tableBuilder.build();
+            TableMeta tableMeta = entityMetadataRegistry.getTableMeta(clazz);
+            if (tableMeta == null) {
+                tableMeta = entityMetadataRegistry.register(clazz);
+            }
             // FIXME 当前只支持mysql.
             //  待优化: 应该定义一个 ddl sql 生成器, 根据 数据库类型获取不同的生成器, 并生成 SQL
 
