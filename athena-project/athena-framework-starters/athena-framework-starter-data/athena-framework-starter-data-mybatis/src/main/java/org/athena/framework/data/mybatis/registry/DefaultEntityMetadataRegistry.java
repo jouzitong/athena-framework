@@ -13,6 +13,7 @@ import org.athena.framework.data.mybatis.create.builder.impl.DefaultTableMetaBui
 import org.athena.framework.data.mybatis.create.parser.ITableMetaParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
+@Order(1)
 public class DefaultEntityMetadataRegistry implements IEntityMetadataRegistry, CommandLineRunner {
 
     private final Map<Class<?>, TableMeta> ENTITY_TABLE_MAP = new ConcurrentHashMap<>();
