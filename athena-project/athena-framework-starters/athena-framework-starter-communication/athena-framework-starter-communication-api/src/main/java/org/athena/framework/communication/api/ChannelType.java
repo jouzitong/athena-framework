@@ -8,5 +8,6 @@ package org.athena.framework.communication.api;
  */
 public enum ChannelType {
     EMAIL,
+    SMS,
     WECOM
 }

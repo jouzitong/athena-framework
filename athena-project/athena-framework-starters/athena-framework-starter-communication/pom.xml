@@ -16,6 +16,7 @@
         <module>athena-framework-starter-communication-api</module>
         <module>athena-framework-starter-communication</module>
         <module>athena-framework-starter-communication-email</module>
+        <module>athena-framework-starter-communication-sms</module>
         <module>athena-framework-starter-communication-wecom</module>
     </modules>
 </project>

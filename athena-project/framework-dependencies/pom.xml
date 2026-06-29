@@ -53,6 +53,7 @@
         <reflections.version>0.10.2</reflections.version>
         <forest.version>1.5.14</forest.version>
         <easyexcel.version>3.2.1</easyexcel.version>
+        <aliyun-dysmsapi.version>4.5.1</aliyun-dysmsapi.version>
         <commons-lang3.version>3.10</commons-lang3.version>
         <commons-io.version>2.5</commons-io.version>
         <guava.version>22.0</guava.version>
@@ -118,6 +119,11 @@
             <dependency>
                 <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-communication-email</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-communication-sms</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -251,6 +257,11 @@
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>dysmsapi20170525</artifactId>
+                <version>${aliyun-dysmsapi.version}</version>
             </dependency>
 
             <!-- mybatis依赖 -->
