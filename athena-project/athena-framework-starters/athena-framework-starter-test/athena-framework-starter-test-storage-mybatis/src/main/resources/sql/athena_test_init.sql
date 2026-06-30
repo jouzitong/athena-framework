@@ -1,0 +1,222 @@
+CREATE TABLE IF NOT EXISTS `athena_test_scene` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `scene_code` VARCHAR(64) NOT NULL COMMENT '测试场景编码',
+    `name` VARCHAR(128) NOT NULL COMMENT '测试场景名称',
+    `biz_type` VARCHAR(64) DEFAULT NULL COMMENT '业务分类',
+    `description` TEXT DEFAULT NULL COMMENT '描述',
+    `current_version` VARCHAR(64) DEFAULT NULL COMMENT '当前发布版本',
+    `status` VARCHAR(32) NOT NULL DEFAULT 'DRAFT' COMMENT '状态',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_scene_code` (`scene_code`, `deleted`)
+) COMMENT='测试场景定义表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_scene_version` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `scene_id` BIGINT NOT NULL COMMENT '测试场景ID',
+    `version_tag` VARCHAR(64) NOT NULL COMMENT '版本号',
+    `version_status` VARCHAR(32) NOT NULL DEFAULT 'DRAFT' COMMENT '版本状态',
+    `definition_json` LONGTEXT NOT NULL COMMENT '完整流程定义快照',
+    `change_comment` TEXT DEFAULT NULL COMMENT '变更说明',
+    `published_by` BIGINT DEFAULT NULL COMMENT '发布人',
+    `published_at` DATETIME DEFAULT NULL COMMENT '发布时间',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_scene_version` (`scene_id`, `version_tag`, `deleted`),
+    KEY `idx_athena_test_scene_version_scene` (`scene_id`)
+) COMMENT='测试场景版本表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_plan` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `plan_code` VARCHAR(64) NOT NULL COMMENT '测试计划编码',
+    `name` VARCHAR(128) NOT NULL COMMENT '测试计划名称',
+    `description` TEXT DEFAULT NULL COMMENT '描述',
+    `status` VARCHAR(32) NOT NULL DEFAULT 'DRAFT' COMMENT '状态',
+    `cron_expression` VARCHAR(128) DEFAULT NULL COMMENT 'cron表达式',
+    `default_version` VARCHAR(64) DEFAULT NULL COMMENT '默认执行版本',
+    `last_triggered_at` DATETIME DEFAULT NULL COMMENT '上次触发时间',
+    `next_trigger_at` DATETIME DEFAULT NULL COMMENT '下次触发时间',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_plan_code` (`plan_code`, `deleted`)
+) COMMENT='测试计划表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_plan_scene` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `plan_id` BIGINT NOT NULL COMMENT '测试计划ID',
+    `scene_id` BIGINT NOT NULL COMMENT '测试场景ID',
+    `version_tag` VARCHAR(64) DEFAULT NULL COMMENT '指定执行版本',
+    `execute_order` INT NOT NULL DEFAULT 0 COMMENT '执行顺序',
+    `enabled` INT NOT NULL DEFAULT 1 COMMENT '是否启用',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_plan_scene` (`plan_id`, `scene_id`, `version_tag`, `deleted`),
+    KEY `idx_athena_test_plan_scene_plan` (`plan_id`)
+) COMMENT='测试计划场景关联表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_execution` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `execution_no` VARCHAR(64) NOT NULL COMMENT '执行流水号',
+    `scene_id` BIGINT NOT NULL COMMENT '测试场景ID',
+    `scene_code` VARCHAR(64) NOT NULL COMMENT '测试场景编码',
+    `version_tag` VARCHAR(64) DEFAULT NULL COMMENT '执行版本',
+    `plan_id` BIGINT DEFAULT NULL COMMENT '测试计划ID',
+    `trigger_type` VARCHAR(32) NOT NULL COMMENT '触发方式',
+    `status` VARCHAR(32) NOT NULL COMMENT '执行状态',
+    `success` INT NOT NULL DEFAULT 0 COMMENT '是否成功',
+    `started_at` DATETIME DEFAULT NULL COMMENT '开始时间',
+    `finished_at` DATETIME DEFAULT NULL COMMENT '结束时间',
+    `duration_ms` BIGINT DEFAULT NULL COMMENT '耗时毫秒',
+    `request_snapshot` LONGTEXT DEFAULT NULL COMMENT '执行时请求快照',
+    `result_summary` TEXT DEFAULT NULL COMMENT '执行摘要',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_execution_no` (`execution_no`),
+    KEY `idx_athena_test_execution_scene` (`scene_id`, `scene_code`),
+    KEY `idx_athena_test_execution_plan` (`plan_id`)
+) COMMENT='测试执行记录表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_execution_step` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `execution_id` BIGINT NOT NULL COMMENT '执行记录ID',
+    `step_code` VARCHAR(64) NOT NULL COMMENT '步骤编码',
+    `step_name` VARCHAR(128) DEFAULT NULL COMMENT '步骤名称',
+    `step_order` INT DEFAULT NULL COMMENT '步骤顺序',
+    `step_type` VARCHAR(32) NOT NULL COMMENT '步骤类型',
+    `status` VARCHAR(32) NOT NULL COMMENT '步骤状态',
+    `success` INT NOT NULL DEFAULT 0 COMMENT '是否成功',
+    `duration_ms` BIGINT DEFAULT NULL COMMENT '耗时毫秒',
+    `request_payload` LONGTEXT DEFAULT NULL COMMENT '请求快照',
+    `response_payload` LONGTEXT DEFAULT NULL COMMENT '响应快照',
+    `error_message` TEXT DEFAULT NULL COMMENT '错误信息',
+    `extracted_variables` LONGTEXT DEFAULT NULL COMMENT '提取变量快照',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    PRIMARY KEY (`id`),
+    KEY `idx_athena_test_execution_step_execution` (`execution_id`)
+) COMMENT='测试执行步骤记录表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_api_catalog` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `service_name` VARCHAR(64) NOT NULL COMMENT '服务名',
+    `module_name` VARCHAR(64) DEFAULT NULL COMMENT '模块名',
+    `api_code` VARCHAR(128) NOT NULL COMMENT '接口编码',
+    `api_name` VARCHAR(128) NOT NULL COMMENT '接口名称',
+    `protocol` VARCHAR(32) NOT NULL DEFAULT 'HTTP' COMMENT '协议类型',
+    `http_method` VARCHAR(16) DEFAULT NULL COMMENT 'HTTP方法',
+    `path` VARCHAR(255) NOT NULL COMMENT '接口路径',
+    `auth_type` VARCHAR(64) DEFAULT NULL COMMENT '鉴权方式',
+    `content_type` VARCHAR(64) DEFAULT NULL COMMENT '内容类型',
+    `status` VARCHAR(32) NOT NULL DEFAULT 'DRAFT' COMMENT '状态',
+    `current_version` VARCHAR(64) DEFAULT NULL COMMENT '当前发布版本',
+    `description` TEXT DEFAULT NULL COMMENT '描述',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_api_catalog_code` (`service_name`, `api_code`, `deleted`)
+) COMMENT='接口资产定义表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_api_catalog_version` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `api_catalog_id` BIGINT NOT NULL COMMENT '接口资产ID',
+    `version_tag` VARCHAR(64) NOT NULL COMMENT '版本号',
+    `version_status` VARCHAR(32) NOT NULL DEFAULT 'DRAFT' COMMENT '版本状态',
+    `definition_json` LONGTEXT DEFAULT NULL COMMENT '接口定义快照',
+    `change_comment` TEXT DEFAULT NULL COMMENT '变更说明',
+    `published_by` BIGINT DEFAULT NULL COMMENT '发布人',
+    `published_at` DATETIME DEFAULT NULL COMMENT '发布时间',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_api_catalog_version` (`api_catalog_id`, `version_tag`, `deleted`),
+    KEY `idx_athena_test_api_catalog_version_catalog` (`api_catalog_id`)
+) COMMENT='接口资产版本表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_api_catalog_param` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `api_catalog_version_id` BIGINT NOT NULL COMMENT '接口版本ID',
+    `param_name` VARCHAR(128) NOT NULL COMMENT '参数名',
+    `param_in` VARCHAR(32) NOT NULL COMMENT '参数位置',
+    `data_type` VARCHAR(32) DEFAULT NULL COMMENT '数据类型',
+    `required_flag` INT NOT NULL DEFAULT 0 COMMENT '是否必填',
+    `default_value` VARCHAR(255) DEFAULT NULL COMMENT '默认值',
+    `example_value` VARCHAR(255) DEFAULT NULL COMMENT '示例值',
+    `description` TEXT DEFAULT NULL COMMENT '参数说明',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_athena_test_api_catalog_param_version` (`api_catalog_version_id`)
+) COMMENT='接口资产参数表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_api_catalog_response` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `api_catalog_version_id` BIGINT NOT NULL COMMENT '接口版本ID',
+    `status_code` INT NOT NULL COMMENT '响应状态码',
+    `response_name` VARCHAR(128) DEFAULT NULL COMMENT '响应名称',
+    `schema_json` LONGTEXT DEFAULT NULL COMMENT '响应结构定义',
+    `example_json` LONGTEXT DEFAULT NULL COMMENT '响应示例',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_athena_test_api_catalog_response_version` (`api_catalog_version_id`)
+) COMMENT='接口资产响应表';
+
+CREATE TABLE IF NOT EXISTS `athena_test_flow_node_api_ref` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `version` BIGINT NOT NULL DEFAULT 1 COMMENT '版本',
+    `node_code` VARCHAR(64) NOT NULL COMMENT '测试节点编码',
+    `api_catalog_id` BIGINT NOT NULL COMMENT '接口资产ID',
+    `api_catalog_version_id` BIGINT DEFAULT NULL COMMENT '接口资产版本ID',
+    `ref_mode` VARCHAR(32) NOT NULL DEFAULT 'FIXED_VERSION' COMMENT '引用模式',
+    `override_config_json` LONGTEXT DEFAULT NULL COMMENT '节点覆盖配置',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by` BIGINT DEFAULT -1 COMMENT '创建人',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    `updated_by` BIGINT DEFAULT -1 COMMENT '更新人',
+    `deleted` INT NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_athena_test_flow_node_api_ref` (`node_code`, `deleted`)
+) COMMENT='测试节点引用接口资产表';

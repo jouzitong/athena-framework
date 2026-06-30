@@ -133,6 +133,41 @@
             </dependency>
             <dependency>
                 <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test-catalog</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test-http</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test-websocket</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test-storage-mybatis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
+                <artifactId>athena-framework-starter-test-scheduler</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.athena</groupId>
                 <artifactId>athena-framework-starter-websocket</artifactId>
                 <version>${revision}</version>
             </dependency>

@@ -16,6 +16,7 @@
         <module>athena-framework-starter-web</module>
         <module>athena-framework-starter-cloud</module>
         <module>athena-framework-starter-communication</module>
+        <module>athena-framework-starter-test</module>
         <module>athena-framework-data-starter-mongo</module>
         <module>athena-framework-starters-ai</module>
         <module>athena-framework-starter-es</module>

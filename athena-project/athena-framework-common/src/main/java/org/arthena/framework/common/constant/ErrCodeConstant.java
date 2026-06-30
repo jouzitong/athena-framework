@@ -89,6 +89,31 @@ public interface ErrCodeConstant {
      */
     Integer COMMUNICATION_INVALID_REQUEST = 31104;
 
+    /**
+     * 测试模块配置非法
+     */
+    Integer TEST_CONFIG_ERROR = 31201;
+
+    /**
+     * 未找到可用的测试步骤执行器
+     */
+    Integer TEST_STEP_EXECUTOR_NOT_FOUND = 31202;
+
+    /**
+     * 测试断言失败
+     */
+    Integer TEST_ASSERTION_FAILED = 31203;
+
+    /**
+     * 测试版本不存在
+     */
+    Integer TEST_VERSION_NOT_FOUND = 31204;
+
+    /**
+     * 测试计划执行失败
+     */
+    Integer TEST_PLAN_EXECUTION_FAILED = 31205;
+
     Integer ILLEGAL_PARAMETER_ERROR = 10101;
 
     /**
