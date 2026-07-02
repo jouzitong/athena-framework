@@ -40,10 +40,11 @@ public class MybatisPlusWrapperUtils {
 
         List<Sort> sorts = query.getSorts();
         sorts.forEach(sort -> {
+            String fieldName = CamelCaseUtils.toSnakeCase(sort.getColumn());
             if (sort.isAsc()) {
-                wrapper.orderByAsc(sort.getColumn());
+                wrapper.orderByAsc(fieldName);
             } else {
-                wrapper.orderByDesc(sort.getColumn());
+                wrapper.orderByDesc(fieldName);
             }
         });
 

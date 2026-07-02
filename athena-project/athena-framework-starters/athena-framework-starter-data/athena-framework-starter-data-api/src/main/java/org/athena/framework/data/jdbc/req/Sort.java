@@ -1,6 +1,7 @@
 package org.athena.framework.data.jdbc.req;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @since 2022/9/25
  */
 @Getter
+@NoArgsConstructor
 public class Sort implements Serializable {
 
     /**
@@ -26,14 +28,14 @@ public class Sort implements Serializable {
     /**
      * 字段名
      */
-    private final String column;
+    private String column;
 
     /**
      * 正序: desc
      * <p>
      * 逆序: asc
      */
-    private final String sort;
+    private String sort;
 
     private Sort(String column, String sort) {
         this.column = column;
