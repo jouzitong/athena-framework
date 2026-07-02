@@ -37,15 +37,6 @@ import java.util.List;
 public class BaseControllerAdvice {
 
     /**
-     * 未知异常
-     */
-    @ExceptionHandler(Exception.class)
-    public R<Void> exception(Exception e) {
-        LOGGER.error("", e);
-        return R.fail(ErrCodeConstant.UN_KNOW_ERROR);
-    }
-
-    /**
      * 系统异常
      */
     @ExceptionHandler(BaseRuntimeException.class)
@@ -60,8 +51,8 @@ public class BaseControllerAdvice {
     }
 
     @ExceptionHandler(BizException.class)
-    public R<Void> bizException(BizException e, HttpServletResponse response) {
-        LOGGER.error("", e);
+    public R<Void> bizException(BizException e) {
+        LOGGER.warn("", e);
         return R.fail(e.getCode(), e.getArgs());
     }
 
@@ -131,6 +122,15 @@ public class BaseControllerAdvice {
     public R<Void> unsupportedMediaType(HttpMediaTypeNotSupportedException e) {
         LOGGER.warn("unsupportedMediaType", e);
         return R.fail(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR, e.getContentType());
+    }
+
+    /**
+     * 未知异常
+     */
+    @ExceptionHandler(Exception.class)
+    public R<Void> exception(Exception e) {
+        LOGGER.error("", e);
+        return R.fail(ErrCodeConstant.UN_KNOW_ERROR);
     }
 
 }

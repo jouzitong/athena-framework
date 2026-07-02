@@ -46,6 +46,8 @@ public class R<D> implements IR<D> {
      */
     private String signKeyId;
 
+    private String msg;
+
     /**
      * 错误信息参数
      */
@@ -71,7 +73,7 @@ public class R<D> implements IR<D> {
     }
 
     public String getMsg() {
-        return ErrorCodeUtils.getMsg(code, errorMsgArgs);
+        return msg = ErrorCodeUtils.getMsg(code, errorMsgArgs);
     }
 
     @JsonIgnore

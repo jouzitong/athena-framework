@@ -4,6 +4,8 @@ import lombok.Getter;
 import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
 
+import java.util.Arrays;
+
 /**
  * @author zhouzhitong
  * @version 1.0
@@ -52,6 +54,15 @@ public class BizException extends RuntimeException {
     @Override
     public String getMessage() {
         return ErrorCodeUtils.getMsg(this.code, this.args);
+    }
+
+    @Override
+    public String toString() {
+        return "BizException{" +
+                "code=" + code +
+                ", message='" + getMessage() + '\'' +
+                ", args=" + Arrays.toString(args) +
+                '}';
     }
 
 }
