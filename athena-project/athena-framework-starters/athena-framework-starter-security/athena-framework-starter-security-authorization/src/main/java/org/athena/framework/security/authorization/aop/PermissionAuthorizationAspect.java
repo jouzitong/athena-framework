@@ -5,7 +5,7 @@ import org.athena.framework.security.api.event.AuthorizationDecisionEvent;
 import org.athena.framework.security.api.exception.ForbiddenException;
 import org.athena.framework.security.api.model.UserContext;
 import org.athena.framework.security.api.spi.PermissionEvaluator;
-import org.athena.framework.security.auth.core.context.SecurityContextHolder;
+import org.arthena.framework.common.context.SystemContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -33,7 +33,7 @@ public class PermissionAuthorizationAspect {
 
     @Around("@annotation(requirePermission)")
     public Object checkPermission(ProceedingJoinPoint joinPoint, RequirePermission requirePermission) throws Throwable {
-        UserContext userContext = SecurityContextHolder.get();
+        UserContext userContext = SystemContext.getUserContext();
         String[] permissions = requirePermission.value();
         boolean hasPermission;
 

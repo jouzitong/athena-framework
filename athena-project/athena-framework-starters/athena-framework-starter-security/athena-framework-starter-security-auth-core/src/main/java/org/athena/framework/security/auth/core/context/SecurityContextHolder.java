@@ -1,34 +1,52 @@
 package org.athena.framework.security.auth.core.context;
 
+import org.arthena.framework.common.context.SystemContext;
 import org.athena.framework.security.api.model.Subject;
 import org.athena.framework.security.api.model.UserContext;
 
 /**
  * 安全上下文持有器。
- * 基于 ThreadLocal 保存当前线程的用户上下文，过滤器在请求结束时负责清理。
+ *
+ * @deprecated 请改用 {@link SystemContext#setUserContext(Object)}、
+ * {@link SystemContext#getUserContext()}、
+ * {@link SystemContext#clearUserContext()}。
  */
+@Deprecated(since = "1.4.2", forRemoval = true)
 public final class SecurityContextHolder {
-
-    private static final ThreadLocal<UserContext> CONTEXT = new ThreadLocal<>();
 
     private SecurityContextHolder() {
     }
 
+    /**
+     * @deprecated 请改用 {@link SystemContext#setUserContext(Object)}
+     */
+    @Deprecated(since = "1.4.2", forRemoval = true)
     public static void set(UserContext userContext) {
-        if (userContext != null) {
-            CONTEXT.set(userContext);
-        }
+        SystemContext.setUserContext(userContext);
     }
 
+    /**
+     * @deprecated 请改用 {@link SystemContext#getUserContext()}
+     */
+    @Deprecated(since = "1.4.2", forRemoval = true)
     public static UserContext get() {
-        return CONTEXT.get();
+        return SystemContext.getUserContext();
     }
 
+    /**
+     * @deprecated 请改用 {@link SystemContext#getUserContext()}
+     */
+    @Deprecated(since = "1.4.2", forRemoval = true)
     public static Subject getSubject() {
-        return CONTEXT.get().subject();
+        UserContext userContext = get();
+        return userContext == null ? null : userContext.subject();
     }
 
+    /**
+     * @deprecated 请改用 {@link SystemContext#clearUserContext()}
+     */
+    @Deprecated(since = "1.4.2", forRemoval = true)
     public static void clear() {
-        CONTEXT.remove();
+        SystemContext.clearUserContext();
     }
 }

@@ -4,11 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.context.SystemContext;
 import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
 import org.athena.framework.security.api.auth.AuthenticationRequest;
 import org.athena.framework.security.api.auth.AuthenticationResult;
 import org.athena.framework.security.api.model.UserContext;
-import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.service.SecurityAuthenticationFacade;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -97,7 +97,7 @@ public class SecurityAuthController {
 
     @GetMapping("/me")
     public Map<String, Object> me() {
-        UserContext userContext = SecurityContextHolder.get();
+        UserContext userContext = SystemContext.getUserContext();
         if (userContext == null || userContext.subject() == null) {
             throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), ErrCodeConstant.UNAUTHORIZED);
         }

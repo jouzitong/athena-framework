@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.arthena.framework.common.context.SystemContext;
 import org.athena.framework.security.api.model.MutableUserContext;
 import org.athena.framework.security.api.model.TokenContext;
 import org.athena.framework.security.api.model.UserContext;
@@ -15,7 +16,6 @@ import org.athena.framework.security.api.spi.TokenParseResult;
 import org.athena.framework.security.api.spi.TokenParseStatus;
 import org.athena.framework.security.api.spi.UserContextEnricher;
 import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
-import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.gateway.GatewayRequestHeaderValidator;
 import org.slf4j.Logger;
@@ -102,7 +102,10 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                     }
                     LOGGER.debug("Security context set user id = {} for uri={}",
                             userContext.subject().username(), request.getRequestURI());
-                    SecurityContextHolder.set(userContext);
+                    SystemContext.setUserContext(userContext);
+                    if (userContext.subject() != null) {
+                        SystemContext.setTenantId(userContext.subject().tenantId());
+                    }
                 } else {
                     LOGGER.debug("Token parsed to empty context, uri={}", request.getRequestURI());
                 }
@@ -122,7 +125,8 @@ public class SecurityContextFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             LOGGER.error("未知异常: ", e);
         } finally {
-            SecurityContextHolder.clear();
+            SystemContext.clearUserContext();
+            SystemContext.clearTenantId();
         }
     }
 

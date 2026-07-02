@@ -4,9 +4,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.arthena.framework.common.context.SystemContext;
 import org.athena.framework.datasource.annotation.DataSourceRoute;
 import org.athena.framework.datasource.context.RouteContext;
-import org.athena.framework.datasource.context.TenantContext;
 import org.athena.framework.datasource.routing.RouteDecisionEngine;
 import org.athena.framework.datasource.routing.RouteRequest;
 import org.springframework.core.Ordered;
@@ -37,7 +37,7 @@ public class DynamicDataSourceAspect {
             RouteRequest request = RouteRequest.builder()
                 .targetClass(targetClass)
                 .methodName(method.getName())
-                .tenantId(TenantContext.getTenantId())
+                .tenantId(SystemContext.getTenantId())
                 .readOnly(isReadOnly(method, targetClass))
                 .build();
             routeKey = routeDecisionEngine.determine(request);

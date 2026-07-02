@@ -36,7 +36,41 @@ public class SystemContext {
         return DEFAULT_LOCALE;
     }
 
-    public static void setLocale(String key, Object val) {
+    public static void setLocale(String locale) {
+        put(SystemContextKeyConstant.LOCALE, locale);
+    }
+
+    public static void clearLocale() {
+        remove(SystemContextKeyConstant.LOCALE);
+    }
+
+    public static void setUserContext(Object userContext) {
+        put(SystemContextKeyConstant.USER_CONTEXT, userContext);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getUserContext() {
+        return (T) getValue(SystemContextKeyConstant.USER_CONTEXT);
+    }
+
+    public static void clearUserContext() {
+        remove(SystemContextKeyConstant.USER_CONTEXT);
+    }
+
+    public static void setTenantId(String tenantId) {
+        put(SystemContextKeyConstant.TENANT_ID, tenantId);
+    }
+
+    public static String getTenantId() {
+        Object tenantId = getValue(SystemContextKeyConstant.TENANT_ID);
+        return tenantId == null ? null : tenantId.toString();
+    }
+
+    public static void clearTenantId() {
+        remove(SystemContextKeyConstant.TENANT_ID);
+    }
+
+    private static void put(String key, Object val) {
         Map<String, Object> map = CONTEXT_THREAD_LOCAL.get();
         if (map == null) {
             map = new HashMap<>();
@@ -46,14 +80,14 @@ public class SystemContext {
     }
 
     public static String getLocale() {
-        Object locale = get(SystemContextKeyConstant.LOCALE);
+        Object locale = getValue(SystemContextKeyConstant.LOCALE);
         if (locale != null) {
             return locale.toString();
         }
         return DEFAULT_LOCALE;
     }
 
-    public static Object get(String key) {
+    private static Object getValue(String key) {
         Map<String, Object> map = CONTEXT_THREAD_LOCAL.get();
         if (map != null) {
             return map.get(key);
@@ -61,8 +95,39 @@ public class SystemContext {
         return null;
     }
 
-    public static void removeLocale() {
+    private static void remove(String key) {
+        Map<String, Object> map = CONTEXT_THREAD_LOCAL.get();
+        if (map == null) {
+            return;
+        }
+        map.remove(key);
+        if (map.isEmpty()) {
+            CONTEXT_THREAD_LOCAL.remove();
+        }
+    }
+
+    public static Map<String, Object> snapshot() {
+        Map<String, Object> map = CONTEXT_THREAD_LOCAL.get();
+        if (map == null || map.isEmpty()) {
+            return null;
+        }
+        return new HashMap<>(map);
+    }
+
+    public static void restore(Map<String, Object> context) {
+        if (context == null || context.isEmpty()) {
+            CONTEXT_THREAD_LOCAL.remove();
+            return;
+        }
+        CONTEXT_THREAD_LOCAL.set(new HashMap<>(context));
+    }
+
+    public static void clear() {
         CONTEXT_THREAD_LOCAL.remove();
+    }
+
+    public static void removeLocale() {
+        clearLocale();
     }
 
     public static void finish() {

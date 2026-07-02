@@ -16,4 +16,14 @@ public interface SystemContextKeyConstant {
      */
     String LOCALE = "lang";
 
+    /**
+     * 用户上下文
+     */
+    String USER_CONTEXT = "userContext";
+
+    /**
+     * 当前租户ID
+     */
+    String TENANT_ID = "tenantId";
+
 }

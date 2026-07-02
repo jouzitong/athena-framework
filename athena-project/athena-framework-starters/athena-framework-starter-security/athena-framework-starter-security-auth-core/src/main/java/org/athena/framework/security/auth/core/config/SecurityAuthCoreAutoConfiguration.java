@@ -9,7 +9,6 @@ import org.athena.framework.security.api.spi.IdentityProvider;
 import org.athena.framework.security.api.spi.SecurityUserRepository;
 import org.athena.framework.security.api.spi.TokenManager;
 import org.athena.framework.security.api.spi.UserContextEnricher;
-import org.athena.framework.security.auth.core.context.SecurityContextHolder;
 import org.athena.framework.security.auth.core.gateway.GatewayRequestHeaderValidator;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.extractor.HeaderTokenCredentialExtractor;
@@ -166,19 +165,21 @@ public class SecurityAuthCoreAutoConfiguration {
         return new IUserContextService() {
             @Override
             public Long getUserId() {
-                if (SecurityContextHolder.get() == null || SecurityContextHolder.get().subject() == null) {
+                org.athena.framework.security.api.model.UserContext userContext = SystemContext.getUserContext();
+                if (userContext == null || userContext.subject() == null) {
                     return 0L;
                 }
-                return SecurityContextHolder.get().subject().userId();
+                return userContext.subject().userId();
             }
 
             @Override
             public Long getTenantId() {
-                if (SecurityContextHolder.get() == null || SecurityContextHolder.get().subject() == null) {
+                String tenantId = SystemContext.getTenantId();
+                if (tenantId == null || tenantId.isBlank()) {
                     return 0L;
                 }
                 try {
-                    return Long.parseLong(SecurityContextHolder.get().subject().tenantId());
+                    return Long.parseLong(tenantId);
                 } catch (Exception ex) {
                     return 0L;
                 }
