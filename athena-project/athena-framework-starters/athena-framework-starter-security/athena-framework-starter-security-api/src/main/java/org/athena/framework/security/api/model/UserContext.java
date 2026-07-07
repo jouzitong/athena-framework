@@ -8,6 +8,11 @@ import java.util.Map;
  */
 public interface UserContext {
     /**
+     * 获取当前请求关联的原始 token。
+     */
+    String token();
+
+    /**
      * 获取当前用户主体信息。
      */
     Subject subject();

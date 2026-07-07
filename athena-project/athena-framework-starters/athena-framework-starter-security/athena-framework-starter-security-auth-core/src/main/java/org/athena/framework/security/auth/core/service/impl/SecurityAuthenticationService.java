@@ -66,6 +66,7 @@ public class SecurityAuthenticationService implements SecurityAuthenticationFaca
         }
 
         String token = tokenManager.create(context);
+        context.setToken(token);
         context.setSession(context.session() == null ? null :
             new org.athena.framework.security.api.model.SessionState(
                 context.session().sessionId(),
@@ -130,6 +131,7 @@ public class SecurityAuthenticationService implements SecurityAuthenticationFaca
         }
 
         String refreshedToken = tokenManager.create(mutableUserContext);
+        mutableUserContext.setToken(refreshedToken);
         SessionState oldSession = mutableUserContext.session();
         mutableUserContext.setSession(new SessionState(
             oldSession == null || oldSession.sessionId() == null ? UUID.randomUUID().toString() : oldSession.sessionId(),
@@ -148,6 +150,7 @@ public class SecurityAuthenticationService implements SecurityAuthenticationFaca
             return mutableUserContext;
         }
         MutableUserContext mutableUserContext = new MutableUserContext();
+        mutableUserContext.setToken(userContext.token());
         mutableUserContext.setSubject(userContext.subject());
         mutableUserContext.setAuthn(userContext.authn());
         mutableUserContext.setAuthorization(userContext.authorization());

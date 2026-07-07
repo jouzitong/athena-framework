@@ -96,6 +96,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                 }
                 if (userContext != null) {
                     if (userContext instanceof MutableUserContext mutableUserContext) {
+                        mutableUserContext.setToken(token);
                         for (UserContextEnricher enricher : enrichers) {
                             enricher.enrich(mutableUserContext);
                         }

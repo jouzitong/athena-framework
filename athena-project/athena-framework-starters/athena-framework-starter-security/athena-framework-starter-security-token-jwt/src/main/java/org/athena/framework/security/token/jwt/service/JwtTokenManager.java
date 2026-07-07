@@ -104,7 +104,9 @@ public class JwtTokenManager implements TokenManagerWithParseResult {
                 LOGGER.debug("JWT token missing ctx payload");
                 return new TokenParseResult(null, TokenParseStatus.MISSING_CONTEXT);
             }
-            return new TokenParseResult(objectMapper.convertValue(contextRaw, MutableUserContext.class), TokenParseStatus.OK);
+            MutableUserContext userContext = objectMapper.convertValue(contextRaw, MutableUserContext.class);
+            userContext.setToken(token);
+            return new TokenParseResult(userContext, TokenParseStatus.OK);
         } catch (IllegalArgumentException ex) {
             // Base64 URL 解码可能抛 IllegalArgumentException
             LOGGER.debug("Invalid jwt token payload encoding: {}", ex.getMessage());

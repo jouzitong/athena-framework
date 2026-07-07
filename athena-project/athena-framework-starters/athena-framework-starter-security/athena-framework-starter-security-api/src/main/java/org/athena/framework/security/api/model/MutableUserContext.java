@@ -12,6 +12,8 @@ import java.util.Map;
 @Data
 public class MutableUserContext implements UserContext {
 
+    private String token;
+
     private Subject subject;
 
     private AuthnState authn;
@@ -21,6 +23,11 @@ public class MutableUserContext implements UserContext {
     private SessionState session;
 
     private final Map<String, Object> attributes = new LinkedHashMap<>();
+
+    @Override
+    public String token() {
+        return token;
+    }
 
     @Override
     public Subject subject() {
