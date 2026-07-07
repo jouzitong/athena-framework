@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 import org.athena.framework.data.jdbc.entity.IEntity;
@@ -29,6 +30,7 @@ public abstract class BaseEntity implements IEntity {
      * 主键
      */
     @TableId(value = "id", type = IdType.AUTO)
+    @Id
     @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BIGINT(20)")
     protected Long id;
 

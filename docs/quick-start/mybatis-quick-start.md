@@ -99,10 +99,10 @@ lib:
 
 ```java
 import com.baomidou.mybatisplus.annotation.TableName;
-import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.athena.framework.data.jdbc.annotations.JdbcColumn;
 import org.athena.framework.data.mybatis.entity.AuditableEntity;
 
 @Getter
@@ -111,10 +111,10 @@ import org.athena.framework.data.mybatis.entity.AuditableEntity;
 @Table(name = "demo_user")
 public class DemoUserEntity extends AuditableEntity {
 
-    @Column(name = "name", columnDefinition = "VARCHAR(64)", nullable = false)
+    @JdbcColumn(name = "name", dataType = "VARCHAR(64)", nullable = false, comment = "用户名")
     private String name;
 
-    @Column(name = "status", columnDefinition = "INT")
+    @JdbcColumn(name = "status", dataType = "INT", defaultValue = "0", comment = "用户状态")
     private UserStatus status;
 }
 ```
@@ -322,11 +322,13 @@ mybatis-plus:
 解析规则主要来自：
 
 - `TableInfoParser`：读取 `@Table` 或 `@TableName` 的表名。
-- `ColumnMetaParser`：读取字段上的 `jakarta.persistence.Column`、MyBatis-Plus `@TableField`、`@TableId`，也支持 `@Embedded` 字段的递归解析。
+- `ColumnMetaParser`：优先读取字段上的 `@JdbcColumn`，也兼容 `jakarta.persistence.Column`、MyBatis-Plus `@TableField`、`@TableId`，并支持 `@Embedded` 字段的递归解析。
 - `IndexMetaParser`：解析索引元数据，`@Id` 和 `@TableId` 都会生成主键索引。
 
 字段类型推断规则：
 
+- `@JdbcColumn` 可一次性声明列名、DDL 类型、长度、精度、可空、自增、唯一、默认值、注释。
+- 主键仍通过 `@Id` 或 `@TableId` 声明；`@JdbcColumn` 不负责主键标记。
 - `@Column(columnDefinition = "...")` 会作为显式 DDL 类型优先使用。
 - `String` 默认生成 `VARCHAR(255)`。
 - 实现 `IEnum` 或普通 Java `enum` 的字段默认生成 `INT`。

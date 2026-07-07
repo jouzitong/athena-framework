@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.utils.CamelCaseUtils;
+import org.athena.framework.data.jdbc.annotations.JdbcColumn;
 import org.athena.framework.data.mybatis.annotations.DdlColumnLength;
 import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 
@@ -31,30 +32,19 @@ public class TableFieldParseUtils {
         Column column = field.getAnnotation(Column.class);
         TableField tableField = field.getAnnotation(TableField.class);
         TableId tableId = field.getAnnotation(TableId.class);
+        JdbcColumn jdbcColumn = field.getAnnotation(JdbcColumn.class);
         if (!isPersistentField(field)) {
             throw new IllegalArgumentException("Field is missing persistence column annotation");
         }
 
         String name = getColumnName(field);
         Class<?> javaType = field.getType();
-        String dataType = column != null && StringUtils.isNotBlank(column.columnDefinition())
-                ? column.columnDefinition()
-                : null;
-        int length = getLength(field, column);
-        Integer scale = column == null ? null : column.scale();
-        boolean primaryKey = field.isAnnotationPresent(Id.class) || tableId != null;
-        boolean nullable = column == null ? !primaryKey : column.nullable();
-        boolean autoIncrement = false;
-        Id id = field.getAnnotation(Id.class);
-        if (id != null) {
-            GeneratedValue generatedValue = field.getAnnotation(GeneratedValue.class);
-            if (generatedValue != null && generatedValue.strategy() == GenerationType.AUTO) {
-                autoIncrement = true;
-            }
-        }
-        if (tableId != null && tableId.type() == IdType.AUTO) {
-            autoIncrement = true;
-        }
+        String dataType = getDataType(column, jdbcColumn);
+        int length = getLength(field, column, jdbcColumn);
+        Integer scale = getScale(column, jdbcColumn);
+        boolean primaryKey = isPrimaryKey(field, tableId);
+        boolean nullable = getNullable(column, jdbcColumn, primaryKey);
+        boolean autoIncrement = isAutoIncrement(field, tableId, jdbcColumn);
 
         return ColumnMeta.builder()
                 .name(name)
@@ -65,12 +55,15 @@ public class TableFieldParseUtils {
                 .nullable(nullable)
                 .primaryKey(primaryKey)
                 .autoIncrement(autoIncrement)
-                .defaultValue(null)
-                .comment(null)
+                .defaultValue(getDefaultValue(jdbcColumn))
+                .comment(getComment(jdbcColumn))
                 .build();
     }
 
     public static boolean isPersistentField(Field field) {
+        if (field.isAnnotationPresent(JdbcColumn.class)) {
+            return true;
+        }
         TableField tableField = field.getAnnotation(TableField.class);
         if (tableField != null && !tableField.exist()) {
             return false;
@@ -82,6 +75,10 @@ public class TableFieldParseUtils {
     }
 
     public static String getColumnName(Field field) {
+        JdbcColumn jdbcColumn = field.getAnnotation(JdbcColumn.class);
+        if (jdbcColumn != null && StringUtils.isNotBlank(jdbcColumn.name())) {
+            return jdbcColumn.name();
+        }
         Column column = field.getAnnotation(Column.class);
         if (column != null && StringUtils.isNotBlank(column.name())) {
             return column.name();
@@ -97,7 +94,24 @@ public class TableFieldParseUtils {
         return CamelCaseUtils.toSnakeCase(field.getName());
     }
 
-    private static int getLength(Field field, Column column) {
+    public static boolean isPrimaryKey(Field field) {
+        return isPrimaryKey(field, field.getAnnotation(TableId.class));
+    }
+
+    private static String getDataType(Column column, JdbcColumn jdbcColumn) {
+        if (jdbcColumn != null && StringUtils.isNotBlank(jdbcColumn.dataType())) {
+            return jdbcColumn.dataType();
+        }
+        if (column != null && StringUtils.isNotBlank(column.columnDefinition())) {
+            return column.columnDefinition();
+        }
+        return null;
+    }
+
+    private static int getLength(Field field, Column column, JdbcColumn jdbcColumn) {
+        if (jdbcColumn != null && jdbcColumn.length() > 0) {
+            return jdbcColumn.length();
+        }
         DdlColumnLength ddlColumnLength = field.getAnnotation(DdlColumnLength.class);
         if (ddlColumnLength != null && ddlColumnLength.value() > 0) {
             return ddlColumnLength.value();
@@ -109,6 +123,53 @@ public class TableFieldParseUtils {
             return DEFAULT_STRING_LENGTH;
         }
         return 0;
+    }
+
+    private static Integer getScale(Column column, JdbcColumn jdbcColumn) {
+        if (jdbcColumn != null && jdbcColumn.scale() >= 0) {
+            return jdbcColumn.scale();
+        }
+        return column == null ? null : column.scale();
+    }
+
+    private static boolean isPrimaryKey(Field field, TableId tableId) {
+        return field.isAnnotationPresent(Id.class)
+                || tableId != null;
+    }
+
+    private static boolean getNullable(Column column, JdbcColumn jdbcColumn, boolean primaryKey) {
+        if (jdbcColumn != null) {
+            return primaryKey ? false : jdbcColumn.nullable();
+        }
+        return column == null ? !primaryKey : column.nullable();
+    }
+
+    private static boolean isAutoIncrement(Field field, TableId tableId, JdbcColumn jdbcColumn) {
+        if (jdbcColumn != null) {
+            return true;
+        }
+        Id id = field.getAnnotation(Id.class);
+        if (id != null) {
+            GeneratedValue generatedValue = field.getAnnotation(GeneratedValue.class);
+            if (generatedValue != null && generatedValue.strategy() == GenerationType.AUTO) {
+                return true;
+            }
+        }
+        return tableId != null && tableId.type() == IdType.AUTO;
+    }
+
+    private static String getDefaultValue(JdbcColumn jdbcColumn) {
+        if (jdbcColumn != null && StringUtils.isNotBlank(jdbcColumn.defaultValue())) {
+            return jdbcColumn.defaultValue();
+        }
+        return null;
+    }
+
+    private static String getComment(JdbcColumn jdbcColumn) {
+        if (jdbcColumn != null && StringUtils.isNotBlank(jdbcColumn.comment())) {
+            return jdbcColumn.comment();
+        }
+        return null;
     }
 
 }

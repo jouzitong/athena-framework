@@ -39,7 +39,7 @@ public class IndexMetaParser implements ITableMetaParser {
                 }
                 Id id = field.getAnnotation(Id.class);
                 TableId tableId = field.getAnnotation(TableId.class);
-                if (id != null || tableId != null) {
+                if (id != null || tableId != null || TableFieldParseUtils.isPrimaryKey(field)) {
                     indexMetas.add(IndexMeta.builder()
                             .type("PRIMARY")
                             .columnNames(List.of(TableFieldParseUtils.getColumnName(field)))
