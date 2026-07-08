@@ -45,6 +45,11 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
     protected Integer size = 10;
 
     /**
+     * 分页查询时是否执行 count 查询。
+     */
+    protected Boolean searchCount = true;
+
+    /**
      * 排序列表
      */
     private List<Sort> sorts = new ArrayList<>();
@@ -104,6 +109,10 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
 
     public Integer page() {
         return page;
+    }
+
+    public boolean searchCount() {
+        return searchCount == null || searchCount;
     }
 
     public boolean needConvert(String field) {
