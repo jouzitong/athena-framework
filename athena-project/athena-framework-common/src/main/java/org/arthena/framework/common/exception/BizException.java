@@ -1,6 +1,7 @@
 package org.arthena.framework.common.exception;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.utils.ErrorCodeUtils;
 
@@ -15,6 +16,13 @@ public class BizException extends RuntimeException {
 
     @Getter
     private final Integer code;
+
+    /**
+     * 异常状态码
+     */
+    @Setter
+    @Getter
+    private int status = 200;
 
     @Getter
     private final Object[] args;
