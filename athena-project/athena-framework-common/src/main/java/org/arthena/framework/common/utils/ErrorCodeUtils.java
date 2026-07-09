@@ -1,10 +1,15 @@
 package org.arthena.framework.common.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.context.SystemContext;
+import org.arthena.framework.common.provider.ApplicationContextProvider;
+import org.arthena.framework.common.service.ErrorCodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +33,7 @@ public class ErrorCodeUtils {
     public static final String CODE_MSG_PARAM_PLACEHOLDER = "{}";
 
     private static final Map<String, Properties> errorCodeMap = new ConcurrentHashMap<>();
+    private static volatile List<ErrorCodeService> errorCodeServices;
     private static final Logger log = LoggerFactory.getLogger(ErrorCodeUtils.class);
 
     public static String getMsg(Integer code, Object... args) {
@@ -46,6 +52,10 @@ public class ErrorCodeUtils {
 
     private static String getMsg(Integer code) {
         String locale = resolveLocale();
+        String serviceMsg = getServiceMsg(code, locale);
+        if (serviceMsg != null) {
+            return serviceMsg;
+        }
         try {
             String msg = getCustomMsg(code, locale);
             if (msg != null) {
@@ -55,6 +65,42 @@ public class ErrorCodeUtils {
             log.error("加载 CUSTOM 错误码文件({})失败. ", locale, e);
         }
         return getDefaultMsg(code, locale);
+    }
+
+    private static String getServiceMsg(Integer code, String locale) {
+        List<ErrorCodeService> services = getErrorCodeServices();
+        for (ErrorCodeService service : services) {
+            try {
+                String msg = service.getMsg(code, locale);
+                if (StringUtils.isNotBlank(msg)) {
+                    return msg;
+                }
+            } catch (Exception e) {
+                log.error("加载 service 错误码({})失败. ", service.getClass().getName(), e);
+            }
+        }
+        return null;
+    }
+
+    private static List<ErrorCodeService> getErrorCodeServices() {
+        List<ErrorCodeService> services = errorCodeServices;
+        if (services != null) {
+            return services;
+        }
+        if (ApplicationContextProvider.getContext() == null) {
+            return List.of();
+        }
+        try {
+            services = ApplicationContextProvider.getBeansOfType(ErrorCodeService.class)
+                    .stream()
+                    .sorted(Comparator.comparingInt(ErrorCodeService::order))
+                    .toList();
+            errorCodeServices = services;
+            return services;
+        } catch (Exception e) {
+            log.error("加载 ErrorCodeService 列表失败. ", e);
+            return List.of();
+        }
     }
 
     private static String resolveLocale() {
@@ -78,7 +124,7 @@ public class ErrorCodeUtils {
             }
             String replacement = arg == null ? "" : String.valueOf(arg);
             result = result.substring(0, placeholderIndex) + replacement
-                + result.substring(placeholderIndex + CODE_MSG_PARAM_PLACEHOLDER.length());
+                    + result.substring(placeholderIndex + CODE_MSG_PARAM_PLACEHOLDER.length());
         }
         return result;
     }
