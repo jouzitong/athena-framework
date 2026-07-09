@@ -2,7 +2,8 @@ package org.athena.framework.data.mybatis.utils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.arthena.framework.common.exception.TodoException;
+import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.exception.BizException;
 import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
@@ -69,7 +70,7 @@ public class MybatisPlusWrapperUtils {
                 case NOT_IN -> wrapper.notIn(fieldName, value);
                 case IS_NULL -> wrapper.isNull(fieldName);
                 case IS_NOT_NULL -> wrapper.isNotNull(fieldName);
-                default -> throw new TodoException();
+                default -> throw new BizException(ErrCodeConstant.TODO_ERROR);
             }
         });
 
@@ -110,4 +111,3 @@ public class MybatisPlusWrapperUtils {
     }
 
 }
-

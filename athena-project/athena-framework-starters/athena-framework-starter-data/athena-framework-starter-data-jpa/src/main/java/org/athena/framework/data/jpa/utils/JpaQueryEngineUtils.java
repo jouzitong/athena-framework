@@ -3,7 +3,8 @@ package org.athena.framework.data.jpa.utils;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
-import org.arthena.framework.common.exception.TodoException;
+import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.exception.BizException;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.req.FiledQuery;
 import org.athena.framework.data.jdbc.req.Sort;
@@ -41,7 +42,7 @@ public class JpaQueryEngineUtils {
                     case IN -> ps.add(path.in((Collection<?>) value));
                     case IS_NULL -> ps.add(cb.isNull(path));
                     case IS_NOT_NULL -> ps.add(cb.isNotNull(path));
-                    default -> throw new TodoException();
+                    default -> throw new BizException(ErrCodeConstant.TODO_ERROR);
                 }
             }
 

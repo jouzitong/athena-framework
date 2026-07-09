@@ -2,7 +2,7 @@
 //
 //import org.arthena.framework.common.annotation.Idempotent;
 //import org.arthena.framework.common.constant.CodeConstant;
-//import org.arthena.framework.common.exception.base.BaseException;
+//import org.arthena.framework.common.exception.BizException;
 //import org.arthena.framework.common.utils.JacksonJsonUtils;
 //import org.aspectj.lang.JoinPoint;
 //import org.aspectj.lang.annotation.Aspect;
@@ -52,7 +52,7 @@
 //        ValueOperations<String, String> stringStringValueOperations = stringRedisTemplate.opsForValue();
 //        Boolean s = stringStringValueOperations.setIfAbsent(key, key, idempotent.expireMillis(), TimeUnit.MILLISECONDS);
 //        if (!s) {
-//            throw new BaseException(CodeConstant.DUPLICATE_REQUEST);
+//            throw new BizException(CodeConstant.DUPLICATE_REQUEST);
 //        }
 //    }
 //

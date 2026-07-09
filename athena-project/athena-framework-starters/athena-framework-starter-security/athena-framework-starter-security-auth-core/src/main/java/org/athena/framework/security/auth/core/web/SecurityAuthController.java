@@ -5,7 +5,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.context.SystemContext;
-import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
+import org.arthena.framework.common.exception.BizException;
 import org.athena.framework.security.api.auth.AuthenticationRequest;
 import org.athena.framework.security.api.auth.AuthenticationResult;
 import org.athena.framework.security.api.model.UserContext;
@@ -51,7 +51,7 @@ public class SecurityAuthController {
         );
         AuthenticationResult result = securityAuthenticationService.authenticate(authenticationRequest);
         if (!result.success() || result.context() == null || result.context().session() == null) {
-            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), ErrCodeConstant.LOGIN_FAILED);
+            throw unauthorized(ErrCodeConstant.LOGIN_FAILED);
         }
 
         return Map.of(
@@ -85,7 +85,7 @@ public class SecurityAuthController {
             } else {
                 code = ErrCodeConstant.UNAUTHORIZED;
             }
-            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), code);
+            throw unauthorized(code);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -99,7 +99,7 @@ public class SecurityAuthController {
     public Map<String, Object> me() {
         UserContext userContext = SystemContext.getUserContext();
         if (userContext == null || userContext.subject() == null) {
-            throw new BaseHttpRuntimeException(HttpStatus.UNAUTHORIZED.value(), ErrCodeConstant.UNAUTHORIZED);
+            throw unauthorized(ErrCodeConstant.UNAUTHORIZED);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -108,6 +108,12 @@ public class SecurityAuthController {
         response.put("authn", userContext.authn());
         response.put("session", userContext.session());
         return response;
+    }
+
+    private BizException unauthorized(Integer code) {
+        BizException exception = new BizException(code);
+        exception.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return exception;
     }
 
     @Data

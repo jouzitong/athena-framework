@@ -3,7 +3,8 @@ package org.athena.framework.data.mybatis.utils;
 import jakarta.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.arthena.framework.common.exception.TodoException;
+import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.exception.BizException;
 import org.athena.framework.data.jdbc.type.DbType;
 import org.arthena.framework.common.utils.CamelCaseUtils;
 import org.athena.framework.data.mybatis.create.bean.ClassTableInfo;
@@ -98,7 +99,7 @@ public class JdbcUtils {
         Column column = field.getAnnotation(Column.class);
         StringBuilder sb = new StringBuilder();
         if (column == null) {
-            throw new TodoException();
+            throw new BizException(ErrCodeConstant.TODO_ERROR);
         }
         String columnName = CamelCaseUtils.toSnakeCase(column.name());
         tableName = CamelCaseUtils.toSnakeCase(tableName);
@@ -129,7 +130,7 @@ public class JdbcUtils {
         StringBuilder sb = new StringBuilder();
         if (column == null) {
             LOGGER.error("field:{} no @Column annotation", field.getName());
-            throw new TodoException();
+            throw new BizException(ErrCodeConstant.TODO_ERROR);
         }
         String columnName = column.name();
         if (StringUtils.isBlank(columnName)) {

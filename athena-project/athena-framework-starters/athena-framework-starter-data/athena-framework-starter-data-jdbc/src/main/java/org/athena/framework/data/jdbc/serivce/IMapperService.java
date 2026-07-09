@@ -1,7 +1,7 @@
 package org.athena.framework.data.jdbc.serivce;
 
-import org.arthena.framework.common.exception.NotSupportException;
-import org.arthena.framework.common.exception.TodoException;
+import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.exception.BizException;
 import org.athena.framework.data.jdbc.entity.dto.IDTO;
 import org.athena.framework.data.jdbc.req.BaseRequest;
 import org.athena.framework.data.jdbc.vo.PageResultVO;
@@ -67,10 +67,10 @@ public interface IMapperService<DTO extends IDTO> {
      *
      * @param entity 要保存或更新的实体
      * @return 返回影响的行数，对于新增通常是1，对于更新则取决于实际更新了多少条记录
-     * @throws TodoException 当该功能尚未实现时抛出此异常
+     * @throws BizException 当该功能尚未实现时抛出此异常
      */
     default int saveOrUpdate(DTO entity) {
-        throw new TodoException();
+        throw new BizException(ErrCodeConstant.TODO_ERROR);
     }
 
     /**
@@ -90,7 +90,7 @@ public interface IMapperService<DTO extends IDTO> {
      */
     @Transactional(rollbackFor = Exception.class)
     default int batchUpdate(List<DTO> entities) {
-        throw new TodoException();
+        throw new BizException(ErrCodeConstant.TODO_ERROR);
     }
 
     /**
@@ -148,7 +148,7 @@ public interface IMapperService<DTO extends IDTO> {
      * @return 如果删除成功，则返回true；否则返回false
      */
     default boolean physicalDelete(Long id) {
-        throw new NotSupportException();
+        throw new BizException(ErrCodeConstant.NOT_SUPPORT_ERROR);
     }
 
 }

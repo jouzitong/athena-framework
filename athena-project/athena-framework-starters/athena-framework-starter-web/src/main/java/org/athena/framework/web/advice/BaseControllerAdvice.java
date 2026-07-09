@@ -5,9 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.exception.BizException;
-import org.arthena.framework.common.exception.ResourceNotFindException;
-import org.arthena.framework.common.exception.base.BaseHttpRuntimeException;
-import org.arthena.framework.common.exception.base.BaseRuntimeException;
 import org.arthena.framework.common.utils.JacksonJsonUtils;
 import org.athena.framework.web.vo.ErrorParamVO;
 import org.athena.framework.web.vo.R;
@@ -36,31 +33,11 @@ import java.util.List;
 @Slf4j
 public class BaseControllerAdvice {
 
-    /**
-     * 系统异常
-     */
-    @ExceptionHandler(BaseRuntimeException.class)
-    public R<Void> baseRuntimeException(BaseRuntimeException e, HttpServletResponse response) {
-        if (e instanceof BaseHttpRuntimeException httpException) {
-            response.setStatus(httpException.getHttpStatus());
-            LOGGER.warn("httpStatus={}, code={}", httpException.getHttpStatus(), e.getCode(), e);
-        } else {
-            LOGGER.error("", e);
-        }
-        return R.fail(e.getCode(), e.getArgs());
-    }
-
     @ExceptionHandler(BizException.class)
-    public R<Void> bizException(BizException e) {
+    public R<Void> bizException(BizException e, HttpServletResponse response) {
+        response.setStatus(e.getStatus());
         LOGGER.warn("", e);
         return R.fail(e.getCode(), e.getArgs());
-    }
-
-    @ExceptionHandler(ResourceNotFindException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public R<Void> resourceNotFindException(ResourceNotFindException e) {
-        LOGGER.warn("", e);
-        return R.fail(ErrCodeConstant.RESOURCE_NOT_FOUND, e.getArgs());
     }
 
     /**

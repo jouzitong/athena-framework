@@ -32,6 +32,7 @@ public class BizException extends RuntimeException {
         if (e instanceof BizException baseException) {
             this.code = baseException.getCode();
             this.args = baseException.args;
+            this.status = baseException.status;
         } else {
             this.code = ErrCodeConstant.UN_KNOW_ERROR;
             this.args = null;
@@ -39,6 +40,12 @@ public class BizException extends RuntimeException {
     }
 
     public BizException(Integer code, Object... args) {
+        this.code = code;
+        this.args = args;
+    }
+
+    public BizException(Integer code, Throwable cause, Object... args) {
+        super(cause);
         this.code = code;
         this.args = args;
     }

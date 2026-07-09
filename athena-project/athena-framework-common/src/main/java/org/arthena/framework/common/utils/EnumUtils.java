@@ -1,7 +1,8 @@
 package org.arthena.framework.common.utils;
 
 import org.arthena.framework.common.enums.IEnum;
-import org.arthena.framework.common.exception.EnumNotFindException;
+import org.arthena.framework.common.constant.ErrCodeConstant;
+import org.arthena.framework.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -26,7 +27,7 @@ public class EnumUtils {
             }
         }
         LOGGER.error("enum type {} don't have code {}.", c, code);
-        throw EnumNotFindException.instant(c, code);
+        throw new BizException(ErrCodeConstant.ILLEGAL_PARAMETER_ERROR, c, code);
     }
 
 }
