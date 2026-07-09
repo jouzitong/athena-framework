@@ -44,6 +44,13 @@ public class BizException extends RuntimeException {
         this.args = args;
     }
 
+    public BizException(Integer code, int status, Object... args) {
+        this.code = code;
+        this.args = args;
+        this.status = status;
+    }
+
+
     public BizException(Integer code, Throwable cause, Object... args) {
         super(cause);
         this.code = code;
@@ -56,6 +63,10 @@ public class BizException extends RuntimeException {
 
     public static BizException of(Integer code, Object... args) {
         return new BizException(code, args);
+    }
+
+    public static BizException of(Integer code, int status, Object... args) {
+        return new BizException(code, status, args);
     }
 
     public static BizException illegalParam(Integer code, Object... args) {
