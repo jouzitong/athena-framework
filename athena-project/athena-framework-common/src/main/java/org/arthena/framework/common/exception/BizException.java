@@ -65,7 +65,7 @@ public class BizException extends RuntimeException {
         return new BizException(code, args);
     }
 
-    public static BizException of(Integer code, int status, Object... args) {
+    public static BizException ofStatus(Integer code, int status, Object... args) {
         return new BizException(code, status, args);
     }
 
