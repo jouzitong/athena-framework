@@ -2,6 +2,7 @@ package org.athena.framework.data.mybatis.create.parser.impl;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import jakarta.persistence.Id;
+import org.athena.framework.data.jdbc.annotations.JdbcColumn;
 import org.athena.framework.data.mybatis.bean.TableMeta;
 import org.athena.framework.data.mybatis.bean.meta.IndexMeta;
 import org.athena.framework.data.mybatis.create.parser.ITableMetaParser;
@@ -43,6 +44,17 @@ public class IndexMetaParser implements ITableMetaParser {
                     indexMetas.add(IndexMeta.builder()
                             .type("PRIMARY")
                             .columnNames(List.of(TableFieldParseUtils.getColumnName(field)))
+                            .build());
+                    continue;
+                }
+                JdbcColumn jdbcColumn = field.getAnnotation(JdbcColumn.class);
+                if (jdbcColumn != null && jdbcColumn.unique()) {
+                    String columnName = TableFieldParseUtils.getColumnName(field);
+                    indexMetas.add(IndexMeta.builder()
+                            .name("uk_" + columnName)
+                            .type("INDEX")
+                            .columnNames(List.of(columnName))
+                            .unique(true)
                             .build());
                 }
             }

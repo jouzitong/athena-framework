@@ -44,7 +44,7 @@ public class TableFieldParseUtils {
         Integer scale = getScale(column, jdbcColumn);
         boolean primaryKey = isPrimaryKey(field, tableId);
         boolean nullable = getNullable(column, jdbcColumn, primaryKey);
-        boolean autoIncrement = isAutoIncrement(field, tableId, jdbcColumn);
+        boolean autoIncrement = isAutoIncrement(field, tableId);
 
         return ColumnMeta.builder()
                 .name(name)
@@ -144,10 +144,7 @@ public class TableFieldParseUtils {
         return column == null ? !primaryKey : column.nullable();
     }
 
-    private static boolean isAutoIncrement(Field field, TableId tableId, JdbcColumn jdbcColumn) {
-        if (jdbcColumn != null) {
-            return true;
-        }
+    private static boolean isAutoIncrement(Field field, TableId tableId) {
         Id id = field.getAnnotation(Id.class);
         if (id != null) {
             GeneratedValue generatedValue = field.getAnnotation(GeneratedValue.class);

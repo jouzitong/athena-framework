@@ -7,6 +7,7 @@ import org.athena.framework.data.mybatis.bean.meta.ColumnMeta;
 import org.athena.framework.data.mybatis.bean.meta.IndexMeta;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +45,10 @@ public class MysqlJdbcDdlUtils {
         if (tableMeta.getIndexes() != null && !tableMeta.getIndexes().isEmpty()) {
             for (IndexMeta index : tableMeta.getIndexes()) {
                 if (!"PRIMARY".equalsIgnoreCase(index.getType())) {
-                    sb.append(",\n  ").append(index.getType()).append(" ").append(quoteIdentifier(index.getName()))
+                    String indexType = index.isUnique() ? "UNIQUE INDEX" : index.getType();
+                    sb.append(",\n  ").append(indexType).append(" ").append(quoteIdentifier(index.getName()))
                             .append(" (").append(joinColumnNames(index.getColumnNames()))
-                            .append(")").append(index.isUnique() ? " UNIQUE" : "");
+                            .append(")");
                 }
             }
         }
@@ -86,7 +88,7 @@ public class MysqlJdbcDdlUtils {
         }
 
         if (autoUpdateColumn) {
-            // 字段类型/定义变化暂不处理。
+            updateChangedColumns(sb, newTableMeta, oldTableMeta);
         }
 
         if (autoDropColumn) {
@@ -139,6 +141,93 @@ public class MysqlJdbcDdlUtils {
         }
     }
 
+    /**
+     * 生成已存在字段的定义变更语句。
+     * <p>
+     * MySQL 的 {@code MODIFY COLUMN} 需要携带完整字段定义，因此这里始终使用新实体的字段定义生成 SQL。
+     */
+    private static void updateChangedColumns(StringBuilder sb, TableMeta newTableMeta, TableMeta oldTableMeta) {
+        List<ColumnMeta> changedColumns = newTableMeta.getColumns().stream()
+                .filter(column -> {
+                    ColumnMeta oldColumn = findColumn(oldTableMeta, column.getName());
+                    return oldColumn != null && isColumnDefinitionChanged(column, oldColumn);
+                })
+                .collect(Collectors.toList());
+        if (!changedColumns.isEmpty()) {
+            sb.append(COMMENT_SYMBOL).append(" 更新字段定义\n");
+            for (ColumnMeta column : changedColumns) {
+                sb.append(buildColumnAlterDefinition(column, DbType.MYSQL).trim()).append(",\n");
+            }
+        }
+    }
+
+    private static boolean isColumnDefinitionChanged(ColumnMeta newColumn, ColumnMeta oldColumn) {
+        return !isColumnTypeEqual(newColumn, oldColumn)
+                || newColumn.isNullable() != oldColumn.isNullable()
+                || newColumn.isAutoIncrement() != oldColumn.isAutoIncrement()
+                || !StringUtils.equals(normalizeValue(newColumn.getDefaultValue()), normalizeValue(oldColumn.getDefaultValue()))
+                || !StringUtils.equals(normalizeValue(newColumn.getComment()), normalizeValue(oldColumn.getComment()));
+    }
+
+    private static boolean isColumnTypeEqual(ColumnMeta newColumn, ColumnMeta oldColumn) {
+        String expectedType = resolveColumnType(newColumn, DbType.MYSQL);
+        String actualType = resolveColumnType(oldColumn, DbType.MYSQL);
+        if (!StringUtils.equalsIgnoreCase(getTypeName(expectedType), getTypeName(actualType))) {
+            return false;
+        }
+
+        List<Integer> expectedArguments = getTypeArguments(expectedType);
+        if (expectedArguments.isEmpty()) {
+            return true;
+        }
+        List<Integer> actualArguments = getTypeArguments(actualType);
+        if (actualArguments.isEmpty()) {
+            actualArguments = getColumnTypeArguments(oldColumn, expectedArguments.size());
+        }
+        return expectedArguments.equals(actualArguments);
+    }
+
+    private static String getTypeName(String type) {
+        if (StringUtils.isBlank(type)) {
+            return StringUtils.EMPTY;
+        }
+        int argumentStart = type.indexOf('(');
+        return (argumentStart < 0 ? type : type.substring(0, argumentStart)).trim().replaceAll("\\s+", " ");
+    }
+
+    private static List<Integer> getTypeArguments(String type) {
+        if (StringUtils.isBlank(type)) {
+            return Collections.emptyList();
+        }
+        int start = type.indexOf('(');
+        int end = type.lastIndexOf(')');
+        if (start < 0 || end <= start) {
+            return Collections.emptyList();
+        }
+        try {
+            return Arrays.stream(type.substring(start + 1, end).split(","))
+                    .map(String::trim)
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException ex) {
+            return Collections.emptyList();
+        }
+    }
+
+    private static List<Integer> getColumnTypeArguments(ColumnMeta column, int argumentCount) {
+        if (column.getLength() <= 0) {
+            return Collections.emptyList();
+        }
+        if (argumentCount > 1) {
+            return Arrays.asList(column.getLength(), column.getScale());
+        }
+        return Collections.singletonList(column.getLength());
+    }
+
+    private static String normalizeValue(String value) {
+        return StringUtils.isBlank(value) ? null : value.trim();
+    }
+
     private static String buildColumnDefinition(ColumnMeta column, DbType dbType) {
         StringBuilder columnDef = new StringBuilder("  ");
         columnDef
@@ -185,6 +274,10 @@ public class MysqlJdbcDdlUtils {
             columnDef.append(" NULL");
         } else {
             columnDef.append(" NOT NULL");
+        }
+
+        if (column.isAutoIncrement()) {
+            columnDef.append(" AUTO_INCREMENT");
         }
 
         if (column.getDefaultValue() != null) {

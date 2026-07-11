@@ -58,7 +58,8 @@ public class DefaultJdbcProperties {
 
     /**
      * 是否自动更新实体字段定义。
-     * 当前 MyBatis DDL 生成暂未实现字段类型变更。
+     * 开启后会根据实体定义生成 MySQL {@code MODIFY COLUMN} 语句。
+     * 该操作可能影响存量数据，生产环境请先审核生成的 DDL。
      */
     private boolean autoUpdateColumn = false;
 

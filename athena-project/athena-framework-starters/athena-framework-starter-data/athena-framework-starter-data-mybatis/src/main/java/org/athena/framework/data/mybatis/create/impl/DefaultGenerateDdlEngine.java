@@ -217,6 +217,13 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
             while (resultSet.next()) {
                 columns.add(ColumnMeta.builder()
                         .name(resultSet.getString("COLUMN_NAME"))
+                        .dataType(resultSet.getString("TYPE_NAME"))
+                        .length(resultSet.getInt("COLUMN_SIZE"))
+                        .scale(resultSet.getInt("DECIMAL_DIGITS"))
+                        .nullable(resultSet.getInt("NULLABLE") != DatabaseMetaData.columnNoNulls)
+                        .autoIncrement("YES".equalsIgnoreCase(resultSet.getString("IS_AUTOINCREMENT")))
+                        .defaultValue(resultSet.getString("COLUMN_DEF"))
+                        .comment(resultSet.getString("REMARKS"))
                         .build());
             }
         }
