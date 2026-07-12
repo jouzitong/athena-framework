@@ -52,19 +52,23 @@ public class DefaultJdbcProperties {
     private boolean autoUpdateTable = false;
 
     /**
-     * 是否自动添加实体新增字段。
+     * 是否自动执行实体新增字段的 DDL。
+     * <p>
+     * 该配置不影响 {@code update_table_ddl.sql} 的生成。
      */
     private boolean autoAddColumn = true;
 
     /**
-     * 是否自动更新实体字段定义。
+     * 是否自动执行实体字段定义更新的 DDL。
      * 开启后会根据实体定义生成 MySQL {@code MODIFY COLUMN} 语句。
-     * 该操作可能影响存量数据，生产环境请先审核生成的 DDL。
+     * 该配置不影响 {@code update_table_ddl.sql} 的生成，生产环境请先审核生成的 DDL。
      */
     private boolean autoUpdateColumn = false;
 
     /**
-     * 是否自动删除实体已移除字段。
+     * 是否自动执行实体已移除字段的 DDL。
+     * <p>
+     * 该配置不影响 {@code update_table_ddl.sql} 的生成。
      */
     private boolean autoDropColumn = false;
 

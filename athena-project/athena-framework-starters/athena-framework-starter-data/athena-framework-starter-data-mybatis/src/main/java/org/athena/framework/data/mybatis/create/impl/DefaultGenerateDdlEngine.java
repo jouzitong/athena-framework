@@ -101,12 +101,13 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
                     .append(createTableSql).append("\n");
 
             TableMeta oldTableMeta = getCurrentTableMeta(tableMeta.getName());
+            // DDL 文件必须完整反映实体与数据库的差异，不能受自动执行开关影响。
             String updateTableSql = MysqlJdbcDdlUtils.genUpdateDdlSql(
                     tableMeta,
                     oldTableMeta,
-                    jdbcProperties.isAutoUpdateTable() || jdbcProperties.isAutoAddColumn(),
-                    jdbcProperties.isAutoUpdateColumn(),
-                    jdbcProperties.isAutoDropColumn()
+                    true,
+                    true,
+                    true
             );
             if (StringUtils.isNotBlank(updateTableSql)) {
                 updateDdlSql.append(COMMENT_SYMBOL).append(clazz.getName()).append("\n")
@@ -114,17 +115,27 @@ public class DefaultGenerateDdlEngine implements IGenerateDdlEngine, CommandLine
             }
 
             if (jdbcProperties.isAutoUpdateTable()) {
-                if (StringUtils.isNotBlank(createTableSql)) {
-                    statement.execute(createTableSql);
-                }
-                if (StringUtils.isNotBlank(updateTableSql)) {
-                    statement.execute(updateTableSql);
-                }
+                executeDdl(createTableSql);
+            }
+            if (jdbcProperties.isAutoUpdateTable() || jdbcProperties.isAutoAddColumn()) {
+                executeDdl(MysqlJdbcDdlUtils.genUpdateDdlSql(tableMeta, oldTableMeta, true, false, false));
+            }
+            if (jdbcProperties.isAutoUpdateColumn()) {
+                executeDdl(MysqlJdbcDdlUtils.genUpdateDdlSql(tableMeta, oldTableMeta, false, true, false));
+            }
+            if (jdbcProperties.isAutoDropColumn()) {
+                executeDdl(MysqlJdbcDdlUtils.genUpdateDdlSql(tableMeta, oldTableMeta, false, false, true));
             }
         }
         // 创建SQL文件
         doWriteDdlSql(createDdlSql, updateDdlSql);
 
+    }
+
+    private void executeDdl(String ddlSql) throws SQLException {
+        if (StringUtils.isNotBlank(ddlSql)) {
+            statement.execute(ddlSql);
+        }
     }
 
     private void doWriteDdlSql(StringBuilder createDdlSql, StringBuilder updateDdlSql) throws IOException {

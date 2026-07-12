@@ -77,7 +77,7 @@ lib:
     enable-create-table-ddl: false
     # 兼容旧配置：开启后等价于允许自动新增字段；下一个大版本移除
     auto-update-table: false
-    # 字段级自动变更开关：默认只允许新增字段
+    # 字段级 DDL 自动执行开关；不影响 update_table_ddl.sql 的完整生成
     auto-add-column: true
     auto-update-column: false
     auto-drop-column: false
@@ -340,9 +340,9 @@ mybatis-plus:
 - 扫描 `lib.jdbc.base-entity-packages` 下的 `IEntity` 子类。
 - 基于实体元数据生成 MySQL 建表 SQL。
 - 输出到 `lib.jdbc.table-ddl-path-file/${spring.application.name}/${common.version}/create_table_ddl.sql`。
-- `update_table_ddl.sql` 会读取当前数据库表字段，按 `auto-add-column` / `auto-update-column` / `auto-drop-column` 控制字段级变更；默认只生成新增字段 `ADD COLUMN`，字段类型变化暂不处理。
-- `auto-update-table` 是兼容旧配置的总开关，当前 `true` 等价于允许 `auto-add-column=true`，下一个大版本会移除。
-- 当 `lib.jdbc.auto-update-table=true` 时尝试执行建表 SQL。
+- `update_table_ddl.sql` 会读取当前数据库表字段，并始终生成新增、更新、删除字段的完整差异 DDL；字段类型变化也会生成 `MODIFY COLUMN`。
+- `auto-add-column` / `auto-update-column` / `auto-drop-column` 仅控制对应 DDL 是否在启动时自动执行，不影响 SQL 文件生成；默认只自动执行新增字段。
+- `auto-update-table` 是兼容旧配置，开启时仍会自动执行建表 SQL，且等价于开启新增字段的自动执行；下一个大版本会移除。
 
 因此，快速开发时可以先手写初始化 SQL；如果要使用自动 DDL 能力，需要在业务侧显式注册或封装该引擎，并谨慎开启生产环境自动更新表。
 
