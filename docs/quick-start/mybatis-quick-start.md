@@ -343,6 +343,7 @@ mybatis-plus:
 - `update_table_ddl.sql` 会读取当前数据库表字段，并始终生成新增、更新、删除字段的完整差异 DDL；字段类型变化也会生成 `MODIFY COLUMN`。
 - `auto-add-column` / `auto-update-column` / `auto-drop-column` 仅控制对应 DDL 是否在启动时自动执行，不影响 SQL 文件生成；默认只自动执行新增字段。
 - `auto-update-table` 是兼容旧配置，开启时仍会自动执行建表 SQL，且等价于开启新增字段的自动执行；下一个大版本会移除。
+- 类型比对中，`BOOLEAN` 与 MySQL 的 `TINYINT(1)` 等价，`BIGINT(20)` 与 `BIGINT` 等价；只有 `CHAR`、`VARCHAR` 的长度变化会触发字段更新，其他类型的长度差异暂时忽略。
 
 因此，快速开发时可以先手写初始化 SQL；如果要使用自动 DDL 能力，需要在业务侧显式注册或封装该引擎，并谨慎开启生产环境自动更新表。
 

@@ -165,15 +165,25 @@ public class MysqlJdbcDdlUtils {
         return !isColumnTypeEqual(newColumn, oldColumn)
                 || newColumn.isNullable() != oldColumn.isNullable()
                 || newColumn.isAutoIncrement() != oldColumn.isAutoIncrement()
-                || !StringUtils.equals(normalizeValue(newColumn.getDefaultValue()), normalizeValue(oldColumn.getDefaultValue()))
+                || !isDefaultValueEqual(newColumn, oldColumn)
                 || !StringUtils.equals(normalizeValue(newColumn.getComment()), normalizeValue(oldColumn.getComment()));
     }
 
     private static boolean isColumnTypeEqual(ColumnMeta newColumn, ColumnMeta oldColumn) {
         String expectedType = resolveColumnType(newColumn, DbType.MYSQL);
         String actualType = resolveColumnType(oldColumn, DbType.MYSQL);
-        if (!StringUtils.equalsIgnoreCase(getTypeName(expectedType), getTypeName(actualType))) {
+        String expectedTypeName = getTypeName(expectedType);
+        String actualTypeName = getTypeName(actualType);
+        if (isBooleanTinyintEquivalent(expectedTypeName, actualTypeName)) {
+            return true;
+        }
+        if (!StringUtils.equalsIgnoreCase(expectedTypeName, actualTypeName)) {
             return false;
+        }
+
+        // MySQL 非字符串字段的显示长度不影响实际存储范围，例如 BIGINT(20) 与 BIGINT。
+        if (!isStringType(expectedTypeName)) {
+            return true;
         }
 
         List<Integer> expectedArguments = getTypeArguments(expectedType);
@@ -185,6 +195,42 @@ public class MysqlJdbcDdlUtils {
             actualArguments = getColumnTypeArguments(oldColumn, expectedArguments.size());
         }
         return expectedArguments.equals(actualArguments);
+    }
+
+    private static boolean isDefaultValueEqual(ColumnMeta newColumn, ColumnMeta oldColumn) {
+        String expectedDefaultValue = normalizeValue(newColumn.getDefaultValue());
+        String actualDefaultValue = normalizeValue(oldColumn.getDefaultValue());
+        if (StringUtils.equalsIgnoreCase(expectedDefaultValue, actualDefaultValue)) {
+            return true;
+        }
+        return isBooleanTinyintEquivalent(
+                getTypeName(resolveColumnType(newColumn, DbType.MYSQL)),
+                getTypeName(resolveColumnType(oldColumn, DbType.MYSQL))
+        ) && isBooleanDefaultValue(expectedDefaultValue) && isBooleanDefaultValue(actualDefaultValue)
+                && toBooleanDefaultValue(expectedDefaultValue) == toBooleanDefaultValue(actualDefaultValue);
+    }
+
+    /**
+     * MySQL JDBC 元数据不会稳定保留 TINYINT 的显示宽度，因此按 BOOLEAN 与 TINYINT 等价处理。
+     */
+    private static boolean isBooleanTinyintEquivalent(String expectedTypeName, String actualTypeName) {
+        return ("BOOLEAN".equalsIgnoreCase(expectedTypeName) && "TINYINT".equalsIgnoreCase(actualTypeName))
+                || ("TINYINT".equalsIgnoreCase(expectedTypeName) && "BOOLEAN".equalsIgnoreCase(actualTypeName));
+    }
+
+    private static boolean isStringType(String typeName) {
+        return "CHAR".equalsIgnoreCase(typeName) || "VARCHAR".equalsIgnoreCase(typeName);
+    }
+
+    private static boolean isBooleanDefaultValue(String value) {
+        return "TRUE".equalsIgnoreCase(value)
+                || "FALSE".equalsIgnoreCase(value)
+                || "1".equals(value)
+                || "0".equals(value);
+    }
+
+    private static boolean toBooleanDefaultValue(String value) {
+        return "TRUE".equalsIgnoreCase(value) || "1".equals(value);
     }
 
     private static String getTypeName(String type) {
