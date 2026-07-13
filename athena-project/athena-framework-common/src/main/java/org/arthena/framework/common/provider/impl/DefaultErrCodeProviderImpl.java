@@ -6,7 +6,10 @@ import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.context.SystemContext;
 import org.arthena.framework.common.properties.CommonProperties;
 import org.arthena.framework.common.provider.ErrCodeProvider;
+import org.arthena.framework.common.service.ErrorCodeService;
 import org.arthena.framework.common.utils.PropertiesUtils;
+import org.springframework.core.Ordered;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +63,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2026/5/30
  */
 @Slf4j
-public class DefaultErrCodeProviderImpl implements ErrCodeProvider {
+@Service
+public class DefaultErrCodeProviderImpl implements ErrCodeProvider, ErrorCodeService {
 
     public static final String CUSTOM = "CUSTOM_";
 
@@ -82,7 +86,7 @@ public class DefaultErrCodeProviderImpl implements ErrCodeProvider {
 
     @Override
     public String getMsg(int code, Object[] args) {
-        String msg = getMsg(code);
+        String msg = findMessage(code, resolveLocale());
         if (msg == null) {
             msg = ErrCodeConstant.UN_KNOW_ERROR_MSG;
         }
@@ -93,12 +97,24 @@ public class DefaultErrCodeProviderImpl implements ErrCodeProvider {
     }
 
     @Override
+    public int order() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
+
+    @Override
+    public String getMsg(Integer code, String locale) {
+        if (code == null) {
+            return null;
+        }
+        return findMessage(code, normalizeLocale(locale));
+    }
+
+    @Override
     public void reload() {
         errorCodeMap.clear();
     }
 
-    private String getMsg(int code) {
-        String locale = resolveLocale();
+    private String findMessage(int code, String locale) {
         try {
             String msg = getCustomMsg(code, locale);
             if (msg != null) {
@@ -111,7 +127,10 @@ public class DefaultErrCodeProviderImpl implements ErrCodeProvider {
     }
 
     private String resolveLocale() {
-        String localeStr = SystemContext.getLocale();
+        return normalizeLocale(SystemContext.getLocale());
+    }
+
+    private String normalizeLocale(String localeStr) {
         if (localeStr == null || localeStr.isBlank()) {
             return "zh";
         }
@@ -140,13 +159,9 @@ public class DefaultErrCodeProviderImpl implements ErrCodeProvider {
         String name = ERROR_CODE_PREFIX + locale + FILE_TYPE;
         Properties properties = loadErrorCode(locale, name);
         if (properties == null) {
-            return ErrCodeConstant.UN_KNOW_ERROR_MSG;
+            return null;
         }
-        String msg = properties.getProperty(String.valueOf(code));
-        if (msg != null) {
-            return msg;
-        }
-        return ErrCodeConstant.UN_KNOW_ERROR_MSG;
+        return properties.getProperty(String.valueOf(code));
     }
 
     private String getCustomMsg(int code, String locale) {
