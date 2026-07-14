@@ -142,6 +142,16 @@ public interface ErrCodeConstant {
     Integer TOKEN_INVALID = 40405;
 
     /**
+     * 请求处理失败。
+     */
+    Integer REQUEST_PROCESSING_ERROR = 50000;
+
+    /**
+     * 服务发现未返回可用实例。
+     */
+    Integer SERVICE_UNAVAILABLE = 50301;
+
+    /**
      * 请求出现异常而导致为捕获异常的失败
      */
     Integer TODO_ERROR = 99999;
