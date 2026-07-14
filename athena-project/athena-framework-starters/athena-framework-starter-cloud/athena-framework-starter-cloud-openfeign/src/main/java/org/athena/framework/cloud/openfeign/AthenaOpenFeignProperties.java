@@ -15,9 +15,9 @@ public class AthenaOpenFeignProperties {
 
     private String[] basePackages = new String[]{"org.athena"};
 
-    private int connectTimeoutMillis = 3000;
+    private int connectTimeoutMillis = 30000;
 
-    private int readTimeoutMillis = 5000;
+    private int readTimeoutMillis = 60000;
 
     private Logger.Level loggerLevel = Logger.Level.BASIC;
 
