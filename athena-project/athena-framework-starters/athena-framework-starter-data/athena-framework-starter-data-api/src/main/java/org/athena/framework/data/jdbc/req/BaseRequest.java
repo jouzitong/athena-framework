@@ -67,26 +67,6 @@ public class BaseRequest extends ExtensibleProperties implements Serializable {
         return page != null && size != null;
     }
 
-    /**
-     * 构建分页对象
-     *
-     * @param <Page> 分页对象
-     * @return 分页对象
-     */
-    public <Page> Page buildPage() {
-        return null;
-    }
-
-//    public void setSorts(String sorts) {
-//        this.sorts = Lists.newArrayList();
-//        for (String sort : sorts.split(DATA_SPILT)) {
-//            String[] split = sort.split(DATA_TYPE_SPILT);
-//            String field = split[0].trim();
-//            String sortType = split[1] == null ? Sort.DESC : split[1].trim();
-//            this.sorts.add(Sort.of(field, sortType));
-//        }
-//    }
-
     public void setQueries(String filedQueries) {
         if (filedQueries == null) {
             this.filedQueries = Lists.newArrayList();

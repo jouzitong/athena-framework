@@ -21,7 +21,7 @@ import java.util.List;
 public class DefaultTableMetaBuilder implements ITableMetaBuilder {
 
     private Class<?> clazz;
-    private List<ITableMetaParser> parsers = new ArrayList<>();
+    private final List<ITableMetaParser> parsers = new ArrayList<>();
 
     @Override
     public ITableMetaBuilder clazz(Class<?> clazz) {
