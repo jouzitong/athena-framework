@@ -69,8 +69,8 @@ public class GatewayTokenFilter extends OncePerRequestFilter {
         TokenContext tokenContext = tokenManager.parseV2(token);
 
         if (!tokenContext.authenticated()) {
-            LOGGER.debug("Gateway token rejected, uri={}, status={}", request.getRequestURI(), tokenContext.status());
             if (properties.isRequireToken()) {
+            LOGGER.debug("Gateway token rejected, uri={}, status={}", request.getRequestURI(), tokenContext.status());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setCharacterEncoding("UTF-8");
                 response.setContentType("text/plain;charset=UTF-8");
