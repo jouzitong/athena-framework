@@ -1,9 +1,6 @@
 package org.athena.framework.data.jdbc.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * @author zhouzhitong

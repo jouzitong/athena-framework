@@ -23,10 +23,10 @@ Athena Framework 是一个面向 Java 业务系统的基础能力框架，以 Ma
     - `data-jdbc`：基础请求/分页模型、通用 controller / service 抽象、字段类型与查询模型
     - `data-jpa`：基础实体、审计、逻辑删除、Repository 抽象
     - `data-mybatis`：DDL 生成、SQL 重写、实体元信息、通用 Mapper 等
+    - `data-mongo`：MongoDB 依赖聚合入口
   - `athena-framework-starter-es`：ES 相关基础配置
   - `athena-framework-starter-nacos`：Nacos 配置基础
   - `athena-framework-starter-seata`：分布式事务相关配置
-  - `athena-framework-data-starter-mongo`：MongoDB 相关适配
   - `athena-framework-starters-ai`：AI 相关 starter 占位/扩展
 
 ### 3) athena-framework-test
