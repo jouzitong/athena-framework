@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.arthena.framework.common.constant.ErrCodeConstant;
 import org.arthena.framework.common.context.SystemContext;
@@ -22,8 +23,6 @@ import org.athena.framework.security.auth.core.config.SecurityAuthProperties;
 import org.athena.framework.security.auth.core.extractor.CredentialExtractor;
 import org.athena.framework.security.auth.core.gateway.GatewayRequestHeaderValidator;
 import org.athena.framework.security.auth.core.web.SecurityHttpResponseWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,8 +35,8 @@ import java.util.List;
  * 安全上下文过滤器。
  * 从请求中提取 token 并解析为 {@link UserContext}，随后绑定到线程上下文供后续链路使用。
  */
+@Slf4j
 public class SecurityContextFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityContextFilter.class);
 
     private static final String INSTANCE_NOT_FOUND_PREFIX = "Unable to find instance for ";
 
@@ -75,10 +74,14 @@ public class SecurityContextFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
         try {
+            String uri = request.getRequestURI();
+            LOGGER.debug("Processing request, uri={}", uri);
             boolean ignored = isIgnored(request.getRequestURI());
 //            String token = ignored ? null : credentialExtractor.extractToken(request);
             String token = credentialExtractor.extractToken(request);
+            LOGGER.debug("Token extracted, token={}", token);
             UserContext userContext = null;
             TokenParseStatus tokenParseStatus = TokenParseStatus.EMPTY;
 //            if (StringUtils.isBlank(token)) {
@@ -110,8 +113,8 @@ public class SecurityContextFilter extends OncePerRequestFilter {
                             enricher.enrich(mutableUserContext);
                         }
                     }
-                    LOGGER.debug("Security context set user id = {} for uri={}",
-                            userContext.subject().username(), request.getRequestURI());
+                    LOGGER.debug("Security context set user id = {}",
+                            userContext.subject().username());
                     SystemContext.setUserContext(userContext);
                     if (userContext.subject() != null) {
                         SystemContext.setTenantId(userContext.subject().tenantId());
