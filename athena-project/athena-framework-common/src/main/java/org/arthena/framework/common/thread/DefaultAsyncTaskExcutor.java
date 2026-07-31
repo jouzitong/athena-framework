@@ -27,14 +27,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 默认异步任务管理器实现。
+ * 默认异步任务执行器实现。
  *
  * @author zhouzhitong
  * @since 2026/7/2
  */
 @Component
 @Slf4j
-public class DefaultAsyncTaskManager implements AsyncTaskManager {
+public class DefaultAsyncTaskExcutor implements AsyncTaskExcutor {
 
     private final ConcurrentMap<String, ManagedTask> taskMap = new ConcurrentHashMap<>(32);
 
@@ -46,12 +46,12 @@ public class DefaultAsyncTaskManager implements AsyncTaskManager {
 
     private final ScheduledThreadPoolExecutor scheduler;
 
-    public DefaultAsyncTaskManager() {
+    public DefaultAsyncTaskExcutor() {
         this(Collections.emptyList());
     }
 
     @Autowired
-    public DefaultAsyncTaskManager(List<AsyncTaskContextPropagator> propagators) {
+    public DefaultAsyncTaskExcutor(List<AsyncTaskContextPropagator> propagators) {
         List<AsyncTaskContextPropagator> orderedPropagators = new ArrayList<>(propagators);
         orderedPropagators.sort(Comparator.comparingInt(AsyncTaskContextPropagator::getOrder));
         this.propagators = Collections.unmodifiableList(orderedPropagators);
@@ -75,13 +75,18 @@ public class DefaultAsyncTaskManager implements AsyncTaskManager {
     }
 
     @Override
-    public String submit(Runnable runnable) {
+    public Future<?> submit(Runnable task) {
         assertRunning();
         String taskId = nextTaskId();
-        FutureTask<?> futureTask = new FutureTask<>(wrapOnce(taskId, runnable), null);
+        FutureTask<?> futureTask = new FutureTask<>(wrapOnce(taskId, task), null) {
+            @Override
+            protected void done() {
+                taskMap.remove(taskId);
+            }
+        };
         taskMap.put(taskId, new ManagedTask(TaskType.ASYNC, futureTask));
         asyncExecutor.execute(futureTask);
-        return taskId;
+        return futureTask;
     }
 
     @Override
@@ -292,7 +297,7 @@ public class DefaultAsyncTaskManager implements AsyncTaskManager {
 
     private void assertRunning() {
         if (closed.get()) {
-            throw new IllegalStateException("AsyncTaskManager 已关闭");
+            throw new IllegalStateException("AsyncTaskExcutor 已关闭");
         }
     }
 

@@ -1,6 +1,6 @@
 package org.arthena.framework.common.thread.schedule;
 
-import org.arthena.framework.common.thread.AsyncTaskManager;
+import org.arthena.framework.common.thread.AsyncTaskExcutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * 任务管理器
  *
- * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskManager}，
+ * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskExcutor}，
  * 定时循环任务使用
- * {@link org.arthena.framework.common.thread.AsyncTaskManager#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}
+ * {@link org.arthena.framework.common.thread.AsyncTaskExcutor#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}
  * 或
- * {@link org.arthena.framework.common.thread.AsyncTaskManager#scheduleAtFixedRate(Runnable, long, long, TimeUnit)}。
+ * {@link org.arthena.framework.common.thread.AsyncTaskExcutor#scheduleAtFixedRate(Runnable, long, long, TimeUnit)}。
  *
  * @author zhouzhitong
  * @since 2021/8/16
@@ -24,21 +24,21 @@ import java.util.concurrent.TimeUnit;
 @Deprecated(since = "1.4.2", forRemoval = true)
 public class ScheduleMonitor implements Closeable {
 
-    private final AsyncTaskManager asyncTaskManager;
+    private final AsyncTaskExcutor asyncTaskExcutor;
 
-    public ScheduleMonitor(AsyncTaskManager asyncTaskManager) {
-        this.asyncTaskManager = asyncTaskManager;
+    public ScheduleMonitor(AsyncTaskExcutor asyncTaskExcutor) {
+        this.asyncTaskExcutor = asyncTaskExcutor;
     }
 
     /**
      * 修改任务可用核心线程数
      *
      * @param poolSize 核心线程数
-     * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskManager#setSchedulerPoolSize(int)}
+     * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskExcutor#setSchedulerPoolSize(int)}
      */
     @Deprecated(since = "1.4.2", forRemoval = true)
     public void setPoolSize(Integer poolSize) {
-        asyncTaskManager.setSchedulerPoolSize(poolSize);
+        asyncTaskExcutor.setSchedulerPoolSize(poolSize);
     }
 
     /**
@@ -46,11 +46,11 @@ public class ScheduleMonitor implements Closeable {
      * @param period   任务执行间隔时间
      * @param timeUnit 间隔时间单位
      * @deprecated 请改用
-     * {@link org.arthena.framework.common.thread.AsyncTaskManager#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}
+     * {@link org.arthena.framework.common.thread.AsyncTaskExcutor#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}
      */
     @Deprecated(since = "1.4.2", forRemoval = true)
     public String schedule(Runnable runnable, Long period, TimeUnit timeUnit) {
-        return asyncTaskManager.scheduleWithFixedDelay(runnable, 0L, period, timeUnit);
+        return asyncTaskExcutor.scheduleWithFixedDelay(runnable, 0L, period, timeUnit);
     }
 
     /**
@@ -58,21 +58,21 @@ public class ScheduleMonitor implements Closeable {
      *
      * @param id 任务ID
      * @return 是否取消成功
-     * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskManager#cancel(String)}
+     * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskExcutor#cancel(String)}
      */
     @Deprecated(since = "1.4.2", forRemoval = true)
     public boolean cancel(String id) {
-        return asyncTaskManager.cancel(id);
+        return asyncTaskExcutor.cancel(id);
     }
 
     /**
      * 关闭定时任务
      *
-     * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskManager#close()}
+     * @deprecated 请改用 {@link org.arthena.framework.common.thread.AsyncTaskExcutor#close()}
      */
     @Deprecated(since = "1.4.2", forRemoval = true)
     @Override
     public void close() {
-        asyncTaskManager.close();
+        asyncTaskExcutor.close();
     }
 }

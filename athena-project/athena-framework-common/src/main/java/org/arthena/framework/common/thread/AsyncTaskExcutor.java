@@ -3,23 +3,24 @@ package org.arthena.framework.common.thread;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 系统异步任务管理器，统一管理普通任务、延迟任务、定时任务和循环任务。
+ * 系统异步任务执行器，统一执行普通任务、延迟任务、定时任务和循环任务。
  *
  * @author zhouzhitong
  * @since 2026/7/2
  */
-public interface AsyncTaskManager {
+public interface AsyncTaskExcutor {
 
     /**
      * 提交一个无返回值的异步任务，任务会立即进入异步线程池等待执行。
      *
-     * @param runnable 待执行的任务
-     * @return 任务唯一标识
+     * @param task 待执行的任务
+     * @return 可用于获取任务执行状态和取消任务的 Future
      */
-    String submit(Runnable runnable);
+    Future<?> submit(Runnable task);
 
     /**
      * 提交一个带返回值的异步任务，任务会立即进入异步线程池等待执行。
