@@ -81,7 +81,7 @@ public class SecurityContextFilter extends OncePerRequestFilter {
             boolean ignored = isIgnored(request.getRequestURI());
 //            String token = ignored ? null : credentialExtractor.extractToken(request);
             String token = credentialExtractor.extractToken(request);
-            LOGGER.debug("Token extracted, token={}", token);
+//            LOGGER.debug("Token extracted, token={}", token);
             UserContext userContext = null;
             TokenParseStatus tokenParseStatus = TokenParseStatus.EMPTY;
 //            if (StringUtils.isBlank(token)) {
