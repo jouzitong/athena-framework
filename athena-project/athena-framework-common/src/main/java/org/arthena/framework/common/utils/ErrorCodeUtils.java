@@ -36,10 +36,7 @@ public class ErrorCodeUtils {
     private static volatile List<ErrorCodeService> errorCodeServices;
     private static final Logger log = LoggerFactory.getLogger(ErrorCodeUtils.class);
 
-    public static String getMsg(Integer code, Object... args) {
-        if (code == null) {
-            return ErrCodeConstant.UN_KNOW_ERROR_MSG;
-        }
+    public static String getMsg(int code, Object... args) {
         String msg = getMsg(code);
         if (msg == null) {
             msg = ErrCodeConstant.UN_KNOW_ERROR_MSG;
