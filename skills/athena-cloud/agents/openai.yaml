@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena Cloud 开发"
+  short_description: "基于 Athena 设计云原生服务集成能力"
+  default_prompt: "Use $athena-cloud to implement and verify Athena cloud integration."

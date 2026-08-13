@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena 消息与通信"
+  short_description: "基于 Athena 实现 Kafka 与消息通道能力"
+  default_prompt: "Use $athena-messaging to implement and verify Athena messaging or communication."

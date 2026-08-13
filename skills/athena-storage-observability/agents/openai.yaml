@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena 存储与可观测性"
+  short_description: "基于 Athena 实现对象存储日志与 ES 能力"
+  default_prompt: "Use $athena-storage-observability to implement and verify Athena storage or observability."

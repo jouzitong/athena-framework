@@ -1,0 +1,191 @@
+{
+  "templates": {
+    "project-minimal": {
+      "description": "Minimal Spring Boot consumer with the Athena BOM and Web starter",
+      "required_artifacts": ["athena-framework-starter-web"],
+      "files": [
+        {"source": "project-minimal/pom.xml.tpl", "destination": "pom.xml"},
+        {"source": "project-minimal/Application.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/{{NAME}}Application.java"},
+        {"source": "project-minimal/application.yml.tpl", "destination": "src/main/resources/application.yml"},
+        {"source": "project-minimal/ApplicationContextTest.java.tpl", "destination": "src/test/java/{{PACKAGE_PATH}}/{{NAME}}ApplicationContextTest.java"}
+      ]
+    },
+    "web-api": {
+      "description": "HTTP API boundary with request, response, controller port, and unit test",
+      "required_artifacts": ["athena-framework-starter-web"],
+      "files": [
+        {"source": "web-api/Request.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/web/{{NAME}}Request.java"},
+        {"source": "web-api/Response.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/web/{{NAME}}Response.java"},
+        {"source": "web-api/Controller.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/web/{{NAME}}Controller.java"},
+        {"source": "web-api/ControllerTest.java.tpl", "destination": "src/test/java/{{PACKAGE_PATH}}/web/{{NAME}}ControllerTest.java"}
+      ]
+    },
+    "data-mybatis-crud": {
+      "description": "Athena MyBatis Entity/DTO/Query/Mapper/Convert/Service/Controller chain",
+      "required_artifacts": ["athena-framework-starter-data-mybatis", "athena-framework-starter-web"],
+      "files": [
+        {"source": "data-mybatis-crud/Entity.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/persistence/{{NAME}}Entity.java"},
+        {"source": "data-mybatis-crud/DTO.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/model/{{NAME}}DTO.java"},
+        {"source": "data-mybatis-crud/Query.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/model/{{NAME}}Query.java"},
+        {"source": "data-mybatis-crud/Mapper.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/persistence/{{NAME}}Mapper.java"},
+        {"source": "data-mybatis-crud/Convert.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/service/{{NAME}}Convert.java"},
+        {"source": "data-mybatis-crud/Service.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/service/{{NAME}}Service.java"},
+        {"source": "data-mybatis-crud/Controller.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/web/{{NAME}}Controller.java"},
+        {"source": "data-mybatis-crud/IntegrationTest.java.tpl", "destination": "src/test/java/{{PACKAGE_PATH}}/web/{{NAME}}ControllerTest.java"}
+      ]
+    },
+    "data-jpa-crud": {
+      "description": "Athena JPA Entity/DTO/Query/Repository/Convert/Service/Controller chain",
+      "required_artifacts": ["athena-framework-starter-data-jpa", "athena-framework-starter-web"],
+      "files": [
+        {"source": "data-jpa-crud/Entity.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/persistence/{{NAME}}Entity.java"},
+        {"source": "data-jpa-crud/DTO.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/model/{{NAME}}DTO.java"},
+        {"source": "data-jpa-crud/Query.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/model/{{NAME}}Query.java"},
+        {"source": "data-jpa-crud/Repository.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/persistence/{{NAME}}Repository.java"},
+        {"source": "data-jpa-crud/Convert.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/service/{{NAME}}Convert.java"},
+        {"source": "data-jpa-crud/Service.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/service/{{NAME}}Service.java"},
+        {"source": "data-jpa-crud/Controller.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/web/{{NAME}}Controller.java"},
+        {"source": "data-jpa-crud/IntegrationTest.java.tpl", "destination": "src/test/java/{{PACKAGE_PATH}}/web/{{NAME}}ControllerTest.java"}
+      ]
+    },
+    "security-extension": {
+      "description": "Consumer-owned Athena security authorization and user-context extension points",
+      "required_artifacts": ["athena-framework-starter-security", "athena-framework-starter-security-token-jwt"],
+      "files": [
+        {"source": "security-extension/SecurityBeansConfiguration.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/security/{{NAME}}SecurityBeansConfiguration.java"},
+        {"source": "security-extension/UserContextEnricher.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/security/{{NAME}}UserContextEnricher.java"},
+        {"source": "security-extension/AuthorizationProvider.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/security/{{NAME}}AuthorizationProvider.java"},
+        {"source": "security-extension/SecurityIntegrationTest.java.tpl", "destination": "src/test/java/{{PACKAGE_PATH}}/security/{{NAME}}SecurityBeansConfigurationTest.java"}
+      ]
+    },
+    "websocket-action": {
+      "description": "WebSocket token/ACL overrides and a request action handler",
+      "required_artifacts": ["athena-framework-starter-websocket"],
+      "files": [
+        {"source": "websocket-action/WsSecurityConfiguration.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/websocket/{{NAME}}WsSecurityConfiguration.java"},
+        {"source": "websocket-action/WsActionHandler.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/websocket/{{NAME}}WsActionHandler.java"},
+        {"source": "websocket-action/WebSocketIntegrationTest.java.tpl", "destination": "src/test/java/{{PACKAGE_PATH}}/websocket/{{NAME}}WsActionHandlerTest.java"}
+      ]
+    },
+    "openfeign-client": {
+      "description": "OpenFeign client discovered by Athena's configured base packages",
+      "required_artifacts": ["athena-framework-starter-cloud-openfeign"],
+      "files": [
+        {"source": "integration/FeignClient.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/client/{{NAME}}Client.java"}
+      ]
+    },
+    "kafka-flow": {
+      "description": "Kafka publisher facade and dynamic-consumer handler",
+      "required_artifacts": ["athena-framework-starter-kafka"],
+      "files": [
+        {"source": "integration/KafkaPublisher.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/messaging/{{NAME}}EventPublisher.java"},
+        {"source": "integration/KafkaConsumer.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/messaging/{{NAME}}EventHandler.java"}
+      ]
+    },
+    "object-storage-facade": {
+      "description": "Business-facing facade over Athena ObjectStorageService",
+      "required_artifacts": ["athena-framework-starter-minio"],
+      "files": [
+        {"source": "integration/ObjectStorageFacade.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/storage/{{NAME}}ObjectStorageFacade.java"}
+      ]
+    },
+    "communication-sender": {
+      "description": "Business-facing sender over Athena CommunicationService",
+      "required_artifacts": ["athena-framework-starter-communication"],
+      "files": [
+        {"source": "integration/CommunicationSender.java.tpl", "destination": "src/main/java/{{PACKAGE_PATH}}/communication/{{NAME}}CommunicationSender.java"}
+      ]
+    },
+    "config-communication": {
+      "description": "Profile fragment for Athena communication channels; providers remain disabled by default",
+      "required_artifacts": ["athena-framework-starter-communication"],
+      "files": [
+        {"source": "config-fragments/communication.yml.tpl", "destination": "src/main/resources/application-athena-communication.yml"}
+      ]
+    },
+    "config-datasource-jpa": {
+      "description": "Profile fragment for a JPA datasource with schema validation and Open Session in View disabled",
+      "required_artifacts": ["athena-framework-starter-data-jpa"],
+      "files": [
+        {"source": "config-fragments/datasource-jpa.yml.tpl", "destination": "src/main/resources/application-athena-jpa.yml"}
+      ]
+    },
+    "config-datasource-mybatis": {
+      "description": "Profile fragment for Athena MyBatis with automatic DDL mutation disabled",
+      "required_artifacts": ["athena-framework-starter-data-mybatis"],
+      "files": [
+        {"source": "config-fragments/datasource-mybatis.yml.tpl", "destination": "src/main/resources/application-athena-mybatis.yml"}
+      ]
+    },
+    "config-dynamic-datasource": {
+      "description": "Profile fragment for strict Athena dynamic datasource routing",
+      "required_artifacts": ["athena-framework-starter-dynamic-datasource"],
+      "files": [
+        {"source": "config-fragments/dynamic-datasource.yml.tpl", "destination": "src/main/resources/application-athena-dynamic-datasource.yml"}
+      ]
+    },
+    "config-kafka": {
+      "description": "Profile fragment for Athena Kafka producer and consumer defaults",
+      "required_artifacts": ["athena-framework-starter-kafka"],
+      "files": [
+        {"source": "config-fragments/kafka.yml.tpl", "destination": "src/main/resources/application-athena-kafka.yml"}
+      ]
+    },
+    "config-logging": {
+      "description": "Profile fragment for Athena logging paths and rollover limits",
+      "required_artifacts": ["athena-framework-starter-log"],
+      "files": [
+        {"source": "config-fragments/logging.yml.tpl", "destination": "src/main/resources/application-athena-logging.yml"}
+      ]
+    },
+    "config-minio": {
+      "description": "Profile fragment for Athena MinIO with environment-backed credentials",
+      "required_artifacts": ["athena-framework-starter-minio"],
+      "files": [
+        {"source": "config-fragments/minio.yml.tpl", "destination": "src/main/resources/application-athena-minio.yml"}
+      ]
+    },
+    "config-nacos": {
+      "description": "Bootstrap fragment for Nacos discovery and configuration",
+      "required_artifacts": ["athena-framework-starter-cloud-nacos"],
+      "files": [
+        {"source": "config-fragments/nacos-bootstrap.yml.tpl", "destination": "src/main/resources/bootstrap-athena-nacos.yml"}
+      ]
+    },
+    "config-openfeign": {
+      "description": "Profile fragment for Athena OpenFeign package scanning and timeouts",
+      "required_artifacts": ["athena-framework-starter-cloud-openfeign"],
+      "files": [
+        {"source": "config-fragments/openfeign.yml.tpl", "destination": "src/main/resources/application-athena-openfeign.yml"}
+      ]
+    },
+    "config-seata": {
+      "description": "Profile fragment for Athena Seata AT transactions",
+      "required_artifacts": ["athena-framework-starter-cloud-seata"],
+      "files": [
+        {"source": "config-fragments/seata.yml.tpl", "destination": "src/main/resources/application-athena-seata.yml"}
+      ]
+    },
+    "config-security-jwt": {
+      "description": "Profile fragment for Athena JWT security with an environment-backed signing secret",
+      "required_artifacts": ["athena-framework-starter-security", "athena-framework-starter-security-token-jwt"],
+      "files": [
+        {"source": "config-fragments/security-jwt.yml.tpl", "destination": "src/main/resources/application-athena-security.yml"}
+      ]
+    },
+    "config-web": {
+      "description": "Profile fragment for Athena Web enum scanning and disabled request signing",
+      "required_artifacts": ["athena-framework-starter-web"],
+      "files": [
+        {"source": "config-fragments/web.yml.tpl", "destination": "src/main/resources/application-athena-web.yml"}
+      ]
+    },
+    "config-websocket": {
+      "description": "Profile fragment for Athena WebSocket limits, heartbeat, resume, and backpressure",
+      "required_artifacts": ["athena-framework-starter-websocket"],
+      "files": [
+        {"source": "config-fragments/websocket.yml.tpl", "destination": "src/main/resources/application-athena-websocket.yml"}
+      ]
+    }
+  }
+}

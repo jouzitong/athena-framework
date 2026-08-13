@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena 实时通信"
+  short_description: "基于 Athena 设计 WebSocket 实时通信能力"
+  default_prompt: "Use $athena-realtime to implement and verify Athena WebSocket features."

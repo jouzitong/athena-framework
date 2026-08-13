@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena Framework 核心"
+  short_description: "共享 Athena 版本、模块与验证工作流"
+  default_prompt: "Use $athena-framework-core to inspect and verify this Athena consumer project."

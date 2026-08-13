@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena 数据开发"
+  short_description: "基于 Athena 设计 MyBatis JPA Mongo 数据层"
+  default_prompt: "Use $athena-data to design and implement Athena persistence."

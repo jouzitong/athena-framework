@@ -49,3 +49,7 @@ build/
 **/*ddl.sql
 
 **/node_modules/
+
+# Project-local Athena Skill runtime caches
+skills/**/__pycache__/
+skills/**/*.pyc

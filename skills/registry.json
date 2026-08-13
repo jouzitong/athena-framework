@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "distribution": "athena-framework-skills",
+  "description": "Installable Codex skills for projects consuming Athena Framework.",
+  "scope": "project",
+  "default_install_root": ".codex/skills",
+  "dependencies_are_project_local": true,
+  "core": "athena-framework-core",
+  "skills": {
+    "athena-framework-core": {
+      "path": "athena-framework-core",
+      "dependencies": []
+    },
+    "athena-web": {
+      "path": "athena-web",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-data": {
+      "path": "athena-data",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-security": {
+      "path": "athena-security",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-cloud": {
+      "path": "athena-cloud",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-messaging": {
+      "path": "athena-messaging",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-realtime": {
+      "path": "athena-realtime",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-storage-observability": {
+      "path": "athena-storage-observability",
+      "dependencies": ["athena-framework-core"]
+    },
+    "athena-testing": {
+      "path": "athena-testing",
+      "dependencies": ["athena-framework-core"]
+    }
+  }
+}

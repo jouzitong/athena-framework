@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena Web 开发"
+  short_description: "基于 Athena 设计 Web API 与 MVC"
+  default_prompt: "Use $athena-web to build and verify an Athena Web API."

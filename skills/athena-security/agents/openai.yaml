@@ -1,0 +1,4 @@
+interface:
+  display_name: "Athena 安全设计"
+  short_description: "基于 Athena 实现认证授权与 RBAC 安全能力"
+  default_prompt: "Use $athena-security to design and verify Athena authentication and authorization."
